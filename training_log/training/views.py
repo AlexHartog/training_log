@@ -50,4 +50,5 @@ def new_session(request):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'training/new_session.html', {'form': form, 'submitted': submitted})
+    return render(request, 'training/new_session.html',
+                  {'form': form, 'submitted': submitted})

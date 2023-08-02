@@ -32,4 +32,5 @@ class Session(models.Model):
 
     def __str__(self):
         """Return a string representation of the model."""
-        return f"{self.user.username.capitalize()} did {self.discipline} on {self.date}"
+        return f"{self.user.username.capitalize()} did " \
+               f"{self.discipline} on {self.date}"

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Strava Authorization{% endblock title %}
+
+
+{% block content %}
+{% autoescape off %}
+<h1>Strava authorization</h1>
+Click <a href="{{authorization_url}}">here</a> to authorize the app to import your actitivies from strava.
+{% endautoescape %}
+
+{% endblock content %}
+

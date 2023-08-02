@@ -13,7 +13,7 @@ class SessionForm(ModelForm):
         model = Session
         fields = [
             'discipline', 'date', 'duration', 'distance',
-                  'training_type', 'notes'
+            'training_type', 'notes'
         ]
         labels = {
             'duration': 'Duration (minutes)',

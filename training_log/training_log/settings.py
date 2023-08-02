@@ -35,6 +35,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     # My apps.
     'training',
+    'strava_import',
 
     'django.contrib.admin',
     'django.contrib.auth',
