@@ -1,10 +1,25 @@
+from datetime import date
+
+from django import forms
 from django.forms import ModelForm
-from .models import Discipline
+
+from .models import Session
 
 
-class QuoteForm(ModelForm):
+class SessionForm(ModelForm):
     required_css_class = 'required'
 
     class Meta:
-        model = Discipline
-        fields = ['name']
+        model = Session
+        fields = [
+            'discipline', 'date', 'duration', 'distance',
+                  'training_type', 'notes'
+        ]
+        labels = {
+            'duration': 'Duration (minutes)',
+            'distance': 'Distance (km)',
+        }
+        widgets = {
+            'date': forms.DateInput(
+                attrs={'type': 'date', 'value': date.today()}),
+        }

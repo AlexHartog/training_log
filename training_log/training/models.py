@@ -20,11 +20,11 @@ class TrainingType(models.Model):
         return self.name
 
 
-class Training(models.Model):
+class Session(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
     date = models.DateField()
-    duration = models.DurationField()
+    duration = models.IntegerField()
     distance = models.FloatField()
     training_type = models.ForeignKey(TrainingType, on_delete=models.CASCADE)
     notes = models.TextField(blank=True)
@@ -32,4 +32,4 @@ class Training(models.Model):
 
     def __str__(self):
         """Return a string representation of the model."""
-        return f"{self.user.name} did {self.discipline} on {self.date}"
+        return f"{self.user.username.capitalize()} did {self.discipline} on {self.date}"

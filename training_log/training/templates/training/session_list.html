@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}All Sessions{% endblock title %}
+
+{% block content %}
+<h1>All Sessions</h1>
+
+<table style="border-collapse:collapse">
+  <tr class="quotehdr">
+    <th>ID</th><th>User</th><th>Date</th>
+    <th>Discipline</th><th>Duration</th>
+    <th>Distance</th><th>Training Type</th>
+  </tr>
+  {% for session in all_sessions %}
+  <tr class="quoterow {% cycle '' 'altrow' %}">
+    <td><a href="session/{{ session.id }}">{{ session.id }}</a></td>
+    <td>{{ session.user }}</td>
+    <td>{{ session.date|date:"d-m-y" }}</td>
+    <td>{{ session.discipline }}</td>
+    <td>{{ session.duration }}</td>
+    <td>{{ session.distance }}</td>
+    <td>{{ session.training_type }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock content %}
