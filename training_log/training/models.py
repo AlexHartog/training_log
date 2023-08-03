@@ -38,6 +38,24 @@ class Session(models.Model):
     strava_updated = models.DateTimeField(blank=True, null=True)
     strava_id = models.BigIntegerField(blank=True, null=True)
 
+    @property
+    def formatted_duration(self):
+        """Return the duration as a nicely formatted string."""
+        if self.total_duration:
+            hours = self.total_duration // 3600
+            minutes = (self.total_duration % 3600) // 60
+            return f'{hours}h {minutes}m'
+        else:
+            return 'N/A'
+
+    @property
+    def formatted_distance(self):
+        """Return the distance as a nicely formatted string."""
+        if self.distance:
+            return f'{self.distance/1000:.2f} km'
+        else:
+            return 'N/A'
+
     def __str__(self):
         """Return a string representation of the model."""
         return f"{self.user.username.capitalize()} did " \

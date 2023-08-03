@@ -7,6 +7,34 @@
 {% autoescape off %}
 <h1>Strava activities</h1>
 We are going to show your activities here
+
+{% if imported_sessions %}
+    <p>Imported {{ imported_session|length }} sessions</p>
+    <table>
+        <tr><th>Date</th><th>Discipline</th><th>Duration</th></tr>
+        {% for session in imported_sessions %}
+            <tr>
+                <td>{{ session.date }}</td>
+                <td>{{ session.discipline }}</td>
+                <td>{{ session.formatted_duration }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No sessions imported</p>
+{% endif %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+        {{ message }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
 {% endautoescape %}
 
 {% endblock content %}
