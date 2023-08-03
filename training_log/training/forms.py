@@ -12,11 +12,11 @@ class SessionForm(ModelForm):
     class Meta:
         model = Session
         fields = [
-            'discipline', 'date', 'duration', 'distance',
+            'discipline', 'date', 'total_duration', 'distance',
             'training_type', 'notes'
         ]
         labels = {
-            'duration': 'Duration (minutes)',
+            'total_duration': 'Duration (minutes)',
             'distance': 'Distance (km)',
         }
         widgets = {
