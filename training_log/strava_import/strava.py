@@ -17,9 +17,6 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, '.env'))
 ACTIVITIES_URL = 'https://www.strava.com/api/v3/athlete/activities?per_page=10'
 
 
-
-
-
 def get_activities(user):
     strava_auth = strava_authentication.get_authentication(user)
     if not strava_auth:

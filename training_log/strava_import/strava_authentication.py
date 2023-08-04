@@ -6,13 +6,22 @@ import enum
 
 from django.conf import settings
 from django.utils import timezone
+from pydantic import BaseModel
 
 from .models import StravaAuth
+from .schemas import StravaTokenResponse
+from django.contrib.auth.models import User
 from training.models import Session, Discipline, TrainingType
 
 config = dotenv_values(os.path.join(settings.BASE_DIR, '.env'))
 
 ACCESS_TOKEN_VALIDITY = 3600
+ACCESS_TOKEN_URL = 'https://www.strava.com/oauth/token'
+REDIRECT_URI = 'http://localhost:8000/strava/auth'
+AUTHORIZATION_URL = 'https://www.strava.com/oauth/' \
+                    'authorize?client_id={client_id}&' \
+                    'redirect_uri={redirect_uri}&response_type=code' \
+                    '&scope=activity:read_all'
 
 
 class AuthenticationStatus(enum.Enum):
@@ -21,7 +30,7 @@ class AuthenticationStatus(enum.Enum):
     EXPIRED = 3
 
 
-def get_authentication_status(user):
+def get_authentication_status(user: User):
     try:
         strava_auth = StravaAuth.objects.get(user=user)
     except StravaAuth.DoesNotExist:
@@ -38,12 +47,12 @@ def get_authentication_status(user):
         return AuthenticationStatus.EXPIRED
 
 
-def is_authenticated(user):
+def is_authenticated(user: User):
     return get_authentication_status(user) == \
         AuthenticationStatus.AUTHENTICATED
 
 
-def needs_authorization(user):
+def needs_authorization(user: User):
     print("Checking authorization")
     try:
         strava_auth = StravaAuth.objects.get(user=user)
@@ -55,35 +64,31 @@ def needs_authorization(user):
     return strava_auth.needs_authorization()
 
 
-def get_authentication(user):
-    if is_authenticated(user):
-        return StravaAuth.objects.get(user=user)
-    else:
-        if get_authentication_status(user) == AuthenticationStatus.EXPIRED:
-            refresh_token(user)
-            if is_authenticated(user):
-                return StravaAuth.objects.get(user=user)
+def get_authentication(user: User):
+    strava_auth = StravaAuth.objects.get(user=user)
+    if not strava_auth:
+        return None
+
+    if strava_auth.has_valid_access_token():
+        return strava_auth
+
+    if strava_auth.is_access_token_expired:
+        refresh_token(strava_auth)
+
+        if strava_auth.has_valid_access_token():
+            return strava_auth
 
     return None
 
 
+def get_authorization_url():
+    return AUTHORIZATION_URL.format(
+        client_id=config['STRAVA_CLIENT_ID'],
+        redirect_uri=REDIRECT_URI,
+    )
 
 
-
-def get_authorization():
-    client_id = config['STRAVA_CLIENT_ID']
-    redirect_uri = 'http://127.0.0.1:8000/strava'
-
-    authorization_url = f'https://www.strava.com/oauth/' \
-                        f'authorize?client_id={client_id}&' \
-                        f'redirect_uri={redirect_uri}&response_type=code' \
-                        f'&scope=activity:read_all'
-
-    return authorization_url
-
-
-def refresh_token(strava_auth):
-    access_token_url = 'https://www.strava.com/oauth/token'
+def refresh_token(strava_auth: StravaAuth):
     payload = {
         'client_id': config['STRAVA_CLIENT_ID'],
         'client_secret': config['STRAVA_CLIENT_SECRET'],
@@ -91,29 +96,19 @@ def refresh_token(strava_auth):
         'grant_type': 'refresh_token',
     }
     print("Payload: ", payload)
-    response = requests.post(access_token_url, data=payload)
+    response = requests.post(ACCESS_TOKEN_URL, data=payload)
 
     # TODO: Handle bad response
     if response.status_code != 200:
         print(f'Token request failed {response.status_code}.')
         print(f'Errors: {response.content.decode("utf-8")}')
 
-    # TODO: Use pydance to parse response
-    json_response = response.json()
-    print("response.json(): ", response.json())
-    strava_auth.access_token = json_response['access_token']
-    naive_datetime = datetime.fromtimestamp(json_response['expires_at'])
-    aware_datetime = timezone.make_aware(naive_datetime,
-                                         timezone.get_current_timezone())
-
-    strava_auth.access_token_expires_at = aware_datetime
-    strava_auth.refresh_token = json_response['refresh_token']
-
-    strava_auth.save()
+    # TODO: Do we need to handle bad response?
+    strava_token_response = StravaTokenResponse(**response.json())
+    strava_auth.update_token(strava_token_response)
 
 
 def request_access_token(strava_auth):
-    access_token_url = 'https://www.strava.com/oauth/token'
     payload = {
         'client_id': config['STRAVA_CLIENT_ID'],
         'client_secret': config['STRAVA_CLIENT_SECRET'],
@@ -121,7 +116,7 @@ def request_access_token(strava_auth):
         'grant_type': 'authorization_code',
     }
     print("Payload: ", payload)
-    response = requests.post(access_token_url, data=payload)
+    response = requests.post(ACCESS_TOKEN_URL, data=payload)
 
     # TODO: Handle bad response
     if response.status_code != 200:
@@ -129,19 +124,9 @@ def request_access_token(strava_auth):
         print(f'Errors: {response.content.decode("utf-8")}')
         return
 
-    json_response = response.json()
-    # print("response.json(): ", response.json())
-    strava_auth.access_token = json_response['access_token']
-    print("Expires at: ", json_response['expires_at'])
-    print("Expires at: ", datetime.fromtimestamp(json_response['expires_at']))
-    print("Seconds until expiry", json_response['expires_in'])
-    naive_datetime = datetime.fromtimestamp(json_response['expires_at'])
-    aware_datetime = timezone.make_aware(naive_datetime,
-                                         timezone.get_current_timezone())
+    strava_token_response = StravaTokenResponse(**response.json())
 
-    strava_auth.access_token_expires_at = aware_datetime
-    strava_auth.refresh_token = json_response['refresh_token']
-    strava_auth.save()
+    strava_auth.update_token(strava_token_response)
 
 
 def save_auth(request):

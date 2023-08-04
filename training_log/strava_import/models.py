@@ -1,8 +1,11 @@
+import datetime
+
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from .schemas import StravaTokenResponse
 
 class StravaAuth(models.Model):
     """A strava authentication saved for importing."""
@@ -24,6 +27,13 @@ class StravaAuth(models.Model):
     def has_valid_access_token(self):
         """Return true if the access token is valid."""
         return self.access_token and not self.is_access_token_expired()
+
+    def update_token(self, token_response: StravaTokenResponse):
+        self.access_token = token_response.access_token
+        self.refresh_token = token_response.refresh_token
+        self.access_token_expires_at = token_response.expires_at_datetime
+
+        self.save()
 
     def __str__(self):
         """Return a string representation of the model."""
