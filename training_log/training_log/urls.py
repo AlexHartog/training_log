@@ -16,9 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView
+from training.views import Register
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('training.urls')),
     path('strava/', include('strava_import.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('register/success/',
+         TemplateView.as_view(template_name='registration/success.html'),
+         name='register-success'),
+    path('register/', Register.as_view(), name='register'),
+
 ]

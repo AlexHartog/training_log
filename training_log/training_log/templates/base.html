@@ -16,14 +16,17 @@
     <aside id="rightsidebar">
       <nav id="nav">
         <ul>
-        {% block sidenav %}
-          <li>Menu 1</li>
-          <li>Menu 2</li>
-          <li>Menu 3</li>
-        {% endblock sidenav %}
-<!--          <li><a href="/contact">Contact us</a></li>-->
-<!--          <li><a href="/quote/">Get a Quote</a></li>-->
-<!--          <li><a href="/quote/show">Show Quotes</a></li>-->
+          <li>
+            {% if user.is_authenticated %}
+            Hello, {{ user.username }}. <a href="{% url 'logout' %}?next=/">Logout</a>
+            {% else %}
+            Not logged in. <a href="{% url 'login' %}?next=/">Log in</a>
+            {% endif %}
+          </li>
+          <li><a href="">Training Overview</a></li>
+          <li><a href="/strava">Strava Data</a></li>
+          {% block sidenav %}
+          {% endblock sidenav %}
         </ul>
       </nav>
     </aside>
@@ -35,7 +38,7 @@
     <footer id="footer">Copyright &copy;
       <script type="text/JavaScript">
       document.write(new Date().getFullYear());
-      </script> MyClub
+      </script> TrainingLog
     </footer>
     </div>
   </body>

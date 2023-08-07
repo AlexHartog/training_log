@@ -16,3 +16,19 @@ class StravaTokenResponse(BaseModel):
 
     # class Config:
     #     extra = "allow"
+
+
+class StravaSession(BaseModel):
+    name: str
+    type: str
+    sport_type: str
+    start_date_local: str
+    elapsed_time: int
+    moving_time: int
+    distance: float
+    has_heartrate: bool
+    average_heartrate: float | None = None
+    max_heartrate: float | None = None
+    average_speed: float
+    max_speed: float
+    id: int

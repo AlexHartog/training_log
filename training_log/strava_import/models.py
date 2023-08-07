@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from .schemas import StravaTokenResponse
 
+
 class StravaAuth(models.Model):
     """A strava authentication saved for importing."""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -15,6 +16,7 @@ class StravaAuth(models.Model):
     access_token_expires_at = models.DateTimeField(blank=True, null=True)
     refresh_token = models.CharField(max_length=200, blank=True)
     scope = ArrayField(models.CharField(max_length=200, blank=True))
+    auto_import = models.BooleanField(default=False)
 
     def needs_authorization(self):
         """Return true if the user needs to authorize."""
@@ -38,5 +40,15 @@ class StravaAuth(models.Model):
     def __str__(self):
         """Return a string representation of the model."""
         return f"{self.user.username.capitalize()} authorization"
+
+
+class StravaTypeMapping(models.Model):
+    """A mapping between a strava activity type and a discipline."""
+    strava_type = models.CharField(max_length=200)
+    discipline = models.ForeignKey('training.Discipline', on_delete=models.CASCADE)
+
+    def __str__(self):
+        """Return a string representation of the model."""
+        return f"{self.strava_type} -> {self.discipline.name}"
 
 

@@ -6,7 +6,8 @@ from datetime import datetime
 from django.conf import settings
 from django.utils import timezone
 
-from .models import StravaAuth
+from .models import StravaTypeMapping
+from .schemas import StravaSession
 from . import strava_authentication
 from training.models import Session, Discipline, TrainingType
 
@@ -14,7 +15,7 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, '.env'))
 
 
 # TODO: Where to keep these constants?
-ACTIVITIES_URL = 'https://www.strava.com/api/v3/athlete/activities?per_page=10'
+ACTIVITIES_URL = 'https://www.strava.com/api/v3/athlete/activities?per_page=100'
 
 
 def get_activities(user):
@@ -51,8 +52,20 @@ def get_activities(user):
 
 
 def import_activity(activity, user):
-    if Session.objects.filter(strava_id=activity['id']).exists():
+    strava_session_1 = StravaSession.model_validate(activity)
+
+    print("Activity type: ", strava_session_1.type)
+    print("Activity sport type: ", strava_session_1.sport_type)
+    print("Activity: ", strava_session_1)
+
+    if Session.objects.filter(strava_id=strava_session_1.id).exists():
         print("Activity already imported from strava")
+        return
+
+    discipline = StravaTypeMapping.objects.filter(strava_type=strava_session_1.type).first()
+
+    if not discipline:
+        print("No discipline found for strava type ", strava_session_1.type)
         return
 
     format_string = "%Y-%m-%dT%H:%M:%SZ"
@@ -60,24 +73,26 @@ def import_activity(activity, user):
     # if Session.objects.filter()
     # TODO: How to deal with missing fields?
     # TODO Create conversion from strava activity type to discipline
+    # TODO: If no heart rate skip heart rate
+
     strava_session = Session.objects.create(
         user=user,
-        discipline=Discipline.objects.get(name='Running'),
-        date=datetime.strptime(activity['start_date_local'], format_string).date(),
-        total_duration=activity['elapsed_time'],
-        moving_duration=activity['moving_time'],
-        distance=activity['distance'],
+        discipline=discipline.discipline,
+        date=datetime.strptime(strava_session_1.start_date_local, format_string).date(),
+        total_duration=strava_session_1.elapsed_time,
+        moving_duration=strava_session_1.moving_time,
+        distance=strava_session_1.distance,
         training_type=None,
         date_added=timezone.now(),
-        average_hr=activity['average_heartrate'],
-        max_hr=activity['max_heartrate'],
-        average_speed=activity['average_speed'],
-        max_speed=activity['max_speed'],
+        average_hr=strava_session_1.average_heartrate,
+        max_hr=strava_session_1.max_heartrate,
+        average_speed=strava_session_1.average_speed,
+        max_speed=strava_session_1.max_speed,
         strava_updated=timezone.now(),
-        strava_id=activity['id']
+        strava_id=strava_session_1.id
     )
     strava_session.save()
-    print("Imported session from strava with name ", activity['name'])
+    print("Imported session from strava with name ", strava_session_1.name)
     return strava_session
 
     # If not, create activity

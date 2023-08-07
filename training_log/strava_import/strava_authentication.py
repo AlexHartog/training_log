@@ -148,7 +148,8 @@ def save_auth(request):
         code=code,
         # access_token=access_token,
         # access_token_retrieved_at=datetime.now(),
-        scope=scope
+        scope=scope,
+        auto_import=True,
     )
     StravaAuth.objects.filter(user=request.user).delete()
     strava_auth.save()

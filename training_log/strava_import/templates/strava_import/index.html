@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Get strava data{% endblock title %}
+
+
+{% block content %}
+{% autoescape off %}
+<h1>Strava import</h1>
+{% if imported_sessions %}
+    <p>Imported {{ imported_sessions|length }} sessions {% if days_back > 1 %} in last {{ days_back }} days{% else %} since yesterday{% endif %}.</p>
+    <table>
+        <tr><th>Date</th><th>Discipline</th><th>Duration</th><th>Imported at</th></tr>
+        {% for session in imported_sessions %}
+            <tr>
+                <td>{{ session.date }}</td>
+                <td>{{ session.discipline }}</td>
+                <td>{{ session.formatted_duration }}</td>
+                <td>{{ session.strava_updated }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No sessions imported</p>
+{% endif %}
+
+
+{% if user_auth.auto_import %}
+<p class="ok">Auto import is enabled <a href="{% url 'strava-auto-import' 0 %}?next=/">Disable</a></p>
+{% else %}
+<p class="highlight">Auto import is disabled. <a href="{% url 'strava-auto-import' 1 %}?next=/">Enable now</a></p>
+{% endif %}
+
+<p><a href="{% url 'strava-data' %}?next=/">Run manual import</a></p>
+
+
+{% endautoescape %}
+
+{% endblock content %}
+

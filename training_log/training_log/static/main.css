@@ -147,3 +147,13 @@ padding: 5px 10px;
 .quote td {
     padding: 5px 10px;
 }
+
+.highlight {
+    font-weight: bold;
+    color: red;
+}
+
+.ok {
+    font-weight: bold;
+    color: green;
+}
