@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from .models import StravaAuth
 from .schemas import StravaTokenResponse
 from django.contrib.auth.models import User
-from training.models import Session, Discipline, TrainingType
+from training.models import TrainingSession, Discipline, TrainingType
 
 config = dotenv_values(os.path.join(settings.BASE_DIR, '.env'))
 

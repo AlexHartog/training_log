@@ -20,7 +20,7 @@ class TrainingType(models.Model):
         return self.name
 
 
-class Session(models.Model):
+class TrainingSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
     date = models.DateField()

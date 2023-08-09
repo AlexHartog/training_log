@@ -8,8 +8,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 
-from .models import Session
+from .models import TrainingSession
 from .forms import SessionForm
+from . import stats
 
 
 def index(request):
@@ -32,7 +33,7 @@ class SessionList(LoginRequiredMixin, ListView):
     context_object_name = 'all_sessions'
 
     def get_queryset(self):
-        return Session.objects.filter(user=self.request.user)
+        return TrainingSession.objects.filter(user=self.request.user)
 
 
 class SessionView(LoginRequiredMixin, DetailView):
@@ -40,7 +41,7 @@ class SessionView(LoginRequiredMixin, DetailView):
     context_object_name = 'session'
 
     def get_queryset(self):
-        session = Session.objects.filter(user=self.request.user)
+        session = TrainingSession.objects.filter(user=self.request.user)
         return session
 
 
@@ -62,5 +63,14 @@ def new_session(request):
         if 'submitted' in request.GET:
             submitted = True
 
+    print("Rendering")
     return render(request, 'training/new_session.html',
                   {'form': form, 'submitted': submitted})
+
+
+def all_stats(request):
+    """Show stats for all users."""
+    player_stats = stats.AllPlayerStats()
+    context = {'players': player_stats.players, 'stats': player_stats.stats}
+
+    return render(request, 'training/all_stats.html', context=context)

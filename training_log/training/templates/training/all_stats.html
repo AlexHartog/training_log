@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}User Stats{% endblock title %}
+
+{% block content %}
+<h1>Overall Stats</h1>
+
+<table style="border-collapse:collapse">
+  <tr class="stats">
+    <th>Stat</th>
+    {% for player in players %}
+      <th>{{ player }}</th>
+    {% endfor %}
+  </tr>
+<!--    <th>Training Type</th>-->
+  {% for stat_name, stats_list in stats.items %}
+  <tr class="stats {% cycle '' 'altrow' %}">
+    <td><strong>{{ stat_name }}</strong></td>
+    {% for stat in stats_list %}
+      <td>{{ stat }}</td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock content %}

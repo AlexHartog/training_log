@@ -3,14 +3,14 @@ from datetime import date
 from django import forms
 from django.forms import ModelForm
 
-from .models import Session
+from .models import TrainingSession
 
 
 class SessionForm(ModelForm):
     required_css_class = 'required'
 
     class Meta:
-        model = Session
+        model = TrainingSession
         fields = [
             'discipline', 'date', 'total_duration', 'distance',
             'training_type', 'notes'

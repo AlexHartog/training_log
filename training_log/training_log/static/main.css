@@ -157,3 +157,19 @@ padding: 5px 10px;
     font-weight: bold;
     color: green;
 }
+
+.stats th {
+    background-color: #4c4c4c;
+    color: white;
+    text-align: center;
+    padding: 8px 5px;
+    border: none;
+}
+
+.stats td {
+    padding: 10px;
+}
+
+.altrow {
+    background-color: #e0e0e0;
+}

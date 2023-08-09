@@ -5,20 +5,31 @@ from datetime import datetime
 
 from django.conf import settings
 from django.utils import timezone
+from django.contrib.auth.models import User
 
-from .models import StravaTypeMapping
+from .models import StravaTypeMapping, StravaAuth
 from .schemas import StravaSession
 from . import strava_authentication
-from training.models import Session, Discipline, TrainingType
+from training.models import TrainingSession, Discipline, TrainingType
 
 config = dotenv_values(os.path.join(settings.BASE_DIR, '.env'))
 
 
 # TODO: Where to keep these constants?
-ACTIVITIES_URL = 'https://www.strava.com/api/v3/athlete/activities?per_page=100'
+PER_PAGE = 5
+ACTIVITIES_URL = 'https://www.strava.com/api/v3/athlete/' \
+                 'activities?per_page={per_page}'.format(per_page=PER_PAGE)
 
 
-def get_activities(user):
+def strava_sync():
+    print("Syncing")
+    for strava_auth in StravaAuth.objects.all():
+        if strava_auth.auto_import:
+            print("Running auto import for ", strava_auth.user)
+            get_activities(strava_auth.user)
+
+
+def get_activities(user: User):
     strava_auth = strava_authentication.get_authentication(user)
     if not strava_auth:
         # TODO: Better exception
@@ -58,7 +69,7 @@ def import_activity(activity, user):
     print("Activity sport type: ", strava_session_1.sport_type)
     print("Activity: ", strava_session_1)
 
-    if Session.objects.filter(strava_id=strava_session_1.id).exists():
+    if TrainingSession.objects.filter(strava_id=strava_session_1.id).exists():
         print("Activity already imported from strava")
         return
 
@@ -72,10 +83,10 @@ def import_activity(activity, user):
 
     # if Session.objects.filter()
     # TODO: How to deal with missing fields?
-    # TODO Create conversion from strava activity type to discipline
-    # TODO: If no heart rate skip heart rate
 
-    strava_session = Session.objects.create(
+    # TODO: Make better conversion. We can make the schema have aliases and
+    #       then the schema has the same field names as the model
+    strava_session = TrainingSession.objects.create(
         user=user,
         discipline=discipline.discipline,
         date=datetime.strptime(strava_session_1.start_date_local, format_string).date(),

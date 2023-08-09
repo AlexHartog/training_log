@@ -6,9 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
+from django.utils import timezone
 
 from .models import StravaAuth
-from training.models import Session
+from training.models import TrainingSession
 from . import strava, strava_authentication
 from .utils import get_timezone_aware_dt
 
@@ -19,12 +20,17 @@ DAYS_BACK = 10
 def index(request):
     if strava_authentication.needs_authorization(request.user):
         return render(request, 'strava_import/strava_auth.html',
-                      {'authorization_url': strava_authentication.get_authorization_url()})
+                      {'authorization_url':
+                       strava_authentication.get_authorization_url()})
 
-    imported_sessions = Session.objects.filter(user=request.user, strava_updated__gte=get_timezone_aware_dt(datetime.datetime.now()-datetime.timedelta(days=DAYS_BACK)))
+    imported_sessions = TrainingSession.objects.filter(
+        user=request.user,
+        strava_updated__gte=timezone.now() - datetime.timedelta(days=DAYS_BACK)
+    ).order_by('-strava_updated', '-date')
     user_auth = StravaAuth.objects.get(user=request.user)
 
-    context = {'imported_sessions': imported_sessions, 'days_back': DAYS_BACK, 'user_auth': user_auth}
+    context = {'imported_sessions': imported_sessions, 'days_back': DAYS_BACK,
+               'user_auth': user_auth}
     return render(request, 'strava_import/index.html', context=context)
 
 
@@ -50,12 +56,7 @@ def get_strava_data(request):
         return redirect(request.path)
 
     if not strava_authentication.needs_authorization(request.user):
-        context = {'imported_sessions': []}
-        # try:
-        context['imported_sessions'] = strava.get_activities(request.user)
-        # except Exception as e:
-        #     print("Exception: ", e)
-        #     messages.add_message(request, messages.ERROR, 'Error importing data')
+        context = {'imported_sessions': strava.get_activities(request.user)}
         return render(request, 'strava_import/strava_import.html', context)
     else:
         print("We don't have proper authorization yet")

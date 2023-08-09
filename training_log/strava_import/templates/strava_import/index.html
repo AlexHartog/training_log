@@ -6,6 +6,15 @@
 {% block content %}
 {% autoescape off %}
 <h1>Strava import</h1>
+
+{% if user_auth.auto_import %}
+<p class="ok">Auto import is enabled <a href="{% url 'strava-auto-import' 0 %}?next=/">Disable</a></p>
+{% else %}
+<p class="highlight">Auto import is disabled. <a href="{% url 'strava-auto-import' 1 %}?next=/">Enable now</a></p>
+{% endif %}
+
+<p><a href="{% url 'strava-data' %}?next=/">Run manual import</a></p>
+
 {% if imported_sessions %}
     <p>Imported {{ imported_sessions|length }} sessions {% if days_back > 1 %} in last {{ days_back }} days{% else %} since yesterday{% endif %}.</p>
     <table>
@@ -24,13 +33,6 @@
 {% endif %}
 
 
-{% if user_auth.auto_import %}
-<p class="ok">Auto import is enabled <a href="{% url 'strava-auto-import' 0 %}?next=/">Disable</a></p>
-{% else %}
-<p class="highlight">Auto import is disabled. <a href="{% url 'strava-auto-import' 1 %}?next=/">Enable now</a></p>
-{% endif %}
-
-<p><a href="{% url 'strava-data' %}?next=/">Run manual import</a></p>
 
 
 {% endautoescape %}

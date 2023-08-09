@@ -23,8 +23,9 @@
             Not logged in. <a href="{% url 'login' %}?next=/">Log in</a>
             {% endif %}
           </li>
-          <li><a href="">Training Overview</a></li>
-          <li><a href="/strava">Strava Data</a></li>
+          <li><a href="{% url 'all-stats' %}">Training Overview</a></li>
+          <li><a href="{% url 'new-session' %}">Add training</a></li>
+          <li><a href="{% url 'strava-index' %}">Strava Data</a></li>
           {% block sidenav %}
           {% endblock sidenav %}
         </ul>
