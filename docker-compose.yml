@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./training_log
+    command: python manage.py runserver 0.0.0.0:5000
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env

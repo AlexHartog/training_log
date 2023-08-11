@@ -19,9 +19,7 @@ DAYS_BACK = 10
 @login_required(login_url=reverse_lazy('login'))
 def index(request):
     if strava_authentication.needs_authorization(request.user):
-        return render(request, 'strava_import/strava_auth.html',
-                      {'authorization_url':
-                       strava_authentication.get_authorization_url()})
+        return redirect('strava-auth')
 
     imported_sessions = TrainingSession.objects.filter(
         user=request.user,
@@ -35,6 +33,16 @@ def index(request):
 
 
 @login_required(login_url=reverse_lazy('login'))
+def strava_auth(request):
+    django_port = request.META['SERVER_PORT']
+    context = {
+        'authorization_url':
+            strava_authentication.get_authorization_url(django_port=django_port)
+    }
+    return render(request, 'strava_import/strava_auth.html',context=context)
+
+
+@login_required(login_url=reverse_lazy('login'))
 def enable_auto_import(request, enable: int):
     user_auth = StravaAuth.objects.get(user=request.user)
     user_auth.auto_import = True if enable == 1 else False
@@ -43,7 +51,7 @@ def enable_auto_import(request, enable: int):
 
 
 @login_required(login_url=reverse_lazy('login'))
-def strava_auth(request):
+def save_strava_auth(request):
     if request.method == 'GET' and 'code' in request.GET:
         strava_authentication.save_auth(request)
         return redirect('strava-data')
@@ -61,5 +69,4 @@ def get_strava_data(request):
     else:
         print("We don't have proper authorization yet")
 
-    return render(request, 'strava_import/strava_auth.html',
-                  {'authorization_url': strava_authentication.get_authorization_url()})
+    return redirect('strava-auth')

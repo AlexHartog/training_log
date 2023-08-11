@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from dotenv import dotenv_values
+from dotenv import load_dotenv
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -81,18 +82,19 @@ WSGI_APPLICATION = 'training_log.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-config = dotenv_values(os.path.join(BASE_DIR, '.env'))
+# config = dotenv_values(os.path.join(BASE_DIR, '.env'))
+load_dotenv()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'OPTIONS': {
-            'options': f'-c search_path={config["DB_SCHEMA"]}',
+            'options': f'-c search_path={os.getenv("DB_SCHEMA")}',
         },
-        'NAME': config['DB_NAME'],
-        'USER': config['DB_USER'],
-        'PASSWORD': config['DB_PASSWORD'],
-        'HOST': config['DB_HOST'],
-        'PORT': config['DB_PORT'],
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 

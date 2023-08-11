@@ -17,7 +17,7 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, '.env'))
 
 ACCESS_TOKEN_VALIDITY = 3600
 ACCESS_TOKEN_URL = 'https://www.strava.com/oauth/token'
-REDIRECT_URI = 'http://localhost:8000/strava/auth'
+REDIRECT_URI = 'http://localhost:{django_port}/strava/save_auth'
 AUTHORIZATION_URL = 'https://www.strava.com/oauth/' \
                     'authorize?client_id={client_id}&' \
                     'redirect_uri={redirect_uri}&response_type=code' \
@@ -81,17 +81,17 @@ def get_authentication(user: User):
     return None
 
 
-def get_authorization_url():
+def get_authorization_url(django_port = 8000):
     return AUTHORIZATION_URL.format(
-        client_id=config['STRAVA_CLIENT_ID'],
-        redirect_uri=REDIRECT_URI,
+        client_id=os.getenv('STRAVA_CLIENT_ID'),
+        redirect_uri=REDIRECT_URI.format(django_port=django_port),
     )
 
 
 def refresh_token(strava_auth: StravaAuth):
     payload = {
-        'client_id': config['STRAVA_CLIENT_ID'],
-        'client_secret': config['STRAVA_CLIENT_SECRET'],
+        'client_id': os.getenv('STRAVA_CLIENT_ID'),
+        'client_secret': os.getenv('STRAVA_CLIENT_SECRET'),
         'refresh_token': strava_auth.refresh_token,
         'grant_type': 'refresh_token',
     }
@@ -110,8 +110,8 @@ def refresh_token(strava_auth: StravaAuth):
 
 def request_access_token(strava_auth):
     payload = {
-        'client_id': config['STRAVA_CLIENT_ID'],
-        'client_secret': config['STRAVA_CLIENT_SECRET'],
+        'client_id': os.getenv('STRAVA_CLIENT_ID'),
+        'client_secret': os.getenv('STRAVA_CLIENT_SECRET'),
         'code': strava_auth.code,
         'grant_type': 'authorization_code',
     }
