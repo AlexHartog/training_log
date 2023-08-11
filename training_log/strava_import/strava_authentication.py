@@ -17,7 +17,7 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, '.env'))
 
 ACCESS_TOKEN_VALIDITY = 3600
 ACCESS_TOKEN_URL = 'https://www.strava.com/oauth/token'
-REDIRECT_URI = 'http://localhost:{django_port}/strava/save_auth'
+REDIRECT_URI = 'http://{http_host}/strava/save_auth'
 AUTHORIZATION_URL = 'https://www.strava.com/oauth/' \
                     'authorize?client_id={client_id}&' \
                     'redirect_uri={redirect_uri}&response_type=code' \
@@ -81,11 +81,11 @@ def get_authentication(user: User):
     return None
 
 
-def get_authorization_url(django_port=8000):
+def get_authorization_url(http_host):
     # TODO: Add better handling if strava client id or secret is not set
     return AUTHORIZATION_URL.format(
         client_id=os.getenv('STRAVA_CLIENT_ID'),
-        redirect_uri=REDIRECT_URI.format(django_port=django_port),
+        redirect_uri=REDIRECT_URI.format(http_host=http_host),
     )
 
 

@@ -35,9 +35,14 @@ def index(request):
 @login_required(login_url=reverse_lazy('login'))
 def strava_auth(request):
     django_port = request.META['SERVER_PORT']
+    for key, value in request.META.items():
+        print(key, ":", value)
+
+    http_host = request.META['HTTP_HOST']
+
     context = {
         'authorization_url':
-            strava_authentication.get_authorization_url(django_port=django_port)
+            strava_authentication.get_authorization_url(http_host=http_host)
     }
     return render(request, 'strava_import/strava_auth.html',context=context)
 
