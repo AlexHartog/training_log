@@ -81,7 +81,8 @@ def get_authentication(user: User):
     return None
 
 
-def get_authorization_url(django_port = 8000):
+def get_authorization_url(django_port=8000):
+    # TODO: Add better handling if strava client id or secret is not set
     return AUTHORIZATION_URL.format(
         client_id=os.getenv('STRAVA_CLIENT_ID'),
         redirect_uri=REDIRECT_URI.format(django_port=django_port),
