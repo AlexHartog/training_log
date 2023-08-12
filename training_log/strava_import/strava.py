@@ -16,7 +16,7 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, '.env'))
 
 
 # TODO: Where to keep these constants?
-PER_PAGE = 5
+PER_PAGE = 100
 ACTIVITIES_URL = 'https://www.strava.com/api/v3/athlete/' \
                  'activities?per_page={per_page}'.format(per_page=PER_PAGE)
 
@@ -27,7 +27,6 @@ def strava_sync():
         if strava_auth.auto_import:
             print("Running auto import for ", strava_auth.user)
             get_activities(strava_auth.user)
-
 
 def get_activities(user: User):
     strava_auth = strava_authentication.get_authentication(user)
@@ -62,6 +61,19 @@ def get_activities(user: User):
     return imported_sessions
 
 
+def get_discipline(activity):
+    discipline = StravaTypeMapping.objects.filter(
+        strava_type=activity.type).first()
+
+    if not discipline:
+        print("No discipline found for strava type ", activity.type)
+        print("Adding this to database")
+        discipline = StravaTypeMapping(strava_type=activity.type)
+        discipline.save()
+
+    return discipline
+
+
 def import_activity(activity, user):
     strava_session_1 = StravaSession.model_validate(activity)
 
@@ -69,13 +81,14 @@ def import_activity(activity, user):
     print("Activity sport type: ", strava_session_1.sport_type)
     print("Activity: ", strava_session_1)
 
+    # TODO: Should we move this to not query the database for every activity?
     if TrainingSession.objects.filter(strava_id=strava_session_1.id).exists():
         print("Activity already imported from strava")
         return
 
-    discipline = StravaTypeMapping.objects.filter(strava_type=strava_session_1.type).first()
+    discipline = get_discipline(strava_session_1)
 
-    if not discipline:
+    if not discipline.discipline:
         print("No discipline found for strava type ", strava_session_1.type)
         return
 

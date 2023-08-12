@@ -45,10 +45,12 @@ class StravaAuth(models.Model):
 class StravaTypeMapping(models.Model):
     """A mapping between a strava activity type and a discipline."""
     strava_type = models.CharField(max_length=200)
-    discipline = models.ForeignKey('training.Discipline', on_delete=models.CASCADE)
+    discipline = models.ForeignKey('training.Discipline',
+                                   on_delete=models.SET_NULL,
+                                   null=True, blank=True)
 
     def __str__(self):
         """Return a string representation of the model."""
-        return f"{self.strava_type} -> {self.discipline.name}"
+        return f"{self.strava_type} -> {self.discipline.name if self.discipline else 'None'}"
 
 
