@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     # Third party apps.
 
+    'django_crontab',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -143,4 +144,8 @@ STATICFILES_DIRS = [BASE_DIR / 'training_log/static']
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CRONJOB = [
+    ('0 * * * *', 'strava_import.strava.strava_sync'),
+]
 
