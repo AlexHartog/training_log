@@ -12,6 +12,12 @@ Activate the virtual environment using `source venv/bin/activate` (Linux) or
 Install the requirements using `pip install -r requirements.txt`
 
 
+#### Migrating in docker compose
+
+Run `docker ps` to get the container id of the traininglog container
+Run `docker exec -t -i 66175bfd6ae6 bash` (relace the container id with the one you got from the previous command)
+
+
 
 ## TODO
 ### First release
@@ -24,4 +30,8 @@ Install the requirements using `pip install -r requirements.txt`
 - [] Statistics 
 - [] Calendar
 - [] Supplement existing training data with strava data
-- 
+
+### Important 
+- [] Fix migrations in docker compose. What is happening? It thinks it's on version 1
+
+

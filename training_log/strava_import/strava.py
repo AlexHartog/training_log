@@ -28,6 +28,7 @@ def strava_sync():
             print("Running auto import for ", strava_auth.user)
             get_activities(strava_auth.user)
 
+
 def get_activities(user: User):
     strava_auth = strava_authentication.get_authentication(user)
     if not strava_auth:
