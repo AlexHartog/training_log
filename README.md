@@ -22,7 +22,7 @@ Run `docker exec -t -i 66175bfd6ae6 bash` (relace the container id with the one 
 ## TODO
 ### First release
 - [x] Add a good overview of all training
-- [] Create a cronjob for strava imports (need to develop on Linux)
+- [] Create a cronjob for strava imports (need to develop on Linux or use another scheduler)
 - [] Clean up data
 - [x] Add a link to add manual training
 
@@ -32,6 +32,14 @@ Run `docker exec -t -i 66175bfd6ae6 bash` (relace the container id with the one 
 - [] Supplement existing training data with strava data
 
 ### Important 
-- [] Fix migrations in docker compose. What is happening? It thinks it's on version 1
+- [x] Fix migrations in docker compose. What is happening? It thinks it's on version 1
+- [x] Max port part of .env with a default
 
+
+## Notes
+
+### Django migrations
+Django builds migrations based on difference between the models and the migration files. 
+So if the database is ahead of migrations, you will get a weird state and migrations
+won't work. Making migration files part of the upload, helps solve this problem.
 
