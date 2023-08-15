@@ -56,6 +56,7 @@ def new_session(request):
                 session.user = request.user
             except Exception:
                 pass
+            session.total_duration *= 60
             session.save()
             return HttpResponseRedirect('?submitted=True')
     else:

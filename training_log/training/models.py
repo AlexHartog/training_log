@@ -59,4 +59,5 @@ class TrainingSession(models.Model):
     def __str__(self):
         """Return a string representation of the model."""
         return f"{self.user.username.capitalize()} did " \
-               f"{self.discipline} on {self.date}"
+               f"{self.discipline} on {self.date} " \
+               f"({self.formatted_distance} in {self.formatted_duration})"

@@ -25,6 +25,7 @@ Run `docker exec -t -i 66175bfd6ae6 bash` (relace the container id with the one 
 - [] Create a cronjob for strava imports (need to develop on Linux or use another scheduler)
 - [] Clean up data
 - [x] Add a link to add manual training
+- [x] Convert duration from minutes to seconds for new training
 
 ### Later releases
 - [] Statistics 

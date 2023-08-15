@@ -16,7 +16,7 @@ class AllPlayerStats:
     """This class has overall statistics for all players."""
     def __init__(self):
         self.users = User.objects.all()
-        self.players = [user.username for user in self.users]
+        self.players = [user.username.capitalize() for user in self.users]
         self.stats = {}
         self.training_sessions = TrainingSession.objects.filter(date__gte=TRAINING_START_DATE)
         self.calculate_stats()
