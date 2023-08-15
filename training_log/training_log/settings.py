@@ -154,7 +154,7 @@ CRONJOBS = [
 HUEY = {
     'immediate': False,
     'connection': {
-        'host': 'cache',
+        'host': os.getenv("REDIS_HOST") or 'redis',
         'port': 6379,
     }
 }

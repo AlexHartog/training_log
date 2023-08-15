@@ -8,8 +8,6 @@ services:
       - "${DJANGO_PORT:-5000}:5000"
     env_file:
       - .env
-    environment:
-      - REDIS_HOST=cache
   huey:
     build:
       context: ./training_log
@@ -20,7 +18,7 @@ services:
     depends_on:
       - web
     environment:
-      - REDIS_HOST=cache
+      - REDIS_HOST=${REDIS_HOST:-redis}
   cache:
     image: redis:alpine
     restart: always
