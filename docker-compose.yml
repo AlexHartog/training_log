@@ -20,6 +20,7 @@ services:
     environment:
       - REDIS_HOST=${REDIS_HOST:-redis}
   cache:
+    container_name: ${REDIS_HOST:-redis}
     image: redis:alpine
     restart: always
     ports:
