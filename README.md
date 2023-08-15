@@ -43,3 +43,11 @@ Django builds migrations based on difference between the models and the migratio
 So if the database is ahead of migrations, you will get a weird state and migrations
 won't work. Making migration files part of the upload, helps solve this problem.
 
+### Huey
+Need to set up a redis server. Can't connect to this using localhost, but need to use 
+the docker container name. This is because the huey container is in the same network
+as the redis container.
+
+To add periodic tasks, you need to create a tasks.py file in an app folder which is 
+imported in the settings.py.
+

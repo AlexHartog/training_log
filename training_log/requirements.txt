@@ -6,3 +6,5 @@ psycopg2-binary
 requests
 gunicorn
 django-crontab
+huey
+redis

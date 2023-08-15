@@ -8,3 +8,27 @@ services:
       - "${DJANGO_PORT:-5000}:5000"
     env_file:
       - .env
+    environment:
+      - REDIS_HOST=cache
+    entrypoint: /training_log/entrypoint.sh
+  huey:
+    build: ./training_log
+    command: python manage.py run_huey
+    env_file:
+      - .env
+    depends_on:
+      - web
+    environment:
+      - REDIS_HOST=cache
+  cache:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+    redisdata:
+      driver: local
+

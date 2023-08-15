@@ -14,6 +14,7 @@ from . import strava, strava_authentication
 from .utils import get_timezone_aware_dt
 
 DAYS_BACK = 10
+MANUAL_IMPORT_COUNT = 100
 
 
 @login_required(login_url=reverse_lazy('login'))
@@ -69,7 +70,8 @@ def get_strava_data(request):
         return redirect(request.path)
 
     if not strava_authentication.needs_authorization(request.user):
-        context = {'imported_sessions': strava.get_activities(request.user)}
+        context = {'imported_sessions':
+                       strava.get_activities(request.user, MANUAL_IMPORT_COUNT)}
         return render(request, 'strava_import/strava_import.html', context)
     else:
         print("We don't have proper authorization yet")

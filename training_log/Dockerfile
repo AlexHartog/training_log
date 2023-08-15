@@ -1,5 +1,9 @@
 FROM python:3.11-slim
 
+# Install cron and any other required packages
+RUN apt-get update && apt-get install -y cron
+RUN apt-get --assume-yes install redis
+
 WORKDIR /training_log
 
 COPY requirements.txt requirements.txt
@@ -11,8 +15,3 @@ COPY . .
 
 EXPOSE 5000
 
-# Copy the entrypoint script into the container
-COPY entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-ENTRYPOINT ["entrypoint.sh"]

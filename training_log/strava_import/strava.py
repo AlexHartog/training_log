@@ -16,9 +16,9 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, '.env'))
 
 
 # TODO: Where to keep these constants?
-PER_PAGE = 100
 ACTIVITIES_URL = 'https://www.strava.com/api/v3/athlete/' \
-                 'activities?per_page={per_page}'.format(per_page=PER_PAGE)
+                 'activities?per_page={per_page}'
+SYNC_PAGE_COUNT = 5
 
 
 def strava_sync():
@@ -26,10 +26,14 @@ def strava_sync():
     for strava_auth in StravaAuth.objects.all():
         if strava_auth.auto_import:
             print("Running auto import for ", strava_auth.user)
-            get_activities(strava_auth.user)
+            get_activities(strava_auth.user, SYNC_PAGE_COUNT)
 
 
-def get_activities(user: User):
+def get_activities_url(result_per_page: int):
+    return ACTIVITIES_URL.format(per_page=result_per_page)
+
+
+def get_activities(user: User, result_per_page: int):
     strava_auth = strava_authentication.get_authentication(user)
     if not strava_auth:
         # TODO: Better exception
@@ -39,7 +43,7 @@ def get_activities(user: User):
         'Authorization': f'Bearer {strava_auth.access_token}'
     }
 
-    response = requests.get(ACTIVITIES_URL, headers=headers)
+    response = requests.get(get_activities_url(result_per_page), headers=headers)
     activities = response.json()
 
     # TODO: Handle bad response
