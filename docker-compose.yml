@@ -10,9 +10,10 @@ services:
       - .env
     environment:
       - REDIS_HOST=cache
-    entrypoint: /training_log/entrypoint.sh
   huey:
-    build: ./training_log
+    build:
+      context: ./training_log
+      dockerfile: Dockerfile.huey
     command: python manage.py run_huey
     env_file:
       - .env
