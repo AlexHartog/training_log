@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('training', '0005_auto_20230802_1130'),
+        ("training", "0005_auto_20230802_1130"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='session',
-            name='duration',
+            model_name="session",
+            name="duration",
             field=models.IntegerField(),
         ),
     ]

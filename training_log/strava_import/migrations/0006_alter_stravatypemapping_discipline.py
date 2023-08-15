@@ -5,16 +5,20 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('training', '0011_rename_session_trainingsession'),
-        ('strava_import', '0005_stravatypemapping'),
+        ("training", "0011_rename_session_trainingsession"),
+        ("strava_import", "0005_stravatypemapping"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='stravatypemapping',
-            name='discipline',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='training.discipline'),
+            model_name="stravatypemapping",
+            name="discipline",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="training.discipline",
+            ),
         ),
     ]

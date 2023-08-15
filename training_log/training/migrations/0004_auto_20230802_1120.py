@@ -2,11 +2,10 @@
 
 from django.db import migrations
 
+
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('training', '0003_alter_session_duration'),
+        ("training", "0003_alter_session_duration"),
     ]
 
-    operations = [
-    ]
+    operations = []

@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('strava_import', '0001_initial'),
+        ("strava_import", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='stravaauth',
-            name='access_token_retrieved_at',
+            model_name="stravaauth",
+            name="access_token_retrieved_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

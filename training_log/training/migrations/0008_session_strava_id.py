@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('training', '0007_remove_session_duration_session_average_hr_and_more'),
+        ("training", "0007_remove_session_duration_session_average_hr_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='session',
-            name='strava_id',
+            model_name="session",
+            name="strava_id",
             field=models.IntegerField(blank=True, null=True),
         ),
     ]

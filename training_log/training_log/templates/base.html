@@ -31,6 +31,16 @@
         </ul>
       </nav>
     </aside>
+    {% if messages %}
+      <section id="messages">
+      <h2>Messages</h2>
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+      </section>
+    {% endif %}
     <section id="main">
       {% block content %}
       <p>Placeholder text in base template. Replace with page content.</p>

@@ -2,8 +2,9 @@
 
 from django.db import migrations, models
 
+
 def migrate_time_to_positive_int(apps, schema_editor):
-    MyModel = apps.get_model('training', 'session')
+    MyModel = apps.get_model("training", "session")
 
     for mm in MyModel.objects.all():
         print("MM: ", mm)
@@ -12,26 +13,26 @@ def migrate_time_to_positive_int(apps, schema_editor):
         mm.duration = duration_new
         mm.save()
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('training', '0002_rename_training_session'),
+        ("training", "0002_rename_training_session"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='session',
-            old_name='duration',
-            new_name='duration_old',
+            model_name="session",
+            old_name="duration",
+            new_name="duration_old",
         ),
         migrations.AddField(
-            model_name='session',
-            name='duration',
+            model_name="session",
+            name="duration",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.RunPython(migrate_time_to_positive_int),
         migrations.RemoveField(
-            model_name='session',
-            name='duration_old',
-        )
+            model_name="session",
+            name="duration_old",
+        ),
     ]

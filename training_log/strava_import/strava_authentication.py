@@ -1,36 +1,43 @@
 import requests
 import os
 from dotenv import dotenv_values
-from datetime import datetime
 import enum
 
 from django.conf import settings
-from django.utils import timezone
-from pydantic import BaseModel
 
 from .models import StravaAuth
 from .schemas import StravaTokenResponse
 from django.contrib.auth.models import User
-from training.models import TrainingSession, Discipline, TrainingType
 
-config = dotenv_values(os.path.join(settings.BASE_DIR, '.env'))
+config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 
 ACCESS_TOKEN_VALIDITY = 3600
-ACCESS_TOKEN_URL = 'https://www.strava.com/oauth/token'
-REDIRECT_URI = 'http://{http_host}/strava/save_auth'
-AUTHORIZATION_URL = 'https://www.strava.com/oauth/' \
-                    'authorize?client_id={client_id}&' \
-                    'redirect_uri={redirect_uri}&response_type=code' \
-                    '&scope=activity:read_all'
+ACCESS_TOKEN_URL = "https://www.strava.com/oauth/token"
+REDIRECT_URI = "http://{http_host}/strava/save_auth"
+AUTHORIZATION_URL = (
+    "https://www.strava.com/oauth/"
+    "authorize?client_id={client_id}&"
+    "redirect_uri={redirect_uri}&response_type=code"
+    "&scope=activity:read_all"
+)
 
 
 class AuthenticationStatus(enum.Enum):
+    """Enum for the authentication status of a user."""
+
     AUTHENTICATED = 1
     NOT_AUTHENTICATED = 2
     EXPIRED = 3
 
 
+class NoAuthorizationException(Exception):
+    """Exception for when a user is not authorized with strava."""
+
+    pass
+
+
 def get_authentication_status(user: User):
+    """Returns the authentication status for a user."""
     try:
         strava_auth = StravaAuth.objects.get(user=user)
     except StravaAuth.DoesNotExist:
@@ -40,7 +47,6 @@ def get_authentication_status(user: User):
         return AuthenticationStatus.AUTHENTICATED
 
     if not strava_auth.access_token:
-        print('No access token')
         return AuthenticationStatus.NOT_AUTHENTICATED
 
     if strava_auth.is_access_token_expired():
@@ -48,23 +54,23 @@ def get_authentication_status(user: User):
 
 
 def is_authenticated(user: User):
-    return get_authentication_status(user) == \
-        AuthenticationStatus.AUTHENTICATED
+    """Checks if a user is authenticated with strava."""
+    return get_authentication_status(user) == AuthenticationStatus.AUTHENTICATED
 
 
 def needs_authorization(user: User):
-    print("Checking authorization")
+    """Checks if a user needs to authorize strava."""
     try:
         strava_auth = StravaAuth.objects.get(user=user)
-        print("Found strava auth")
     except StravaAuth.DoesNotExist:
         return True
 
-    print("Needs auth ", strava_auth.needs_authorization())
     return strava_auth.needs_authorization()
 
 
 def get_authentication(user: User):
+    """Returns the strava authentication for a user if it exists and is valid.
+    If token is expired, it will try to refresh it."""
     strava_auth = StravaAuth.objects.get(user=user)
     if not strava_auth:
         return None
@@ -82,65 +88,78 @@ def get_authentication(user: User):
 
 
 def get_authorization_url(http_host):
+    """Returns the url to authorize strava."""
     # TODO: Add better handling if strava client id or secret is not set
+    if not os.getenv("STRAVA_CLIENT_ID"):
+        return
+
     return AUTHORIZATION_URL.format(
-        client_id=os.getenv('STRAVA_CLIENT_ID'),
+        client_id=os.getenv("STRAVA_CLIENT_ID"),
         redirect_uri=REDIRECT_URI.format(http_host=http_host),
     )
 
 
-def refresh_token(strava_auth: StravaAuth):
+def refresh_token_if_expired(strava_auth: StravaAuth):
+    """Checks if the access token for a user is expired and refreshes it if it is."""
+    if strava_auth.is_access_token_expired():
+        print(
+            "Access token expired for ", strava_auth.user.username, ". Refreshing token"
+        )
+        refresh_token(strava_auth)
+
+
+def _get_token_payload(strava_auth: StravaAuth, refresh=False):
+    """Creates the payload for a token request. Either initial or refresh."""
     payload = {
-        'client_id': os.getenv('STRAVA_CLIENT_ID'),
-        'client_secret': os.getenv('STRAVA_CLIENT_SECRET'),
-        'refresh_token': strava_auth.refresh_token,
-        'grant_type': 'refresh_token',
+        "client_id": os.getenv("STRAVA_CLIENT_ID"),
+        "client_secret": os.getenv("STRAVA_CLIENT_SECRET"),
     }
-    print("Payload: ", payload)
+
+    if refresh:
+        payload["refresh_token"] = strava_auth.refresh_token
+        payload["grant_type"] = "refresh_token"
+    else:
+        payload["code"] = strava_auth.code
+        payload["grant_type"] = "authorization_code"
+
+    return payload
+
+
+def _access_token_update(strava_auth: StravaAuth, refresh=False):
+    """Updates the access token for a user. This can either be an initial request or
+    a refresh request."""
+    payload = _get_token_payload(strava_auth, refresh=refresh)
+
     response = requests.post(ACCESS_TOKEN_URL, data=payload)
 
-    # TODO: Handle bad response
     if response.status_code != 200:
-        print(f'Token request failed {response.status_code}.')
-        print(f'Errors: {response.content.decode("utf-8")}')
-
-    # TODO: Do we need to handle bad response?
-    strava_token_response = StravaTokenResponse(**response.json())
-    strava_auth.update_token(strava_token_response)
-
-
-def request_access_token(strava_auth):
-    payload = {
-        'client_id': os.getenv('STRAVA_CLIENT_ID'),
-        'client_secret': os.getenv('STRAVA_CLIENT_SECRET'),
-        'code': strava_auth.code,
-        'grant_type': 'authorization_code',
-    }
-    print("Payload: ", payload)
-    response = requests.post(ACCESS_TOKEN_URL, data=payload)
-
-    # TODO: Handle bad response
-    if response.status_code != 200:
-        print(f'Token request failed {response.status_code}.')
+        print(f"Token request failed {response.status_code}.")
         print(f'Errors: {response.content.decode("utf-8")}')
         return
 
     strava_token_response = StravaTokenResponse(**response.json())
-
     strava_auth.update_token(strava_token_response)
+
+
+def refresh_token(strava_auth: StravaAuth):
+    """Refreshes the access token for a user."""
+    _access_token_update(strava_auth, refresh=True)
+
+
+def request_access_token(strava_auth: StravaAuth):
+    """Requests an access token for a user."""
+    _access_token_update(strava_auth, refresh=False)
 
 
 def save_auth(request):
-    if 'code' not in request.GET:
-        print('No code in request')
+    if "code" not in request.GET:
+        print("No code in request")
         return
 
-    code = request.GET['code']
-    scope = request.GET['scope'].split(
-        ',') if 'scope' in request.GET else []
+    code = request.GET["code"]
+    scope = request.GET["scope"].split(",") if "scope" in request.GET else []
 
     # access_token = get_access_token(code)
-    print("We received code ", code)
     # TODO: Check if scope is alright, need read_all
     # TODO: Handle denied
 

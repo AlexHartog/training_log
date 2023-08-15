@@ -1,5 +1,3 @@
-import datetime
-
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
@@ -10,6 +8,7 @@ from .schemas import StravaTokenResponse
 
 class StravaAuth(models.Model):
     """A strava authentication saved for importing."""
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=200)
     access_token = models.CharField(max_length=200, blank=True)
@@ -31,10 +30,10 @@ class StravaAuth(models.Model):
         return self.access_token and not self.is_access_token_expired()
 
     def update_token(self, token_response: StravaTokenResponse):
+        """Update the token with the response from strava."""
         self.access_token = token_response.access_token
         self.refresh_token = token_response.refresh_token
         self.access_token_expires_at = token_response.expires_at_datetime
-
         self.save()
 
     def __str__(self):
@@ -44,13 +43,15 @@ class StravaAuth(models.Model):
 
 class StravaTypeMapping(models.Model):
     """A mapping between a strava activity type and a discipline."""
+
     strava_type = models.CharField(max_length=200)
-    discipline = models.ForeignKey('training.Discipline',
-                                   on_delete=models.SET_NULL,
-                                   null=True, blank=True)
+    discipline = models.ForeignKey(
+        "training.Discipline", on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     def __str__(self):
         """Return a string representation of the model."""
-        return f"{self.strava_type} -> {self.discipline.name if self.discipline else 'None'}"
-
-
+        return (
+            f"{self.strava_type} ->"
+            f" {self.discipline.name if self.discipline else 'None'}"
+        )

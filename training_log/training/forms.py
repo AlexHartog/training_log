@@ -7,19 +7,22 @@ from .models import TrainingSession
 
 
 class SessionForm(ModelForm):
-    required_css_class = 'required'
+    required_css_class = "required"
 
     class Meta:
         model = TrainingSession
         fields = [
-            'discipline', 'date', 'total_duration', 'distance',
-            'training_type', 'notes'
+            "discipline",
+            "date",
+            "total_duration",
+            "distance",
+            "training_type",
+            "notes",
         ]
         labels = {
-            'total_duration': 'Duration (minutes)',
-            'distance': 'Distance (km)',
+            "total_duration": "Duration (minutes)",
+            "distance": "Distance (km)",
         }
         widgets = {
-            'date': forms.DateInput(
-                attrs={'type': 'date', 'value': date.today()}),
+            "date": forms.DateInput(attrs={"type": "date", "value": date.today()}),
         }

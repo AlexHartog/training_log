@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('training', '0009_alter_session_training_type'),
+        ("training", "0009_alter_session_training_type"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='session',
-            name='strava_id',
+            model_name="session",
+            name="strava_id",
             field=models.BigIntegerField(blank=True, null=True),
         ),
     ]

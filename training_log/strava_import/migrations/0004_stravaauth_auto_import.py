@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('strava_import', '0003_rename_access_token_retrieved_at_stravaauth_access_token_expires_at_and_more'),
+        (
+            "strava_import",
+            "0003_rename_access_token_retrieved_at_stravaauth_access_token_expires_at_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='stravaauth',
-            name='auto_import',
+            model_name="stravaauth",
+            name="auto_import",
             field=models.BooleanField(default=False),
         ),
     ]

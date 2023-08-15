@@ -56,6 +56,12 @@ h1 {
     margin: 0 10px 50px 20px;
     padding-right: 10px;
 }
+#messages {
+    width: 560px;
+    float: left;
+    margin: 10px 10px 50px 20px;
+    padding-right: 10px;
+}
 #logo {
     padding: 10px;
     float: left;
@@ -172,4 +178,9 @@ padding: 5px 10px;
 
 .altrow {
     background-color: #e0e0e0;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
 }
