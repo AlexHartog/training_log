@@ -48,7 +48,8 @@ def strava_auth(request):
     else:
         messages.error(
             request,
-            "Something went wrong with the authorization. Please contact the administrator.",
+            "Something went wrong with the authorization. "
+            "Please contact the administrator.",
         )
 
     return render(request, "strava_import/strava_auth.html", context=context)

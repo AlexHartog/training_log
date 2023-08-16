@@ -89,7 +89,6 @@ def get_authentication(user: User):
 
 def get_authorization_url(http_host):
     """Returns the url to authorize strava."""
-    # TODO: Add better handling if strava client id or secret is not set
     if not os.getenv("STRAVA_CLIENT_ID"):
         return
 
@@ -110,6 +109,7 @@ def refresh_token_if_expired(strava_auth: StravaAuth):
 
 def _get_token_payload(strava_auth: StravaAuth, refresh=False):
     """Creates the payload for a token request. Either initial or refresh."""
+    # TODO: Raise error if no client id or secret is set
     payload = {
         "client_id": os.getenv("STRAVA_CLIENT_ID"),
         "client_secret": os.getenv("STRAVA_CLIENT_SECRET"),
