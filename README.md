@@ -2,14 +2,34 @@
 
 ## Installation
 
-#### Virtual environment
-Run `python -m venv venv` in the root of the project to create a virtual environment.
+#### Configuration
 
-Activate the virtual environment using `source venv/bin/activate` (Linux) or 
-`venv\Scripts\activate` (Windows).
+Create a .env file in the root directory.
 
-#### Requirements
-Install the requirements using `pip install -r requirements.txt`
+This needs the following config:
+
+~~~
+DB_ENGINE=
+DB_SCHEMA=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+DB_HOST=
+DB_PORT=
+STRAVA_CLIENT_ID=
+STRAVA_CLIENT_SECRET=
+# OPTIONAL SETTINGS
+COMPOSE_PROJECT_NAME=
+DJANGO_PORT=
+~~~
+
+
+
+
+#### Docker Compose
+
+
+
 
 
 #### Migrating in docker compose
