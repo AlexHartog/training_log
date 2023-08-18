@@ -8,3 +8,4 @@ gunicorn
 django-crontab
 huey
 redis
+sqlalchemy

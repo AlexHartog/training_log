@@ -1,13 +1,13 @@
-import requests
-import os
-from dotenv import dotenv_values
 import enum
+import os
 
+import requests
 from django.conf import settings
+from django.contrib.auth.models import User
+from dotenv import dotenv_values
 
 from .models import StravaAuth
 from .schemas import StravaTokenResponse
-from django.contrib.auth.models import User
 
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 

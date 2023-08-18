@@ -1,10 +1,9 @@
 from datetime import datetime
 
-from django.db.models import Sum
 from django.contrib.auth.models import User
+from django.db.models import Sum
 
 from .models import TrainingSession
-
 
 TRAINING_START_DATE = "2023-05-01"
 LONG_SWIM_DURATION = 60
@@ -100,9 +99,22 @@ class AllPlayerStats:
 
         return (total_time or 0) / weeks_trained
 
+    def time_since_last_training(self, user):
+        """Return the time since the last training for the given user."""
+        last_training = (
+            self.training_sessions.filter(user=user).order_by("-date").first()
+        )
+        if last_training:
+            return datetime.now() - last_training.date
+        else:
+            return None
+
     def calculate_stats(self):
         """Calculate the stats for all players."""
         for user in self.users:
+            self.add_stat(
+                "Time since last training", self.time_since_last_training(user)
+            )
             self.add_stat(
                 "Total time trained",
                 self.formatted_duration(self.get_sum("total_duration", user)),

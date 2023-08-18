@@ -10,4 +10,5 @@ urlpatterns = [
     path(
         "auto_import/<int:enable>/", views.enable_auto_import, name="strava-auto-import"
     ),
+    path("start_time_sync", views.sync_start_times, name="strava-start-time-sync"),
 ]

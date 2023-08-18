@@ -1,14 +1,14 @@
-import requests
 import os
-from dotenv import dotenv_values
 
+import requests
 from django.conf import settings
 from django.contrib.auth.models import User
-
-from .models import StravaTypeMapping, StravaAuth
-from .schemas import StravaSession
-from . import strava_authentication
+from dotenv import dotenv_values
 from training.models import TrainingSession
+
+from . import strava_authentication
+from .models import StravaAuth, StravaTypeMapping
+from .schemas import StravaSession
 
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 
@@ -76,6 +76,8 @@ def get_discipline(activity):
 def import_activity(activity, user):
     """Convert a strava activity to a TrainingSession and import it into the
     database, if the strava_id does not exist."""
+    for key, value in activity.items():
+        print("Key: ", key, " Value: ", value)
     strava_session = StravaSession.model_validate(activity)
 
     # TODO: Should we move this to not query the database for every activity?

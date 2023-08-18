@@ -1,6 +1,6 @@
 from datetime import datetime
-from django.utils import timezone
 
+from django.utils import timezone
 from pydantic import BaseModel, Field, computed_field
 
 
@@ -21,7 +21,8 @@ class StravaSession(BaseModel):
     type: str = Field(exclude=True, alias="type")
     sport_type: str = Field(exclude=True, alias="sport_type")
     discipline_id: int | None = Field(default=None)
-    start_date_local: str = Field(exclude=True, alias="start_date_local")
+    # TODO: Do we need to convert to non local?
+    start_date: str = Field(..., alias="start_date_local")
     total_duration: int = Field(..., alias="elapsed_time")
     moving_duration: int = Field(..., alias="moving_time")
     distance: float = Field(..., alias="distance")

@@ -13,6 +13,11 @@
 <p class="highlight">Auto import is disabled. <a href="{% url 'strava-auto-import' 1 %}?next=/">Enable now</a></p>
 {% endif %}
 
+{% if admin %}
+<p><a href="{% url 'strava-start-time-sync' %}?next=/">Run start time update</a></p>
+{% endif %}
+
+
 <p><a href="{% url 'strava-data' %}?next=/">Run manual import</a></p>
 
 {% if imported_sessions %}

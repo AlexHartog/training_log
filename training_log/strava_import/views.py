@@ -1,18 +1,21 @@
 import datetime
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
-from django.shortcuts import redirect
-from django.utils import timezone
 from django.contrib import messages
-
-from .models import StravaAuth
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.utils import timezone
 from training.models import TrainingSession
-from . import strava, strava_authentication
+
+from . import strava, strava_authentication, strava_start_time_sync
+from .models import StravaAuth
 
 DAYS_BACK = 10
 MANUAL_IMPORT_COUNT = 1
+
+
+def admin_check(user):
+    return user.is_superuser
 
 
 @login_required(login_url=reverse_lazy("login"))
@@ -30,8 +33,15 @@ def index(request):
         "imported_sessions": imported_sessions,
         "days_back": DAYS_BACK,
         "user_auth": user_auth,
+        "admin": request.user.is_superuser,
     }
     return render(request, "strava_import/index.html", context=context)
+
+
+@user_passes_test(admin_check)
+def sync_start_times(request):
+    strava_start_time_sync.strava_start_time_sync()
+    return redirect("strava-index")
 
 
 @login_required(login_url=reverse_lazy("login"))

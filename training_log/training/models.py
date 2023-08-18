@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 
 class Discipline(models.Model):
@@ -28,6 +28,7 @@ class TrainingSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
     date = models.DateField()
+    start_date = models.DateTimeField(blank=True, null=True)
     moving_duration = models.IntegerField(blank=True, null=True)
     total_duration = models.IntegerField(blank=True, null=True)
     distance = models.FloatField(blank=True, null=True)
