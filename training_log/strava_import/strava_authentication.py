@@ -132,6 +132,7 @@ def _access_token_update(strava_auth: StravaAuth, refresh=False):
 
     response = requests.post(ACCESS_TOKEN_URL, data=payload)
 
+    # TODO: Deal with invalid client secret (weird reponse from strava)
     if response.status_code != 200:
         print(f"Token request failed {response.status_code}.")
         print(f'Errors: {response.content.decode("utf-8")}')
@@ -139,6 +140,7 @@ def _access_token_update(strava_auth: StravaAuth, refresh=False):
 
     strava_token_response = StravaTokenResponse(**response.json())
     strava_auth.update_token(strava_token_response)
+    assert False
 
 
 def refresh_token(strava_auth: StravaAuth):
