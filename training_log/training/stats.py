@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.contrib.auth.models import User
-from django.db.models import Sum
+from django.db.models import Sum, F
+from django.utils import timezone
 
 from .models import TrainingSession
 
@@ -102,19 +103,24 @@ class AllPlayerStats:
     def time_since_last_training(self, user):
         """Return the time since the last training for the given user."""
         last_training = (
-            self.training_sessions.filter(user=user).order_by("-date").first()
+            self.training_sessions.filter(user=user)
+            .order_by(F("start_date").desc(nulls_last=True))
+            .first()
         )
         if last_training:
-            return datetime.now() - last_training.date
+            end_time = last_training.start_date + timedelta(
+                seconds=last_training.total_duration
+            )
+            return timezone.localtime(timezone.now()) - end_time
         else:
             return None
 
     def calculate_stats(self):
         """Calculate the stats for all players."""
         for user in self.users:
-            # self.add_stat(
-            #     "Time since last training", self.time_since_last_training(user)
-            # )
+            self.add_stat(
+                "Time since last training", self.time_since_last_training(user)
+            )
             self.add_stat(
                 "Total time trained",
                 self.formatted_duration(self.get_sum("total_duration", user)),
