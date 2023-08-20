@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "strava_import",
     # Third party apps.
     "huey.contrib.djhuey",
-    "django_crontab",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -144,10 +143,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-CRONJOBS = [
-    ("*/1 * * * *", "strava_import.strava.strava_sync"),
-]
 
 HUEY = {
     "immediate": False,

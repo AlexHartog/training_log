@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
-# Install cron and any other required packages
-RUN apt-get update && apt-get install -y cron
+# Install redis
+RUN apt-get update
 RUN apt-get --assume-yes install redis
 
 WORKDIR /training_log

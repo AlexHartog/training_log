@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Install cron and any other required packages
+# Install redis
 RUN apt-get update
 RUN apt-get --assume-yes install redis
 
