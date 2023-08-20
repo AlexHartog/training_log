@@ -36,4 +36,4 @@ class StravaSession(BaseModel):
     @computed_field
     @property
     def date(self) -> datetime:
-        return datetime.strptime(self.start_date_local, "%Y-%m-%dT%H:%M:%SZ")
+        return datetime.strptime(self.start_date, "%Y-%m-%dT%H:%M:%SZ")
