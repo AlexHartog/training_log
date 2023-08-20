@@ -112,9 +112,9 @@ class AllPlayerStats:
     def calculate_stats(self):
         """Calculate the stats for all players."""
         for user in self.users:
-            self.add_stat(
-                "Time since last training", self.time_since_last_training(user)
-            )
+            # self.add_stat(
+            #     "Time since last training", self.time_since_last_training(user)
+            # )
             self.add_stat(
                 "Total time trained",
                 self.formatted_duration(self.get_sum("total_duration", user)),
