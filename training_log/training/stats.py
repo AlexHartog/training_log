@@ -111,9 +111,22 @@ class AllPlayerStats:
             end_time = last_training.start_date + timedelta(
                 seconds=last_training.total_duration
             )
-            return timezone.localtime(timezone.now()) - end_time
+            return self.format_timedelta(timezone.localtime(timezone.now()) - end_time)
         else:
             return None
+
+    @staticmethod
+    def format_timedelta(delta):
+        days = delta.days
+        seconds = delta.seconds
+        hours, remainder = divmod(seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        formatted_string = f"{days}d " if days > 0 else ""
+        formatted_string += f"{hours}h " if hours > 0 or days > 0 else ""
+        formatted_string += f"{minutes}m"
+
+        return formatted_string
 
     def calculate_stats(self):
         """Calculate the stats for all players."""
