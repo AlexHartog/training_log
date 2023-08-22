@@ -83,3 +83,7 @@ as the redis container.
 To add periodic tasks, you need to create a tasks.py file in an app folder which is 
 imported in the settings.py.
 
+### Entrypoint.sh
+The entrypoint should not have CRLF line endings. So make sure it is set to LF. Otherwise it will say it
+can't find the file
+
