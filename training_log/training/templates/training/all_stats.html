@@ -4,16 +4,23 @@
 
 {% block content %}
 <h1>Overall Stats</h1>
+    <strong>
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {% if period == "all" %}
+                All time
+            {% else %}
+            Last {{ period }}
+            {% endif %}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'all-stats' 'week' %}">Last week</a>
+            <a class="dropdown-item" href="{% url 'all-stats' 'month' %}">Last month</a>
+            <a class="dropdown-item" href="{% url 'all-stats' 'all' %}">All time</a>
+        </div>
+    </strong>
 
-    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        Period
-    </a>
-    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-        <a class="dropdown-item" href="{% url 'all-stats' 'week' %}">Last week</a>
-        <a class="dropdown-item" href="{% url 'all-stats' 'month' %}">Last month</a>
-        <a class="dropdown-item" href="{% url 'all-stats' 'all' %}">All</a>
-    </div>
+
 
 <table style="border-collapse:collapse">
   <tr class="stats">

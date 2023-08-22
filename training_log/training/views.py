@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
@@ -84,6 +84,10 @@ def all_stats(request, period):
         return redirect("all-stats", period="all")
 
     player_stats = stats.AllPlayerStats(period_enum)
-    context = {"players": player_stats.players, "stats": player_stats.stats}
+    context = {
+        "players": player_stats.players,
+        "stats": player_stats.stats,
+        "period": period,
+    }
 
     return render(request, "training/all_stats.html", context=context)

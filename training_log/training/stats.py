@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 from enum import Enum
 
-from django.contrib.auth.models import User
-from django.db.models import Sum, F, Q
-from django.utils import timezone
 from dateutil.relativedelta import relativedelta
+from django.contrib.auth.models import User
+from django.db.models import F, Q, Sum
+from django.utils import timezone
 
 from .models import TrainingSession
 
