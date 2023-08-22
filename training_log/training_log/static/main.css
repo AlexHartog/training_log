@@ -187,7 +187,11 @@ padding: 5px 10px;
 
 @media (max-width: 767px) {
     .form {
-        width: 100%;
+        width: 60%;
         margin-right: 0;
     }
+}
+
+.asteriskField {
+    display: none;
 }
