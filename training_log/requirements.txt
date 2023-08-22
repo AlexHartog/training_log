@@ -10,3 +10,5 @@ redis
 sqlalchemy
 pytz
 django-bootstrap-v5
+django-crispy-forms
+crispy-bootstrap5

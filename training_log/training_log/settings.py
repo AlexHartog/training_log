@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     # Third party apps.
     "huey.contrib.djhuey",
     "bootstrap5",
+    "crispy_forms",
+    "crispy_bootstrap5",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -152,3 +154,5 @@ HUEY = {
         "port": 6379,
     },
 }
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
 {% block title %}New Session {% endblock title %}
 
@@ -12,9 +13,9 @@
   </p>
 
 {% else %}
-  <form action="" enctype="multipart/form-data" method="post" novalidate>
+  <form action="" class="form" enctype="multipart/form-data" method="post" novalidate>
     <table>
-      {{ form.as_table }}
+      {{ form|crispy}}
       <tr>
       <td>&nbsp;</td>
         <td><input type="submit" value="Submit"></td>
