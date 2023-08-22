@@ -140,7 +140,6 @@ def _access_token_update(strava_auth: StravaAuth, refresh=False):
 
     strava_token_response = StravaTokenResponse(**response.json())
     strava_auth.update_token(strava_token_response)
-    assert False
 
 
 def refresh_token(strava_auth: StravaAuth):

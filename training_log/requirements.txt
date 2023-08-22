@@ -9,3 +9,4 @@ huey
 redis
 sqlalchemy
 pytz
+django-bootstrap-v5

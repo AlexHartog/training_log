@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "strava_import",
     # Third party apps.
     "huey.contrib.djhuey",
+    "bootstrap5",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

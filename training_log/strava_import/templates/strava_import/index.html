@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
+{% load bootstrap5 %}
 
 {% block title %}Get strava data{% endblock title %}
-
 
 {% block content %}
 {% autoescape off %}
@@ -10,15 +10,18 @@
 {% if user_auth.auto_import %}
 <p class="ok">Auto import is enabled <a href="{% url 'strava-auto-import' 0 %}?next=/">Disable</a></p>
 {% else %}
-<p class="highlight">Auto import is disabled. <a href="{% url 'strava-auto-import' 1 %}?next=/">Enable now</a></p>
+<p class="highlight">Auto import is disabled. <a href="{% url 'strava-auto-import' 1 %}?next=/">Enable now</a>
+</p>
 {% endif %}
 
 {% if admin %}
-<p><a href="{% url 'strava-start-time-sync' %}?next=/">Run start time update</a></p>
+<p>
+{% bootstrap_button "Run start time update" href="strava-start-time-sync" button_class="btn btn-primary" %}
+</p>
 {% endif %}
 
-
-<p><a href="{% url 'strava-data' %}?next=/">Run manual import</a></p>
+{% bootstrap_button "Run manual import" href="import_data" button_class="btn btn-primary" %}
+</p>
 
 {% if imported_sessions %}
     <p>Imported {{ imported_sessions|length }} sessions {% if days_back > 1 %} in last {{ days_back }} days{% else %} since yesterday{% endif %}.</p>

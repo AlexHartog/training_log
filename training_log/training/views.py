@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
@@ -15,7 +15,9 @@ from .models import TrainingSession
 
 def index(request):
     """The home page for Training Log."""
-    return render(request, "training/index.html")
+    # For now redirecting to all stats
+    return redirect("all-stats")
+    # return render(request, "training/index.html")
 
 
 class Register(CreateView):

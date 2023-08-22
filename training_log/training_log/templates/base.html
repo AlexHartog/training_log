@@ -1,56 +1,32 @@
-{% load static %}
 <!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>
       {% block title %}
       {{ page_title|default:"Untitled Page" }}
       {% endblock title %}
     </title>
+    {% load static %}
     <link href="{% static 'main.css' %}" rel="stylesheet" type="text/css">
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
   </head>
   <body>
+    {% include 'top_menu.html' %}
     <div id="wrapper">
 
-    <aside id="rightsidebar">
-      <nav id="nav">
-        <ul>
-          <li>
-            {% if user.is_authenticated %}
-            Hello, {{ user.username }}. <a href="{% url 'logout' %}?next=/">Logout</a>
-            {% else %}
-            Not logged in. <a href="{% url 'login' %}?next=/">Log in</a>
-            {% endif %}
-          </li>
-          <li><a href="{% url 'all-stats' %}">Training Overview</a></li>
-          <li><a href="{% url 'new-session' %}">Add training</a></li>
-          <li><a href="{% url 'strava-index' %}">Strava Data</a></li>
-          {% block sidenav %}
-          {% endblock sidenav %}
-        </ul>
-      </nav>
-    </aside>
     {% if messages %}
-      <section id="messages">
-      <h2>Messages</h2>
-    <ul class="messages">
-        {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-      </section>
+      {% bootstrap_messages %}
+
     {% endif %}
     <section id="main">
       {% block content %}
       <p>Placeholder text in base template. Replace with page content.</p>
       {% endblock content %}
     </section>
-    <footer id="footer">Copyright &copy;
-      <script type="text/JavaScript">
-      document.write(new Date().getFullYear());
-      </script> TrainingLog
-    </footer>
     </div>
   </body>
 </html>
