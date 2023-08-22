@@ -29,10 +29,10 @@
         <tr><th>Date</th><th>Discipline</th><th>Duration</th><th>Imported at</th></tr>
         {% for session in imported_sessions %}
             <tr>
-                <td>{{ session.date }}</td>
+                <td>{{ session.date|date:"d-m-y" }}</td>
                 <td>{{ session.discipline }}</td>
                 <td>{{ session.formatted_duration }}</td>
-                <td>{{ session.strava_updated }}</td>
+                <td>{{ session.strava_updated|date:"d-m-y H:i:s" }}</td>
             </tr>
         {% endfor %}
     </table>
