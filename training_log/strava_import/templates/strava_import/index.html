@@ -25,7 +25,7 @@
 
 {% if imported_sessions %}
     <p>Imported {{ imported_sessions|length }} sessions {% if days_back > 1 %} in last {{ days_back }} days{% else %} since yesterday{% endif %}.</p>
-    <table>
+    <table class="import-table">
         <tr><th>Date</th><th>Discipline</th><th>Duration</th><th>Imported at</th></tr>
         {% for session in imported_sessions %}
             <tr>

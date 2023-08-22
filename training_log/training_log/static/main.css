@@ -190,8 +190,14 @@ padding: 5px 10px;
         width: 60%;
         margin-right: 0;
     }
+    .import-table {
+        width: 60%;
+        font-size: 3vw;
+    }
 }
 
 .asteriskField {
     display: none;
 }
+
+
