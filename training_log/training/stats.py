@@ -1,28 +1,65 @@
 from datetime import datetime, timedelta
+from enum import Enum
 
 from django.contrib.auth.models import User
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Q
 from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 from .models import TrainingSession
 
-TRAINING_START_DATE = "2023-05-01"
+DEFAULT_START_DATE = "2023-05-01"
 LONG_SWIM_DURATION = 60
 LONG_RIDE_DURATION = 180
 LONG_RUN_DURATION = 90
 
 
+class StatsPeriod(Enum):
+    WEEK = "week"
+    MONTH = "month"
+    ALL = "all"
+
+    @staticmethod
+    def get_enum_from_string(value_str):
+        """Try to find a StatsPeriod enum from a string."""
+        for member in StatsPeriod.__members__.values():
+            if member.value == value_str:
+                return member
+        raise ValueError(
+            f"No member found for '{value_str}' in enum {StatsPeriod.__name__}"
+        )
+
+
 class AllPlayerStats:
     """This class has overall statistics for all players."""
 
-    def __init__(self):
+    def __init__(self, period: StatsPeriod = StatsPeriod.ALL):
         self.users = User.objects.all()
         self.players = [user.username.capitalize() for user in self.users]
         self.stats = {}
-        self.training_sessions = TrainingSession.objects.filter(
-            date__gte=TRAINING_START_DATE
-        )
+        self.training_sessions = []
+        self.period = period
+        self.get_training_sessions()
         self.calculate_stats()
+
+    def get_training_sessions(self):
+        start_date, end_date = self.get_start_end_dates()
+
+        filter_condition = Q(date__gte=start_date)
+
+        if end_date:
+            filter_condition &= Q(date__lte=end_date)
+
+        self.training_sessions = TrainingSession.objects.filter(filter_condition)
+
+    def get_start_end_dates(self):
+        match self.period:
+            case StatsPeriod.WEEK:
+                return datetime.now() - relativedelta(weeks=1), None
+            case StatsPeriod.MONTH:
+                return datetime.now() - relativedelta(months=1), None
+            case StatsPeriod.ALL:
+                return DEFAULT_START_DATE, None
 
     def add_stat(self, name, value):
         """Add a stat to the stats dictionary."""
@@ -95,7 +132,7 @@ class AllPlayerStats:
         since TRAINING_START_DATE."""
         total_time = self.get_sum("total_duration", user)
         weeks_trained = (
-            datetime.now() - datetime.strptime(TRAINING_START_DATE, "%Y-%m-%d")
+            datetime.now() - datetime.strptime(DEFAULT_START_DATE, "%Y-%m-%d")
         ).days / 7
 
         return (total_time or 0) / weeks_trained

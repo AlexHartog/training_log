@@ -71,9 +71,19 @@ def new_session(request):
     )
 
 
-def all_stats(request):
+def all_stats_total(request):
     """Show stats for all users."""
-    player_stats = stats.AllPlayerStats()
+    return redirect("all-stats", period="all")
+
+
+def all_stats(request, period):
+    """Show stats for all users."""
+    try:
+        period_enum = stats.StatsPeriod.get_enum_from_string(period)
+    except ValueError:
+        return redirect("all-stats", period="all")
+
+    player_stats = stats.AllPlayerStats(period_enum)
     context = {"players": player_stats.players, "stats": player_stats.stats}
 
     return render(request, "training/all_stats.html", context=context)
