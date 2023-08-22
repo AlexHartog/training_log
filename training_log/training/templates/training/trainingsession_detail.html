@@ -12,6 +12,6 @@
   <tr><td>Distance:</td><td>{{ session.formatted_distance }}</td></tr>
   <tr><td>Training Type:</td><td>{{ session.training_type }}</td></tr>
 </table>
-<p><a href="../sessions">Back to training overview</a></p>
+<p><a href="../sessions/{{ session.user.username }}">Back to training overview</a></p>
 
 {% endblock content %}

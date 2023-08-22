@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic.detail import DetailView
@@ -35,7 +36,14 @@ class SessionList(LoginRequiredMixin, ListView):
     context_object_name = "all_sessions"
 
     def get_queryset(self):
-        return TrainingSession.objects.filter(user=self.request.user)
+        username = self.kwargs.get("username")
+
+        try:
+            user = User.objects.get(username__iexact=username)
+        except User.DoesNotExist:
+            raise Http404("User does not exist")
+
+        return TrainingSession.objects.filter(user=user)
 
 
 class SessionView(LoginRequiredMixin, DetailView):

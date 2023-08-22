@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from .models import TrainingSession
 
-DEFAULT_START_DATE = "2023-05-01"
+DEFAULT_START_DATE = datetime(2023, 5, 1)
 LONG_SWIM_DURATION = 60
 LONG_RIDE_DURATION = 180
 LONG_RUN_DURATION = 90
@@ -39,27 +39,31 @@ class AllPlayerStats:
         self.stats = {}
         self.training_sessions = []
         self.period = period
+        self.start_date = None
+        self.end_date = None
+        self.get_start_end_dates()
         self.get_training_sessions()
         self.calculate_stats()
 
     def get_training_sessions(self):
-        start_date, end_date = self.get_start_end_dates()
+        filter_condition = Q(date__gte=self.start_date)
 
-        filter_condition = Q(date__gte=start_date)
-
-        if end_date:
-            filter_condition &= Q(date__lte=end_date)
+        if self.end_date:
+            filter_condition &= Q(date__lte=self.end_date)
 
         self.training_sessions = TrainingSession.objects.filter(filter_condition)
 
     def get_start_end_dates(self):
         match self.period:
             case StatsPeriod.WEEK:
-                return datetime.now() - relativedelta(weeks=1), None
+                self.start_date = datetime.now() - relativedelta(weeks=1)
+                self.end_date = None
             case StatsPeriod.MONTH:
-                return datetime.now() - relativedelta(months=1), None
+                self.start_date = datetime.now() - relativedelta(months=1)
+                self.end_date = None
             case StatsPeriod.ALL:
-                return DEFAULT_START_DATE, None
+                self.start_date = DEFAULT_START_DATE
+                self.end_date = None
 
     def add_stat(self, name, value):
         """Add a stat to the stats dictionary."""
@@ -117,6 +121,7 @@ class AllPlayerStats:
         can be used to specify which field to return."""
         longest_session = (
             self.training_sessions.filter(user=user, discipline__name=discipline)
+            .exclude(**{field: None})
             .order_by(field)
             .reverse()
             .first()
@@ -131,9 +136,7 @@ class AllPlayerStats:
         """Return the average weekly hours for the given user based on the time
         since TRAINING_START_DATE."""
         total_time = self.get_sum("total_duration", user)
-        weeks_trained = (
-            datetime.now() - datetime.strptime(DEFAULT_START_DATE, "%Y-%m-%d")
-        ).days / 7
+        weeks_trained = ((self.end_date or datetime.now()) - self.start_date).days / 7
 
         return (total_time or 0) / weeks_trained
 

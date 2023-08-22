@@ -44,6 +44,9 @@ class TrainingSession(models.Model):
     strava_updated = models.DateTimeField(blank=True, null=True)
     strava_id = models.BigIntegerField(blank=True, null=True)
 
+    class Meta:
+        ordering = ["-date"]
+
     @property
     def formatted_duration(self):
         """Return the moving duration as a nicely formatted string."""

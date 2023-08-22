@@ -7,22 +7,29 @@
 
 <table style="border-collapse:collapse">
   <tr class="quotehdr">
-    <th>ID</th><th>User</th><th>Date</th>
+    <th>Date</th>
     <th>Discipline</th><th>Duration</th>
     <th>Distance</th>
-<!--    <th>Training Type</th>-->
   </tr>
-  {% for session in all_sessions %}
-  <tr class="quoterow {% cycle '' 'altrow' %}">
-    <td><a href="session/{{ session.id }}">{{ session.id }}</a></td>
-    <td>{{ session.user }}</td>
-    <td>{{ session.date|date:"d-m-y" }}</td>
-    <td>{{ session.discipline }}</td>
-    <td>{{ session.formatted_duration }}</td>
-    <td>{{ session.formatted_distance }}</td>
-<!--    <td>{{ session.training_type }}</td>-->
-  </tr>
+    {% for session in all_sessions %}
+      <tr class="quoterow {% cycle '' 'altrow' %} clickablerow" data-href="{% url 'session-detail' session.id %}">
+        <td>{{ session.date|date:"d-m-y" }}</td>
+        <td>{{ session.discipline }}</td>
+        <td>{{ session.formatted_duration }}</td>
+        <td>{{ session.formatted_distance }}</td>
+      </tr>
   {% endfor %}
 </table>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var rows = document.querySelectorAll(".clickablerow");
+    rows.forEach(function(row) {
+        row.addEventListener("click", function() {
+            window.location.href = row.dataset.href;
+        });
+    });
+});
+</script>
 
 {% endblock content %}
