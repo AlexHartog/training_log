@@ -20,6 +20,22 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'strava-index' %}">
               Strava Data</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if user.is_authenticated %}
+              Logged in as {{ user.username }}
+            {% else %}
+              Not logged in
+            {% endif %}
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            {% if user.is_authenticated %}
+              <li><a class="dropdown-item" href="{% url 'logout' %}?next=/">Log out</a></li>
+            {% else %}
+              <li><a class="dropdown-item" href="{% url 'login' %}?next=/">Log in</a></li>
+            {% endif %}
+          </ul>
+
         </ul> <!-- End of links on left side of navbar -->
       </div> <!-- Closes collapsible parts of navbar -->
 

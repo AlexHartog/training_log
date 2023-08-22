@@ -60,7 +60,7 @@ Run `docker exec -t -i 66175bfd6ae6 bash`
 
 ### Important 
 - [x] Fix migrations in docker compose. What is happening? It thinks it's on version 1
-- [] Migrations still causing issues. How do we deal with migrations if database is not in line with database
+- [x] Migrations still causing issues. How do we deal with migrations if database is not in line with database
 - [x] Max port part of .env with a default
 
 
