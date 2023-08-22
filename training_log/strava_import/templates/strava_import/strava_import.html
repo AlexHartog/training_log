@@ -8,7 +8,7 @@
 <h1>Strava activities</h1>
 {% if imported_sessions %}
     <p>Imported {{ imported_sessions|length }} sessions</p>
-    <table>
+    <table class="import-table">
         <tr><th>Date</th><th>Discipline</th><th>Duration</th></tr>
         {% for session in imported_sessions %}
             <tr>

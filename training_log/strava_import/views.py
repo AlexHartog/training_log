@@ -11,7 +11,7 @@ from . import strava, strava_authentication, strava_start_time_sync
 from .models import StravaAuth
 
 DAYS_BACK = 10
-MANUAL_IMPORT_COUNT = 1
+MANUAL_IMPORT_COUNT = 200
 
 
 def admin_check(user):
