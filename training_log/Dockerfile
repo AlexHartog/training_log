@@ -1,10 +1,17 @@
 FROM python:3.11-alpine
 
+ENV MICRO_SERVICE=/home/app/microservice
+
 # create directory for the app user
 RUN mkdir -p /home/app
 
 # create the app user
 RUN addgroup -S app && adduser -S app -G app
+
+RUN mkdir -p $MICRO_SERVICE
+RUN mkdir -p $MICRO_SERVICE/static
+
+WORKDIR $MICRO_SERVICE
 
 # create the appropriate directories
 ENV HOME=/home/app
@@ -19,7 +26,7 @@ RUN pip install -r requirements.txt
 
 
 # copy entrypoint.prod.sh
-COPY training_log/entrypoint.sh .
+COPY entrypoint.sh .
 RUN sed -i 's/\r$//g'  $APP_HOME/entrypoint.sh
 RUN chmod +x  $APP_HOME/entrypoint.sh
 
