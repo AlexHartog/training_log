@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./training_log
+    command: python manage.py runserver 0.0.0.0:5000
+    ports:
+      - "${DJANGO_PORT:-5000}:5000"
+    env_file:
+      - .env
+  huey:
+    build:
+      context: ./training_log
+      dockerfile: Dockerfile.huey
+    command: python manage.py run_huey
+    env_file:
+      - .env
+    depends_on:
+      - web
+    environment:
+      - REDIS_HOST=${REDIS_HOST:-redis}
+  cache:
+    container_name: ${REDIS_HOST:-redis}
+    image: redis:alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+    redisdata:
+      driver: local
+

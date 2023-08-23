@@ -33,6 +33,15 @@ ALLOWED_HOSTS = [
     "*",
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    # EC2 Server
+    "http://3.77.124.210:{port}".format(port=os.getenv("NGINX_PORT")),
+    # Localhost
+    "http://127.0.0.1:{port}".format(port=os.getenv("NGINX_PORT")),
+    # Development server
+    "http://192.168.1.102:{port}".format(port=os.getenv("NGINX_PORT")),
+]
+
 
 # Application definition
 

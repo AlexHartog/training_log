@@ -14,13 +14,13 @@ class SessionForm(ModelForm):
         fields = [
             "discipline",
             "date",
-            "total_duration",
+            "moving_duration",
             "distance",
             "training_type",
             "notes",
         ]
         labels = {
-            "total_duration": "Duration (minutes)",
+            "moving_duration": "Duration (minutes)",
             "distance": "Distance (km)",
         }
         widgets = {
