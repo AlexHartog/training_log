@@ -11,13 +11,13 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 from dotenv import dotenv_values, load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -26,7 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-&18%n7etx1t7)!@5q!-xuc9fcoc-s^5*e@ys!w+o6ybviwv01#"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
+
+load_dotenv()
 
 # TODO: Make this more proper?
 ALLOWED_HOSTS = [
@@ -96,21 +98,24 @@ WSGI_APPLICATION = "training_log.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# config = dotenv_values(os.path.join(BASE_DIR, '.env'))
-load_dotenv()
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "OPTIONS": {
-            "options": f'-c search_path={os.getenv("DB_SCHEMA")}',
-        },
         "NAME": os.getenv("DB_NAME"),
         "USER": os.getenv("DB_USER"),
         "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT"),
-    }
+        "OPTIONS": {
+            "options": f'-c search_path={os.getenv("DB_SCHEMA")}',
+        },
+    },
 }
+
+if (
+    "test" in sys.argv or "test_coverage" in sys.argv
+):  # For testing we can use public schema, because django does not create a new one
+    DATABASES["default"]["OPTIONS"]["options"] = "-c search_path=public"
 
 
 # Password validation
