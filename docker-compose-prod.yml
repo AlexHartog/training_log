@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     command: gunicorn sampleApp.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - static_volume:/home/app/microservice/static/
+      - static_volume:/home/app/web/staticfiles
     expose:
       - 5000
     env_file:
@@ -16,7 +16,7 @@ services:
   nginx:
     build: ./nginx
     ports:
-      - 1300:80
+      - ${NGINX_PORT:-80}:80
     volumes:
       - static_volume:/home/app/microservice/static/
     depends_on:
