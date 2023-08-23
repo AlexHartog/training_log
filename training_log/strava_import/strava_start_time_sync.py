@@ -40,7 +40,8 @@ def get_strava_start_time(user: User, result_per_page: int):
 
 
 def sync_start_time(user, activity):
-    """Get the start time for a strava session and add it to a training session if found"""
+    """Get the start time for a strava session and add it to a
+    training session if found"""
     strava_session = StravaSession.model_validate(activity)
 
     training_session = TrainingSession.objects.filter(
