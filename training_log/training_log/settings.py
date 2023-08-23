@@ -35,11 +35,11 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     # EC2 Server
-    "http://3.77.124.210:{port}".format(port=os.getenv("NGINX_PORT")),
+    "http://3.77.124.210:{port}".format(port=os.getenv("NGINX_PORT") or 80),
     # Localhost
-    "http://127.0.0.1:{port}".format(port=os.getenv("NGINX_PORT")),
+    "http://127.0.0.1:{port}".format(port=os.getenv("NGINX_PORT") or 80),
     # Development server
-    "http://192.168.1.102:{port}".format(port=os.getenv("NGINX_PORT")),
+    "http://192.168.1.102:{port}".format(port=os.getenv("NGINX_PORT") or 80),
 ]
 
 
