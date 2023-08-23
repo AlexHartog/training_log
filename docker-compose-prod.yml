@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     command: gunicorn sampleApp.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - static_volume:/training_log/staticfiles
+      - static_volume:/home/app/microservice/static/
     expose:
       - 5000
     env_file:
@@ -18,10 +18,32 @@ services:
     ports:
       - 1300:80
     volumes:
-      - static_volume:/training_log/staticfiles
+      - static_volume:/home/app/microservice/static/
     depends_on:
       - web
 
+  huey:
+    build:
+      context: ./training_log
+      dockerfile: Dockerfile.huey
+    command: python manage.py run_huey
+    env_file:
+      - .env
+    depends_on:
+      - web
+    environment:
+      - REDIS_HOST=${REDIS_HOST:-redis}
+
+  cache:
+    container_name: ${REDIS_HOST:-redis}
+    image: redis:alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
 
 volumes:
   static_volume:
+  redisdata:
+    driver: local
