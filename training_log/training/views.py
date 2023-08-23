@@ -51,7 +51,7 @@ class SessionView(LoginRequiredMixin, DetailView):
     context_object_name = "session"
 
     def get_queryset(self):
-        session = TrainingSession.objects.filter(user=self.request.user)
+        session = TrainingSession.objects.all()
         return session
 
 

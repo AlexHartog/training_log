@@ -111,7 +111,7 @@ class AllPlayerStats:
 
         if min_duration:
             filtered_sessions = filtered_sessions.filter(
-                total_duration__gte=min_duration * 60
+                moving_duration__gte=min_duration * 60
             )
 
         return filtered_sessions.count()
@@ -135,7 +135,7 @@ class AllPlayerStats:
     def calculate_weekly_hours(self, user):
         """Return the average weekly hours for the given user based on the time
         since TRAINING_START_DATE."""
-        total_time = self.get_sum("total_duration", user)
+        total_time = self.get_sum("moving_duration", user)
         weeks_trained = ((self.end_date or datetime.now()) - self.start_date).days / 7
 
         return (total_time or 0) / weeks_trained
@@ -176,7 +176,7 @@ class AllPlayerStats:
             )
             self.add_stat(
                 "Total time trained",
-                self.formatted_duration(self.get_sum("total_duration", user)),
+                self.formatted_duration(self.get_sum("moving_duration", user)),
             )
             self.add_stat(
                 "Average weekly hours",
@@ -188,37 +188,37 @@ class AllPlayerStats:
             self.add_stat(
                 "Total swimming time",
                 self.formatted_duration(
-                    self.get_sum("total_duration", user, "Swimming")
+                    self.get_sum("moving_duration", user, "Swimming")
                 ),
             )
             self.add_stat(
                 "Total cycling time",
                 self.formatted_duration(
-                    self.get_sum("total_duration", user, "Cycling")
+                    self.get_sum("moving_duration", user, "Cycling")
                 ),
             )
             self.add_stat(
                 "Total running time",
                 self.formatted_duration(
-                    self.get_sum("total_duration", user, "Running")
+                    self.get_sum("moving_duration", user, "Running")
                 ),
             )
             self.add_stat(
                 "Longest swim (time)",
                 self.formatted_duration(
-                    self.longest_session(user, "Swimming", "total_duration")
+                    self.longest_session(user, "Swimming", "moving_duration")
                 ),
             )
             self.add_stat(
                 "Longest ride (time)",
                 self.formatted_duration(
-                    self.longest_session(user, "Cycling", "total_duration")
+                    self.longest_session(user, "Cycling", "moving_duration")
                 ),
             )
             self.add_stat(
                 "Longest run (time)",
                 self.formatted_duration(
-                    self.longest_session(user, "Running", "total_duration")
+                    self.longest_session(user, "Running", "moving_duration")
                 ),
             )
             self.add_stat(

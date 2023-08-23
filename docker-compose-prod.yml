@@ -2,16 +2,12 @@ version: '3.8'
 
 services:
   web:
-#    build: ./training_log
-#    command: gunicorn training_log.wsgi:application --bind 0.0.0.0:5000
-#      python manage.py collectstatic &&
-    build: ./training_log #build the image for the web service from the dockerfile in parent directory
-    command: sh -c "python manage.py makemigrations &&
-      python manage.py migrate &&
-      gunicorn sampleApp.wsgi:application --bind 0.0.0.0:8000"
+    build:
+      context: ./training_log #build the image for the web service from the dockerfile in parent directory
+      dockerfile: Dockerfile
+    command: gunicorn sampleApp.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - .:/microservice:rw # map data and files from parent directory in host to microservice directory in docker containe
-      - static_volume:/home/app/microservice/static
+      - static_volume:/training_log/staticfiles
     expose:
       - 5000
     env_file:
@@ -22,9 +18,10 @@ services:
     ports:
       - 1300:80
     volumes:
-      - static_volume:/home/app/microservice/static
+      - static_volume:/training_log/staticfiles
     depends_on:
       - web
+
 
 volumes:
   static_volume:
