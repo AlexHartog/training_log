@@ -45,11 +45,13 @@ class TrainingSession(models.Model):
     strava_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
+        """ """
+
         ordering = ["-date"]
 
     @property
     def formatted_duration(self):
-        """Return the moving duration as a nicely formatted string."""
+        """Format duration nicely."""
         if self.moving_duration:
             hours = self.moving_duration // 3600
             minutes = (self.moving_duration % 3600) // 60
@@ -59,7 +61,7 @@ class TrainingSession(models.Model):
 
     @property
     def formatted_distance(self):
-        """Return the distance as a nicely formatted string."""
+        """Format distance nicely"""
         if self.distance:
             return f"{self.distance/1000:.2f} km"
         else:

@@ -1,8 +1,7 @@
-from datetime import datetime, date
+from datetime import datetime
 import pytz
 
 from django.test import TestCase
-from strava_import.models import StravaTypeMapping
 from strava_import.schemas import StravaSession
 from django.utils import timezone
 
@@ -35,7 +34,8 @@ class StravaSessionTest(TestCase):
 
     def test_date(self):
         """Create a strava session and test if the date property is correct.
-        Remove the microseconds for comparison, because Strava Session does not have those.
+        Remove the microseconds for comparison, because Strava Session does
+        not have those.
         """
         start_datetime = datetime.now()
 

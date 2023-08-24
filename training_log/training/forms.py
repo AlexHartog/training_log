@@ -7,9 +7,13 @@ from .models import TrainingSession
 
 
 class SessionForm(ModelForm):
+    """A form to create a new training session."""
+
     required_css_class = "required"
 
     class Meta:
+        """The meta class."""
+
         model = TrainingSession
         fields = [
             "discipline",

@@ -15,13 +15,19 @@ LONG_RUN_DURATION = 90
 
 
 class StatsPeriod(Enum):
+    """This enum gives the different periods to calculate stats for."""
+
     WEEK = "week"
     MONTH = "month"
     ALL = "all"
 
     @staticmethod
     def get_enum_from_string(value_str):
-        """Try to find a StatsPeriod enum from a string."""
+        """Try to find a StatsPeriod enum from a string.
+
+        :param value_str: The string value
+
+        """
         for member in StatsPeriod.__members__.values():
             if member.value == value_str:
                 return member
@@ -46,6 +52,7 @@ class AllPlayerStats:
         self.calculate_stats()
 
     def get_training_sessions(self):
+        """Get the training sessions ot be used in the stats."""
         filter_condition = Q(date__gte=self.start_date)
 
         if self.end_date:
@@ -54,6 +61,7 @@ class AllPlayerStats:
         self.training_sessions = TrainingSession.objects.filter(filter_condition)
 
     def get_start_end_dates(self):
+        """Get start and end dates based on the period."""
         match self.period:
             case StatsPeriod.WEEK:
                 self.start_date = datetime.now() - relativedelta(weeks=1)
@@ -66,7 +74,12 @@ class AllPlayerStats:
                 self.end_date = None
 
     def add_stat(self, name, value):
-        """Add a stat to the stats dictionary."""
+        """Add a stat to the stats dictionary.
+
+        :param name: Name of the stat
+        :param value: Value of the stat
+
+        """
         if name in self.stats:
             self.stats[name].append(value)
         else:
@@ -74,7 +87,11 @@ class AllPlayerStats:
 
     @staticmethod
     def formatted_duration(duration):
-        """Return the duration as a nicely formatted string."""
+        """Format duration in nicer format
+
+        :param duration: The duration in seconds
+
+        """
         if duration is None:
             return "N/A"
 
@@ -84,15 +101,26 @@ class AllPlayerStats:
 
     @staticmethod
     def formatted_distance(distance):
-        """Return the distance as a nicely formatted string."""
+        """Format distance in a nicer format
+
+        :param distance: The distance in meters
+
+        """
         if distance is None:
             return "N/A"
 
         return f"{distance/1000:.2f} km"
 
     def get_sum(self, field, player, discipline=None):
-        """Return the sum of the given field for the given player.
-        If discipline is given, only return the sum for that discipline."""
+        """Get the sum of a field for a player and optional discipline.
+
+        :param field: The field we want the sum
+        :param player: The player we want to filter on
+        :param discipline: The discipline we want to filter on,
+        optional (Default value = None)
+        :returns: The sum of field for the filtered data
+
+        """
         if discipline:
             return self.training_sessions.filter(
                 user=player, discipline__name=discipline
@@ -103,8 +131,16 @@ class AllPlayerStats:
             ]
 
     def count_sessions(self, user, discipline=None, min_duration=None):
-        """Return the number of sessions for the given user. Optional discipline
-        and min_duration (in minutes) can be used to filter the sessions."""
+        """Count the number of sessions for a user. Optional to filter on
+        discipline and min_duration.
+
+        :param user: The user to count for
+        :param min_duration: The minimum duration of the sessions (in minutes)
+        (Default value = None)
+        :param discipline: The discipline to filter on (Default value = None)
+        :returns: The number of sessions for the filtered data
+
+        """
         filtered_sessions = self.training_sessions.filter(user=user)
         if discipline:
             filtered_sessions = filtered_sessions.filter(discipline__name=discipline)
@@ -117,8 +153,14 @@ class AllPlayerStats:
         return filtered_sessions.count()
 
     def longest_session(self, user, discipline, field):
-        """Return the longest session for the given user and discipline. Field
-        can be used to specify which field to return."""
+        """Find the longest value for a field for a user and discipline.
+
+        :param user: The user to filter on
+        :param field: The field we want to find
+        :param discipline: The discipline we want to filter on
+        :returns: The maximum value for the field for the filtered data
+
+        """
         longest_session = (
             self.training_sessions.filter(user=user, discipline__name=discipline)
             .exclude(**{field: None})
@@ -133,15 +175,23 @@ class AllPlayerStats:
         return getattr(longest_session, field)
 
     def calculate_weekly_hours(self, user):
-        """Return the average weekly hours for the given user based on the time
-        since TRAINING_START_DATE."""
+        """Calculate the weekly hours for a user.
+
+        :param user: The user to filter on
+        :returns: The weekly hours
+
+        """
         total_time = self.get_sum("moving_duration", user)
         weeks_trained = ((self.end_date or datetime.now()) - self.start_date).days / 7
 
         return (total_time or 0) / weeks_trained
 
     def time_since_last_training(self, user):
-        """Return the time since the last training for the given user."""
+        """Calculate the time since the last training ended for a user.
+
+        :param user: The user to filter on
+
+        """
         last_training = (
             self.training_sessions.filter(user=user)
             .order_by(F("start_date").desc(nulls_last=True))
@@ -157,6 +207,11 @@ class AllPlayerStats:
 
     @staticmethod
     def format_timedelta(delta):
+        """Format timedelta in a nice format
+
+        :param delta: The timedelta
+
+        """
         days = delta.days
         seconds = delta.seconds
         hours, remainder = divmod(seconds, 3600)
