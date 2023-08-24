@@ -14,9 +14,7 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 
 
 # TODO: Where to keep these constants?
-ACTIVITIES_URL = (
-    "https://www.strava.com/api/v3/athlete/" "activities?per_page={per_page}"
-)
+ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities?per_page={per_page}"
 SYNC_PAGE_COUNT = 5
 
 

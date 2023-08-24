@@ -36,9 +36,17 @@ class StravaAuth(models.Model):
         self.access_token_expires_at = token_response.expires_at_datetime
         self.save()
 
+    def has_valid_scope(self):
+        """Return true if the scope is valid."""
+        return "activity:read" in self.scope
+
     def __str__(self):
         """Return a string representation of the model."""
-        return f"{self.user.username.capitalize()} authorization"
+        return (
+            f"{self.user.username.capitalize()} "
+            f"{'has' if self.has_valid_access_token() else 'does not have'} "
+            f"valid access token"
+        )
 
 
 class StravaTypeMapping(models.Model):

@@ -13,26 +13,24 @@ class StravaTokenResponse(BaseModel):
 
     @property
     def expires_at_datetime(self) -> datetime:
-        return timezone.make_aware(
-            datetime.fromtimestamp(self.expires_at), timezone.get_current_timezone()
-        )
+        return timezone.make_aware(datetime.fromtimestamp(self.expires_at))
 
 
 class StravaSession(BaseModel):
-    name: str = Field(exclude=True, alias="name")
-    type: str = Field(exclude=True, alias="type")
-    sport_type: str = Field(exclude=True, alias="sport_type")
+    name: str = Field(exclude=True)
+    type: str = Field(exclude=True)
+    sport_type: str = Field(exclude=True)
     discipline_id: int | None = Field(default=None)
-    start_date_local: str = Field(exclude=True, alias="start_date_local")
-    timezone: str = Field(exclude=True, alias="timezone")
+    start_date_local: str = Field(exclude=True)
+    timezone: str = Field(exclude=True)
     total_duration: int = Field(..., alias="elapsed_time")
     moving_duration: int = Field(..., alias="moving_time")
-    distance: float = Field(..., alias="distance")
-    has_heartrate: bool = Field(exclude=True, alias="has_heartrate")
+    distance: float
+    has_heartrate: bool = Field(exclude=True)
     average_hr: float | None = Field(default=None, alias="average_heartrate")
     max_hr: float | None = Field(default=None, alias="max_heartrate")
-    average_speed: float = Field(..., alias="average_speed")
-    max_speed: float = Field(..., alias="max_speed")
+    average_speed: float
+    max_speed: float
     strava_id: int = Field(..., alias="id")
 
     @computed_field
@@ -44,12 +42,12 @@ class StravaSession(BaseModel):
     @property
     def start_date(self) -> datetime:
         return timezone.make_aware(
-            datetime.strptime(self.start_date_local, "%Y-%m-%dT%H:%M:%SZ"),
-            timezone=self.proper_timezone,
+            datetime.strptime(self.start_date_local, "%Y-%m-%dT%H:%M:%SZ")
         )
 
     @property
     def proper_timezone(self):
+        print(self.timezone)
         iana_timezone_identifier = re.search(
             r"\(([^)]+)\)\s+(.+)", self.timezone
         ).group(2)
