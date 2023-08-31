@@ -7,131 +7,215 @@ from django.test import TestCase
 from django.utils import timezone
 
 from training.models import Discipline, TrainingSession
-from training.stats import AllPlayerStats, StatsPeriod, DEFAULT_START_DATE
+from training.stats import DEFAULT_START_DATE, AllPlayerStats, StatsPeriod
+from training.tests.test_data.stats_tests_data import StatsTestData
 
 
 class TrainingStatsTest(TestCase):
     def setUp(self):
-        self.json_location = os.path.join(
-            "training",
-            "tests",
-            "test_data",
-        )
+        self.test_data = StatsTestData()
+        self.test_data.load_regular_data()
 
-        self.defaults = {
-            "username": "testuser",
-            "discipline": "test_discipline",
-            "date": "2023-08-23",
-            "start_date": "2023-08-23 00:00:00",
-        }
+        self.all_player_stats = AllPlayerStats(period=StatsPeriod.ALL)
 
-    def read_training_data(self, training_file):
-        file_path = os.path.join(self.json_location, training_file)
-        try:
-            with open(file_path, "r", encoding="utf-8") as file:
-                self.load_training_data(json.load(file))
-        except FileNotFoundError:
-            print(f"File not found {file_path}")
-            raise
-        except json.JSONDecodeError as e:
-            print(f"JSON Decode Error - {e}")
-            raise
+    @staticmethod
+    def convert_formatted_string_to_seconds(formatted_string):
+        days_in_seconds = 0
+        hours_in_seconds = 0
+        minutes_in_seconds = 0
+        if "d" in formatted_string:
+            days, formatted_string = formatted_string.split("d ")
+            days_in_seconds = int(days) * 86400
 
-    def load_training_data(self, data):
-        for training in data:
-            self.create_session_from_json(training)
+        if "h" in formatted_string:
+            hours, formatted_string = formatted_string.split("h ")
+            hours_in_seconds = int(hours) * 3600
 
-    def get_discipline(self, session_data):
-        discipline_name = (
-            session_data["discipline"]
-            if "discipline" in session_data.keys()
-            else self.defaults["discipline"]
-        )
-        try:
-            return Discipline.objects.get(name=discipline_name)
-        except Discipline.DoesNotExist:
-            return Discipline.objects.create(name=discipline_name)
+        if "m" in formatted_string:
+            minutes = formatted_string.rstrip("m")
+            minutes_in_seconds = int(minutes) * 60
 
-    def get_value_or_default(self, session_date, name):
-        if name in session_date.keys():
-            return session_date[name]
-        else:
-            if name in self.defaults.keys():
-                return self.defaults[name]
+        return days_in_seconds + hours_in_seconds + minutes_in_seconds
 
-    def get_user(self, session_data):
-        username = (
-            session_data["username"]
-            if "username" in session_data.keys()
-            else self.defaults["username"]
-        )
+    @staticmethod
+    def convert_formatted_string_to_meters(formatted_string):
+        without_kms = formatted_string.replace(" km", "")
+        kilometers, meters = without_kms.split(".")
 
-        try:
-            return User.objects.get(username=username)
-        except User.DoesNotExist:
-            return User.objects.create(username=username)
-
-    def get_start_date_local(self, session_data):
-        if "start_date" in session_data.keys():
-            start_date = session_data["start_date"]
-        else:
-            start_date = self.defaults["start_date"]
-
-        return timezone.make_aware(datetime.strptime(start_date, "%Y-%m-%dT%H:%M:%SZ"))
-
-    def create_session_from_json(self, session_data):
-        session = TrainingSession.objects.create(
-            user=self.get_user(session_data),
-            discipline=self.get_discipline(session_data),
-            date=self.get_value_or_default(session_data, "date"),
-            start_date=self.get_start_date_local(session_data),
-            moving_duration=self.get_value_or_default(session_data, "moving_duration"),
-            total_duration=self.get_value_or_default(session_data, "total_duration"),
-        )
-        session.save()
+        return int(kilometers) * 1000 + int(meters)
 
     def test_total_time_trained(self):
-        self.read_training_data("training_data.json")
-
-        all_player_stats = AllPlayerStats(period=StatsPeriod.ALL)
-
-        self.assertEqual(
-            all_player_stats.stats["Total time trained"][0],
-            all_player_stats.formatted_duration(19800),
+        """Test if total time trained is calculated correctly."""
+        result = self.convert_formatted_string_to_seconds(
+            self.all_player_stats.stats["Total time trained"][0]
         )
+        expected = self.test_data.total_time_trained
+
+        self.assertEqual(result, expected)
 
     def test_time_since_last_training(self):
-        self.read_training_data("training_data.json")
+        """Test if time since last training is calculated correctly."""
+        result = self.convert_formatted_string_to_seconds(
+            self.all_player_stats.stats["Time since last training"][0]
+        )
+        expected = self.test_data.time_since_last_session
 
-        all_player_stats = AllPlayerStats(period=StatsPeriod.ALL)
-        expected = all_player_stats.format_timedelta(
-            timezone.localtime(timezone.now())
-            - (
-                timezone.make_aware(datetime(2023, 8, 25, 0, 0, 0))
-                + timedelta(seconds=4000)
-            )
+        # Due to rounding and calculation time there could be a one minute
+        # difference between expected and result
+        self.assertTrue(-61 < result - expected < 61)
+
+    def test_calculate_weekly_hours(self):
+        """Test if weekly hours are calculated correctly."""
+        weeks_trained = (datetime.now() - DEFAULT_START_DATE).days / 7
+
+        expected = self.all_player_stats.formatted_duration(
+            self.test_data.total_time_trained / weeks_trained
         )
 
         self.assertEqual(
-            all_player_stats.stats["Time since last training"][0], expected
+            self.all_player_stats.stats["Average weekly hours"][0], expected
         )
 
-    def test_calculate_weekly_hours(self):
-        self.read_training_data("training_data.json")
+    def test_format_timedelta(self):
+        """Test if timedelta is formatted correctly."""
+        formatted_timedelta = AllPlayerStats.format_timedelta(
+            timedelta(days=1, hours=10, minutes=30)
+        )
+        expected = "1d 10h 30m"
 
-        all_player_stats = AllPlayerStats(period=StatsPeriod.ALL)
+        self.assertEqual(formatted_timedelta, expected)
 
-        total_time_trained = 19800
-        weeks_trained = (datetime.now() - DEFAULT_START_DATE).days / 7
+    def test_format_duration(self):
+        """Test if duration is formatted correctly."""
+        duration = AllPlayerStats.formatted_duration(duration=4820)
+        expected = "1h 20m"
 
-        expected = all_player_stats.formatted_duration(
-            total_time_trained / weeks_trained
+        self.assertEqual(duration, expected)
+
+    def test_format_distance(self):
+        """Test if distance is formatted correctly."""
+        distance = AllPlayerStats.formatted_distance(distance=12480)
+        expected = "12.48 km"
+
+        self.assertEqual(distance, expected)
+
+    def test_number_of_swims(self):
+        """Test if number of swims is calculated correctly."""
+        self.assertEqual(
+            self.all_player_stats.stats["Number of swims"][0],
+            self.test_data.number_of_swims,
         )
 
-        self.assertEqual(all_player_stats.stats["Average weekly hours"][0], expected)
+    def test_number_of_runs(self):
+        """Test if number of runs is calculated correctly."""
+        self.assertEqual(
+            self.all_player_stats.stats["Number of runs"][0],
+            self.test_data.number_of_runs,
+        )
+
+    def test_number_of_rides(self):
+        """Test if number of rides is calculated correctly."""
+        self.assertEqual(
+            self.all_player_stats.stats["Number of rides"][0],
+            self.test_data.number_of_rides,
+        )
+
+    def test_total_swimming_time(self):
+        """Test if total swimming time is calculated correctly."""
+        self.assertEqual(
+            self.convert_formatted_string_to_seconds(
+                self.all_player_stats.stats["Total swimming time"][0]
+            ),
+            self.test_data.total_swimming_time,
+        )
+
+    def test_total_running_time(self):
+        """Test if total running time is calculated correctly."""
+        self.assertEqual(
+            self.convert_formatted_string_to_seconds(
+                self.all_player_stats.stats["Total running time"][0]
+            ),
+            self.test_data.total_running_time,
+        )
+
+    def test_total_cycling_time(self):
+        """Test if total cycling time is calculated correctly."""
+        self.assertEqual(
+            self.convert_formatted_string_to_seconds(
+                self.all_player_stats.stats["Total cycling time"][0]
+            ),
+            self.test_data.total_cycling_time,
+        )
+
+    def test_longest_swim_time(self):
+        """Test if longest swim time is calculated correctly."""
+        self.assertEqual(
+            self.convert_formatted_string_to_seconds(
+                self.all_player_stats.stats["Longest swim (time)"][0]
+            ),
+            self.test_data.longest_swim_time,
+        )
+
+    def test_longest_run_time(self):
+        """Test if longest run time is calculated correctly."""
+        self.assertEqual(
+            self.convert_formatted_string_to_seconds(
+                self.all_player_stats.stats["Longest run (time)"][0]
+            ),
+            self.test_data.longest_run_time,
+        )
+
+    def test_longest_ride_time(self):
+        """Test if longest ride time is calculated correctly."""
+        self.assertEqual(
+            self.convert_formatted_string_to_seconds(
+                self.all_player_stats.stats["Longest ride (time)"][0]
+            ),
+            self.test_data.longest_ride_time,
+        )
+
+    def test_longest_swim_distance(self):
+        """Test if longest swim distance is calculated correctly."""
+        self.assertEqual(
+            self.convert_formatted_string_to_meters(
+                self.all_player_stats.stats["Longest swim (km)"][0]
+            ),
+            self.test_data.longest_swim_distance,
+        )
+
+    def test_longest_run_distance(self):
+        """Test if longest run distance is calculated correctly."""
+        self.assertEqual(
+            self.convert_formatted_string_to_meters(
+                self.all_player_stats.stats["Longest run (km)"][0]
+            ),
+            self.test_data.longest_run_distance,
+        )
+
+    def test_longest_ride_distance(self):
+        """Test if longest ride distance is calculated correctly."""
+        self.assertEqual(
+            self.convert_formatted_string_to_meters(
+                self.all_player_stats.stats["Longest ride (km)"][0]
+            ),
+            self.test_data.longest_ride_distance,
+        )
+
+    def test_longest_ride_empty(self):
+        """Test if longest ride distance is marked as N/A if no rides are in the data."""
+        self.assertEqual(self.all_player_stats.stats["Longest ride (time)"][1], "N/A")
+        self.assertEqual(self.all_player_stats.stats["Longest ride (km)"][1], "N/A")
 
     # Test correct period
     # Test every stat
+    # -
+
     # Test with NaN
     # Test multiple users
     # Make sure that if date is NaN it will be excluded
+
+
+# stats to tests:
+# Long swims (>60 mins)
+# Long rides (>180 mins)
+# Long runs (>90 mins)
