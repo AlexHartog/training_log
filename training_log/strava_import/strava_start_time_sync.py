@@ -1,5 +1,6 @@
 import requests
 from django.contrib.auth.models import User
+
 from training.models import TrainingSession
 
 from . import strava_authentication

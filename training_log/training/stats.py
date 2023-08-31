@@ -197,9 +197,9 @@ class AllPlayerStats:
             .order_by(F("start_date").desc(nulls_last=True))
             .first()
         )
-        if last_training:
+        if last_training and last_training.start_date:
             end_time = last_training.start_date + timedelta(
-                seconds=last_training.total_duration
+                seconds=last_training.total_duration or 0
             )
             return self.format_timedelta(timezone.localtime(timezone.now()) - end_time)
         else:

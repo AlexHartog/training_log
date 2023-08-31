@@ -34,6 +34,9 @@ DJANGO_PORT=
 
 #### Migrating in docker compose
 
+Docker Compose should already contain the migrate command and apply migrations. However, if this fails, you can
+enter the container to run migrations manually.
+
 Run `docker ps` to get the container id of the training log container
 
 Run `docker exec -t -i e0bfb46360dd python manage.py migrate`
@@ -90,3 +93,5 @@ imported in the settings.py.
 The entrypoint should not have CRLF line endings. So make sure it is set to LF. Otherwise it will say it
 can't find the file
 
+### Coverage
+To run coverage you need to run `coverage run training_log/manage.py test training -v 2 --noinput; coverage html`

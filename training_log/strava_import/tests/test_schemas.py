@@ -1,9 +1,10 @@
 from datetime import datetime
-import pytz
 
+import pytz
 from django.test import TestCase
-from strava_import.schemas import StravaSession
 from django.utils import timezone
+
+from strava_import.schemas import StravaSession
 
 
 class StravaSessionTest(TestCase):

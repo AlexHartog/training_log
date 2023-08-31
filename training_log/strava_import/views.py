@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
+
 from training.models import TrainingSession
 
 from . import strava, strava_authentication, strava_start_time_sync
