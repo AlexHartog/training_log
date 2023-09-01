@@ -238,8 +238,18 @@ class TrainingStatsTest(TestCase):
 
         self.assertEqual(len(self.all_player_stats.training_sessions), 6)
 
-    def test_last_month_data(self):
+    def test_last_three_months_data(self):
         """Test if last three month period leads to correct number of sessions."""
         self.all_player_stats = AllPlayerStats(period=StatsPeriod.THREE_MONTHS)
 
         self.assertEqual(len(self.all_player_stats.training_sessions), 7)
+
+    def test_brick_count(self):
+        """Test if brick session count is calculated correctly."""
+        self.test_data.add_brick_test_data()
+        self.all_player_stats = AllPlayerStats(period=StatsPeriod.ALL)
+
+        self.assertEqual(
+            self.all_player_stats.stats["Number of brick workouts"][0],
+            self.test_data.brick_count,
+        )

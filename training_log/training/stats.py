@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from enum import Enum
+import pandas as pd
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
@@ -206,6 +207,74 @@ class AllPlayerStats:
         else:
             return None
 
+    def get_rides_with_end_date(self, user):
+        """Get all rides for a user as a dataframe. Filter out null start dates, calculate
+        end date sort by the end date."""
+        rides = (
+            self.training_sessions.filter(user=user)
+            .filter(discipline__name="Cycling")
+            .filter(start_date__isnull=False)
+            .all()
+        )
+
+        if len(rides) == 0:
+            return None
+
+        rides_df = pd.DataFrame.from_records(rides.values())
+
+        rides_df["end_date"] = rides_df["start_date"] + pd.to_timedelta(
+            rides_df["total_duration"], unit="s"
+        )
+        rides_df.sort_values("start_date", inplace=True)
+        rides_df = rides_df.add_suffix("_ride")
+        return rides_df
+
+    def get_runs_df(self, user):
+        """Get all runs for a user as a dataframe. Filter out null start dates
+        and sort by start date."""
+        runs = (
+            self.training_sessions.filter(user=user)
+            .filter(discipline__name="Running")
+            .filter(start_date__isnull=False)
+            .all()
+        )
+
+        if len(runs) == 0:
+            return None
+
+        runs_df = pd.DataFrame.from_records(runs.values())
+        runs_df.sort_values("start_date", inplace=True)
+        runs_df = runs_df.add_suffix("_run")
+        return runs_df
+
+    def count_brick_sessions(self, user):
+        """Count the number of brick sessions done by the user.
+
+        :param user: The user to filter on
+
+        """
+        rides = self.get_rides_with_end_date(user)
+        runs = self.get_runs_df(user)
+
+        if rides is None or runs is None:
+            return 0
+
+        results = pd.merge_asof(
+            rides,
+            runs,
+            left_on="end_date_ride",
+            right_on="start_date_run",
+            direction="forward",
+        )
+
+        results["time_between"] = (
+            results["start_date_run"] - results["end_date_ride"]
+        ).dt.total_seconds() / 60
+
+        results = results.loc[results["time_between"] <= 30]
+
+        return len(results.index)
+
     @staticmethod
     def format_timedelta(delta):
         """Format timedelta in a nice format
@@ -241,6 +310,7 @@ class AllPlayerStats:
             self.add_stat("Number of swims", self.count_sessions(user, "Swimming"))
             self.add_stat("Number of rides", self.count_sessions(user, "Cycling"))
             self.add_stat("Number of runs", self.count_sessions(user, "Running"))
+            self.add_stat("Number of brick workouts", self.count_brick_sessions(user))
             self.add_stat(
                 "Total swimming time",
                 self.formatted_duration(

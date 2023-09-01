@@ -158,3 +158,116 @@ class StatsTestData:
         self.num_long_swims = 1
         self.num_long_runs = 2
         self.num_long_rides = 1
+
+    def add_brick_test_data(self):
+        # These two sessions are a proper brick training
+        # the run is within 30 minutes of the end of the cycling session
+        days_back = 1
+        self.create_session(
+            discipline="Cycling",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=1 * 3600,
+            total_duration=1 * 3600 + 120,
+            distance=1500,
+        )
+
+        self.create_session(
+            discipline="Running",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date
+            - timedelta(days=days_back)
+            + timedelta(hours=1, minutes=10),
+            moving_duration=3610,
+            total_duration=4000,
+            distance=2000,
+        )
+
+        # These two sessions are not a brick training
+        # there is too much time between the sessions
+        days_back = 2
+        self.create_session(
+            discipline="Cycling",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=1 * 3600,
+            total_duration=1 * 3600 + 120,
+            distance=1500,
+        )
+
+        self.create_session(
+            discipline="Running",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date
+            - timedelta(days=days_back)
+            + timedelta(hours=2, minutes=10),
+            moving_duration=3610,
+            total_duration=4000,
+            distance=2000,
+        )
+
+        # These two sessions are not a brick training
+        # the running is before the cycling
+        days_back = 3
+        self.create_session(
+            discipline="Cycling",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=1 * 3600,
+            total_duration=1 * 3600 + 120,
+            distance=1500,
+        )
+
+        self.create_session(
+            discipline="Running",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back, hours=2),
+            moving_duration=3610,
+            total_duration=4000,
+            distance=2000,
+        )
+
+        # These two sessions are not a proper brick training
+        # it needs to be a ride and run
+        days_back = 4
+        self.create_session(
+            discipline="Cycling",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=1 * 3600,
+            total_duration=1 * 3600 + 120,
+            distance=1500,
+        )
+
+        self.create_session(
+            discipline="Swimming",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date
+            - timedelta(days=days_back)
+            + timedelta(hours=1, minutes=10),
+            moving_duration=3610,
+            total_duration=4000,
+            distance=2000,
+        )
+
+        # Add data with None to make sure it handles that correctly
+        days_back = 5
+        self.create_session(
+            discipline="Cycling",
+            date=self.date - timedelta(days=days_back),
+            start_date=None,
+            moving_duration=1 * 3600,
+            total_duration=1 * 3600 + 120,
+            distance=1500,
+        )
+
+        self.create_session(
+            discipline="Running",
+            date=self.date - timedelta(days=days_back),
+            start_date=None,
+            moving_duration=3610,
+            total_duration=4000,
+            distance=2000,
+        )
+
+        self.brick_count = 1
