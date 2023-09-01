@@ -225,7 +225,7 @@ class AllPlayerStats:
         rides_df["end_date"] = rides_df["start_date"] + pd.to_timedelta(
             rides_df["total_duration"], unit="s"
         )
-        rides_df.sort_values("start_date", inplace=True)
+        rides_df.sort_values("end_date", inplace=True)
         rides_df = rides_df.add_suffix("_ride")
         return rides_df
 
