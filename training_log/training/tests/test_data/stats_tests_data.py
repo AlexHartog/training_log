@@ -12,10 +12,6 @@ class StatsTestData:
         self.date = datetime.today() - timedelta(days=1)
         self.start_date = timezone.make_aware(self.date + timedelta(hours=12))
 
-        # Stats values
-        self.total_time_trained = None
-        self.weekly_time_trained = None
-
     def create_discipline(self, name="test"):
         return Discipline.objects.create(name=name)
 
@@ -70,7 +66,7 @@ class StatsTestData:
             discipline="Swimming",
             date=self.date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
-            moving_duration=3600,
+            moving_duration=3610,
             total_duration=4000,
             distance=2000,
         )
@@ -80,8 +76,8 @@ class StatsTestData:
             discipline="Running",
             date=self.date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
-            moving_duration=4200,
-            total_duration=4400,
+            moving_duration=5500,
+            total_duration=5600,
             distance=None,
         )
 
@@ -100,9 +96,9 @@ class StatsTestData:
             discipline="Cycling",
             date=self.date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
-            moving_duration=1800,
-            total_duration=2000,
-            distance=4000,
+            moving_duration=18000,
+            total_duration=20000,
+            distance=40000,
         )
 
         days_back = 8
@@ -115,7 +111,7 @@ class StatsTestData:
             distance=None,
         )
 
-        days_back = 15
+        days_back = 100
         self.create_session(
             username="testuser_2",
             discipline="Running",
@@ -137,7 +133,7 @@ class StatsTestData:
             distance=5000,
         )
 
-        self.total_time_trained = 20280
+        self.total_time_trained = 37800
         self.time_since_last_session = (
             timezone.now()
             - (self.start_date - timedelta(days=1) + timedelta(seconds=4000))
@@ -148,13 +144,17 @@ class StatsTestData:
         self.number_of_rides = 1
 
         self.total_swimming_time = 7080
-        self.total_running_time = 11400
-        self.total_cycling_time = 1800
+        self.total_running_time = 12660
+        self.total_cycling_time = 18000
 
         self.longest_swim_time = 3600
         self.longest_run_time = 7200
-        self.longest_ride_time = 1800
+        self.longest_ride_time = 18000
 
         self.longest_swim_distance = 2000
         self.longest_run_distance = 21000
-        self.longest_ride_distance = 4000
+        self.longest_ride_distance = 40000
+
+        self.num_long_swims = 1
+        self.num_long_runs = 2
+        self.num_long_rides = 1

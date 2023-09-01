@@ -66,15 +66,14 @@ class TrainingStatsTest(TestCase):
 
     def test_calculate_weekly_hours(self):
         """Test if weekly hours are calculated correctly."""
-        weeks_trained = (datetime.now() - DEFAULT_START_DATE).days / 7
+        result = self.all_player_stats.stats["Average weekly hours"][0]
 
+        weeks_trained = (datetime.now() - DEFAULT_START_DATE).days / 7
         expected = self.all_player_stats.formatted_duration(
             self.test_data.total_time_trained / weeks_trained
         )
 
-        self.assertEqual(
-            self.all_player_stats.stats["Average weekly hours"][0], expected
-        )
+        self.assertEqual(result, expected)
 
     def test_format_timedelta(self):
         """Test if timedelta is formatted correctly."""
@@ -206,16 +205,35 @@ class TrainingStatsTest(TestCase):
         self.assertEqual(self.all_player_stats.stats["Longest ride (time)"][1], "N/A")
         self.assertEqual(self.all_player_stats.stats["Longest ride (km)"][1], "N/A")
 
-    # Test correct period
-    # Test every stat
-    # -
+    def test_num_long_swims(self):
+        """Test if number of long swims is calculated correctly."""
+        self.assertEqual(
+            self.all_player_stats.stats["Long swims (>60 mins)"][0],
+            self.test_data.num_long_swims,
+        )
 
-    # Test with NaN
-    # Test multiple users
-    # Make sure that if date is NaN it will be excluded
+    def test_num_long_runs(self):
+        """Test if number of long runs is calculated correctly."""
+        self.assertEqual(
+            self.all_player_stats.stats["Long runs (>90 mins)"][0],
+            self.test_data.num_long_runs,
+        )
 
+    def test_num_long_rides(self):
+        """Test if number of long rides is calculated correctly."""
+        self.assertEqual(
+            self.all_player_stats.stats["Long rides (>180 mins)"][0],
+            self.test_data.num_long_rides,
+        )
 
-# stats to tests:
-# Long swims (>60 mins)
-# Long rides (>180 mins)
-# Long runs (>90 mins)
+    def test_last_week_data(self):
+        """Test if last week period leads to correct number of sessions."""
+        self.all_player_stats = AllPlayerStats(period=StatsPeriod.WEEK)
+
+        self.assertEqual(len(self.all_player_stats.training_sessions), 2)
+
+    def test_last_month_data(self):
+        """Test if last month period leads to correct number of sessions."""
+        self.all_player_stats = AllPlayerStats(period=StatsPeriod.MONTH)
+
+        self.assertEqual(len(self.all_player_stats.training_sessions), 6)
