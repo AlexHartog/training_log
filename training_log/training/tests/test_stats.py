@@ -237,3 +237,9 @@ class TrainingStatsTest(TestCase):
         self.all_player_stats = AllPlayerStats(period=StatsPeriod.MONTH)
 
         self.assertEqual(len(self.all_player_stats.training_sessions), 6)
+
+    def test_last_month_data(self):
+        """Test if last three month period leads to correct number of sessions."""
+        self.all_player_stats = AllPlayerStats(period=StatsPeriod.THREE_MONTHS)
+
+        self.assertEqual(len(self.all_player_stats.training_sessions), 7)

@@ -19,6 +19,7 @@ class StatsPeriod(Enum):
 
     WEEK = "week"
     MONTH = "month"
+    THREE_MONTHS = "three_months"
     ALL = "all"
 
     @staticmethod
@@ -62,16 +63,16 @@ class AllPlayerStats:
 
     def get_start_end_dates(self):
         """Get start and end dates based on the period."""
+        self.end_date = None
         match self.period:
             case StatsPeriod.WEEK:
                 self.start_date = datetime.now() - relativedelta(weeks=1)
-                self.end_date = None
             case StatsPeriod.MONTH:
                 self.start_date = datetime.now() - relativedelta(months=1)
-                self.end_date = None
+            case StatsPeriod.THREE_MONTHS:
+                self.start_date = datetime.now() - relativedelta(months=3)
             case StatsPeriod.ALL:
                 self.start_date = DEFAULT_START_DATE
-                self.end_date = None
 
     def add_stat(self, name, value):
         """Add a stat to the stats dictionary.
