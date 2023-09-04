@@ -1,12 +1,7 @@
-import json
-import os
 from datetime import datetime, timedelta
 
-from django.contrib.auth.models import User
 from django.test import TestCase
-from django.utils import timezone
 
-from training.models import Discipline, TrainingSession
 from training.stats import DEFAULT_START_DATE, AllPlayerStats, StatsPeriod
 from training.tests.test_data.stats_tests_data import StatsTestData
 
@@ -201,7 +196,8 @@ class TrainingStatsTest(TestCase):
         )
 
     def test_longest_ride_empty(self):
-        """Test if longest ride distance is marked as N/A if no rides are in the data."""
+        """Test if longest ride distance is marked as N/A if no
+        rides are in the data."""
         self.assertEqual(self.all_player_stats.stats["Longest ride (time)"][1], "N/A")
         self.assertEqual(self.all_player_stats.stats["Longest ride (km)"][1], "N/A")
 

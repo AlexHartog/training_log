@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from enum import Enum
-import pandas as pd
 
+import pandas as pd
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.db.models import F, Q, Sum
@@ -208,8 +208,8 @@ class AllPlayerStats:
             return None
 
     def get_rides_with_end_date(self, user):
-        """Get all rides for a user as a dataframe. Filter out null start dates, calculate
-        end date sort by the end date."""
+        """Get all rides for a user as a dataframe. Filter out null start dates,
+        calculate end date sort by the end date."""
         rides = (
             self.training_sessions.filter(user=user)
             .filter(discipline__name="Cycling")
