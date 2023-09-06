@@ -4,22 +4,17 @@
 
 {% block content %}
 <h1>Overall Stats</h1>
-    <strong>
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {% if period == "all" %}
-                All time
-            {% else %}
-            Last {{ period }}
-            {% endif %}
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="{% url 'all-stats' 'week' %}">Last week</a>
-            <a class="dropdown-item" href="{% url 'all-stats' 'month' %}">Last month</a>
-            <a class="dropdown-item" href="{% url 'all-stats' 'three_months' %}">Last 3 months</a>
-            <a class="dropdown-item" href="{% url 'all-stats' 'all' %}">All time</a>
-        </div>
-    </strong>
+<strong>
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {{ period }}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        {% for period_option in period_options %}
+            <a class="dropdown-item" href="{% url 'all-stats' period_option.value %}">{{ period_option.str }}</a>
+        {% endfor %}
+    </div>
+</strong>
 
 
 
@@ -30,7 +25,6 @@
       <th><a class="header-link" href="{% url 'session-list' player %}">{{ player }}</a></th>
     {% endfor %}
   </tr>
-<!--    <th>Training Type</th>-->
   {% for stat_name, stats_list in stats.items %}
   <tr class="stats {% cycle '' 'altrow' %}">
     <td><strong>{{ stat_name }}</strong></td>

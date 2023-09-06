@@ -96,7 +96,8 @@ def all_stats(request, period):
     context = {
         "players": player_stats.players,
         "stats": player_stats.stats,
-        "period": period,
+        "period": str(period_enum),
+        "period_options": stats.StatsPeriod.options(),
     }
 
     return render(request, "training/all_stats.html", context=context)

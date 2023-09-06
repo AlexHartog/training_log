@@ -45,8 +45,6 @@ class TrainingSession(models.Model):
     strava_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        """ """
-
         ordering = ["-date"]
 
     @property

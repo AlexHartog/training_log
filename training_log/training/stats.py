@@ -37,6 +37,21 @@ class StatsPeriod(Enum):
             f"No member found for '{value_str}' in enum {StatsPeriod.__name__}"
         )
 
+    def __str__(self):
+        if self == StatsPeriod.ALL:
+            return "All time"
+        else:
+            return "Last " + self.value.replace("_", " ")
+
+    @staticmethod
+    def options():
+        options = []
+        for member in StatsPeriod.__members__.values():
+            options.append(
+                {"value": member.value, "name": member.name, "str": str(member)}
+            )
+        return options
+
 
 class AllPlayerStats:
     """This class has overall statistics for all players."""

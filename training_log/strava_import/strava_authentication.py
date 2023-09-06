@@ -167,8 +167,6 @@ def save_auth(request):
     strava_auth = StravaAuth.objects.create(
         user=request.user,
         code=code,
-        # access_token=access_token,
-        # access_token_retrieved_at=datetime.now(),
         scope=scope,
         auto_import=True,
     )
