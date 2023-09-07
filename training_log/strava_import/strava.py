@@ -4,7 +4,6 @@ import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from dotenv import dotenv_values
-
 from training.models import TrainingSession
 
 from . import strava_authentication

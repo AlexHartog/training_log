@@ -25,10 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-&18%n7etx1t7)!@5q!-xuc9fcoc-s^5*e@ys!w+o6ybviwv01#"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 load_dotenv()
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.getenv("DJANGO_DEBUG", False)
 
 # TODO: Make this more proper?
 ALLOWED_HOSTS = [
@@ -37,11 +37,11 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     # EC2 Server
-    "http://3.77.124.210:{port}".format(port=os.getenv("NGINX_PORT") or 80),
+    "http://3.77.124.210:{port}".format(port=os.getenv("NGINX_PORT", 80)),
     # Localhost
-    "http://127.0.0.1:{port}".format(port=os.getenv("NGINX_PORT") or 80),
+    "http://127.0.0.1:{port}".format(port=os.getenv("NGINX_PORT", 80)),
     # Development server
-    "http://192.168.1.102:{port}".format(port=os.getenv("NGINX_PORT") or 80),
+    "http://192.168.1.102:{port}".format(port=os.getenv("NGINX_PORT", 80)),
 ]
 
 
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "bootstrap5",
     "crispy_forms",
     "crispy_bootstrap5",
+    "django_pandas",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -155,7 +156,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "training_log/static"]
+STATICFILES_DIRS = [BASE_DIR / "training_log/static", BASE_DIR / "training/static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
@@ -166,7 +167,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 HUEY = {
     "immediate": False,
     "connection": {
-        "host": os.getenv("REDIS_HOST") or "redis",
+        "host": os.getenv("REDIS_HOST", "redis"),
         "port": 6379,
     },
 }

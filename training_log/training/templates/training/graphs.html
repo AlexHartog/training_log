@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Graphs{% endblock title %}
+
+{% block content %}
+
+<div>
+  <canvas id="myChart"></canvas>
+  <canvas id="myChart2"></canvas>
+</div>
+
+<!-- Move this to header?-->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+
+{% load static %}
+<script src="{% static 'js/graphs.js' %}"> </script>
+
+{% autoescape off %}
+<script>
+
+var chart1 = createChart({canvasId: 'myChart', chartType: 'line', labels: {{ graph_data.alex.dates }}, data: {{ graph_data.alex.values }}});
+
+</script>
+{% endautoescape %}
+
+{% endblock content %}

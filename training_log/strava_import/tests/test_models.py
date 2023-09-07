@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
-
 from strava_import.models import StravaAuth, StravaTypeMapping
 from strava_import.schemas import StravaTokenResponse
 from training.models import Discipline

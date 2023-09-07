@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 from django.test import TestCase
-
 from training.stats import DEFAULT_START_DATE, AllPlayerStats, StatsPeriod
 from training.tests.test_data.stats_tests_data import StatsTestData
 

@@ -11,6 +11,7 @@ from django.views.generic.list import ListView
 
 from . import stats
 from .forms import SessionForm
+from .graphs import GraphsData
 from .models import TrainingSession
 
 
@@ -101,3 +102,23 @@ def all_stats(request, period):
     }
 
     return render(request, "training/all_stats.html", context=context)
+
+
+def graphs(request):
+    training_data = TrainingSession.objects.filter(moving_duration__gt=0).all()
+    training_dates = [
+        date.isoformat() for date in list(training_data.values_list("date", flat=True))
+    ]
+
+    graphs_data = GraphsData()
+    training_hours = list(training_data.values_list("moving_duration", flat=True))
+
+    return render(
+        request,
+        "training/graphs.html",
+        {
+            "labels": training_dates,
+            "data": training_hours,
+            "graph_data": graphs_data.data,
+        },
+    )
