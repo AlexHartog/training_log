@@ -14,6 +14,14 @@ function createChart({canvasId, chartType, all_data, settings}) {
         data_sets.push({label: item.user, data: item.values})
     }
 
+    title = {}
+    if ('title' in settings) {
+        title = {
+            display: true,
+            text: settings['title']
+        }
+    }
+
     y_title = {}
     if ('y_label' in settings) {
         y_title = {
@@ -51,9 +59,16 @@ function createChart({canvasId, chartType, all_data, settings}) {
             plugins: {
                 legend: {
                     display: true
+                },
+                title: title,
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            elements: {
+                point: {
+                    radius: 0
                 }
             }
-        }
-
+        },
     });
 }

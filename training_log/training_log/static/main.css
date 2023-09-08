@@ -44,14 +44,15 @@ h1 {
 #nav li a {
     text-decoration: none;
 }
-#rightsidebar {
+/*#rightsidebar {
     width: 180px;
     height: 350px;
     float: right;
     padding-right: 20px;
-}
+}*/
 #main {
-    width: 560px;
+    /*width: 560px;*/
+    width: 100%;
     float: left;
     margin: 0 10px 50px 20px;
     padding-right: 10px;
@@ -61,10 +62,6 @@ h1 {
     float: left;
     margin: 10px 10px 50px 20px;
     padding-right: 10px;
-}
-#logo {
-    padding: 10px;
-    float: left;
 }
 #top_menu {
     float: right;
@@ -196,16 +193,34 @@ input {
     font-weight: bold;
 }
 
+.graphDiv {
+    width: 600px;
+    height: 400px;
+}
+
 @media (max-width: 767px) {
     .form {
-        width: 60%;
+        width: 20%;
         margin-right: 0;
     }
     .import-table {
-        width: 60%;
+        width: 20%;
         font-size: 3vw;
     }
+    .stats {
+        font-size: 13px;
+    }
+    canvas#myChart {
+        width: 300px;
+        height: 200px;
+    }
+    .graphDiv {
+        width: 90vw;
+        height: 300px;
+    }
 }
+
+
 
 .asteriskField {
     display: none;

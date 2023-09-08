@@ -65,5 +65,7 @@ class GraphsData:
             values = trained_data.transform(pd.Series.cumsum).values.tolist()
             dates = [pd.to_datetime(x).isoformat() for x in trained_data.index.values]
 
-            self.data.append({"dates": dates, "values": values, "user": user.username})
-            self.settings = {"y_label": "Hours trained"}
+            self.data.append(
+                {"dates": dates, "values": values, "user": user.username.capitalize()}
+            )
+            self.settings = {"y_label": "Hours trained", "title": "Total hours trained"}
