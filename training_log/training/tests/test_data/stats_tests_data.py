@@ -270,3 +270,86 @@ class StatsTestData:
         )
 
         self.brick_count = 1
+
+    def load_graph_data(self):
+        days_back = 2
+        self.create_session(
+            discipline="Swimming",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=3500,
+            total_duration=3700,
+            distance=1500,
+        )
+
+        days_back = 1
+        self.create_session(
+            discipline="Swimming",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=3610,
+            total_duration=4000,
+            distance=2000,
+        )
+
+        days_back = 7
+        self.create_session(
+            discipline="Running",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=5500,
+            total_duration=5600,
+            distance=None,
+        )
+
+        days_back = 20
+        self.create_session(
+            discipline="Running",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=7200,
+            total_duration=8000,
+            distance=21000,
+        )
+
+        days_back = 30
+        self.create_session(
+            discipline="Cycling",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=18000,
+            total_duration=20000,
+            distance=40000,
+        )
+
+        days_back = 8
+        self.create_session(
+            discipline="Running",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=None,
+            total_duration=None,
+            distance=None,
+        )
+
+        days_back = 100
+        self.create_session(
+            username="testuser_2",
+            discipline="Running",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=1850,
+            total_duration=2050,
+            distance=4000,
+        )
+
+        days_back = 40
+        self.create_session(
+            username="testuser_2",
+            discipline="Swimming",
+            date=self.date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            moving_duration=18000,
+            total_duration=21000,
+            distance=5000,
+        )

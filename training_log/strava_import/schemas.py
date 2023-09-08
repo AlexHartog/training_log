@@ -7,16 +7,21 @@ from pydantic import BaseModel, Field, computed_field
 
 
 class StravaTokenResponse(BaseModel):
+    """Class to parse strava token responses."""
+
     access_token: str
     expires_at: int
     refresh_token: str
 
     @property
     def expires_at_datetime(self) -> datetime:
+        """Get a datetime from the expires_at timestamp."""
         return timezone.make_aware(datetime.fromtimestamp(self.expires_at))
 
 
 class StravaSession(BaseModel):
+    """Class to parse strava sessions."""
+
     name: str = Field(exclude=True)
     type: str = Field(exclude=True)
     sport_type: str = Field(exclude=True)
@@ -36,18 +41,20 @@ class StravaSession(BaseModel):
     @computed_field
     @property
     def date(self) -> datetime:
+        """Add date for converting to model."""
         return self.start_date
 
     @computed_field
     @property
     def start_date(self) -> datetime:
+        """Get start_date as datetime from start_date_local string."""
         return timezone.make_aware(
             datetime.strptime(self.start_date_local, "%Y-%m-%dT%H:%M:%SZ")
         )
 
     @property
     def proper_timezone(self):
-        print(self.timezone)
+        """Convert IANA timezone to pytz timezone."""
         iana_timezone_identifier = re.search(
             r"\(([^)]+)\)\s+(.+)", self.timezone
         ).group(2)

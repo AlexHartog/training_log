@@ -69,13 +69,10 @@ class GraphsData:
         ]
 
     def add_graph_data(self, graph_name, dates, values, label):
-        self.data.setdefault(graph_name, []).append(
-            {
-                "x_values": dates,
-                "y_values": values,
-                "label": label,
-            }
-        )
+        self.data.setdefault(graph_name, {})[label] = {
+            "x_values": dates,
+            "y_values": values,
+        }
 
     def get_week_numbers(self):
         self.week_numbers = pd.DataFrame(
@@ -99,9 +96,7 @@ class GraphsData:
         graph_name = "total_hours_trained"
 
         total_trained_data = self.training_sessions.fillna(0)
-        total_trained_data["moving_duration"] = (
-            total_trained_data["moving_duration"] / 3600
-        )
+
         for user in self.users:
             user_data = total_trained_data.loc[
                 total_trained_data["user_name"] == user.username

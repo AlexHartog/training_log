@@ -60,7 +60,9 @@ Run `docker exec -t -i 66175bfd6ae6 bash`
 - [] More statistics 
 - [] Calendar
 - [] Supplement existing training data with strava data
-- [] Graphs
+- [x] Graphs
+- [] Additional graphs
+- [] Add HTTPS
 
 ### Important 
 - [x] Fix migrations in docker compose. What is happening? It thinks it's on version 1

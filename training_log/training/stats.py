@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from enum import Enum
+from scipy import constants
 
 import pandas as pd
 from dateutil.relativedelta import relativedelta
@@ -10,9 +11,9 @@ from django.utils import timezone
 from .models import TrainingSession
 
 DEFAULT_START_DATE = datetime(2023, 5, 1)
-LONG_SWIM_DURATION = 60
-LONG_RIDE_DURATION = 180
-LONG_RUN_DURATION = 90
+LONG_SWIM_DURATION = 1 * constants.hour
+LONG_RIDE_DURATION = 3 * constants.hour
+LONG_RUN_DURATION = 1.5 * constants.hour
 
 
 class StatsPeriod(Enum):
@@ -112,8 +113,8 @@ class AllPlayerStats:
         if duration is None:
             return "N/A"
 
-        hours = int(duration // 3600)
-        minutes = int((duration % 3600) // 60)
+        hours = int(duration // constants.hour)
+        minutes = int((duration % constants.hour) // constants.minute)
         return f"{hours}h {minutes}m"
 
     @staticmethod
@@ -126,7 +127,7 @@ class AllPlayerStats:
         if distance is None:
             return "N/A"
 
-        return f"{distance/1000:.2f} km"
+        return f"{distance/constants.kilo:.2f} km"
 
     def get_sum(self, field, player, discipline=None):
         """Get the sum of a field for a player and optional discipline.
@@ -164,7 +165,7 @@ class AllPlayerStats:
 
         if min_duration:
             filtered_sessions = filtered_sessions.filter(
-                moving_duration__gte=min_duration * 60
+                moving_duration__gte=min_duration
             )
 
         return filtered_sessions.count()
@@ -284,7 +285,7 @@ class AllPlayerStats:
 
         results["time_between"] = (
             results["start_date_run"] - results["end_date_ride"]
-        ).dt.total_seconds() / 60
+        ).dt.total_seconds() / constants.minute
 
         results = results.loc[results["time_between"] <= 30]
 
@@ -299,8 +300,8 @@ class AllPlayerStats:
         """
         days = delta.days
         seconds = delta.seconds
-        hours, remainder = divmod(seconds, 3600)
-        minutes, seconds = divmod(remainder, 60)
+        hours, remainder = divmod(seconds, int(constants.hour))
+        minutes, seconds = divmod(remainder, int(constants.minute))
 
         formatted_string = f"{days}d " if days > 0 else ""
         formatted_string += f"{hours}h " if hours > 0 or days > 0 else ""
@@ -381,14 +382,20 @@ class AllPlayerStats:
                 ),
             )
             self.add_stat(
-                "Long swims (>" + str(LONG_SWIM_DURATION) + " mins)",
+                "Long swims (>"
+                + str(int(LONG_SWIM_DURATION / constants.minute))
+                + " mins)",
                 self.count_sessions(user, "Swimming", LONG_SWIM_DURATION),
             )
             self.add_stat(
-                "Long rides (>" + str(LONG_RIDE_DURATION) + " mins)",
+                "Long rides (>"
+                + str(int(LONG_RIDE_DURATION / constants.minute))
+                + " mins)",
                 self.count_sessions(user, "Cycling", LONG_RIDE_DURATION),
             )
             self.add_stat(
-                "Long runs (>" + str(LONG_RUN_DURATION) + " mins)",
+                "Long runs (>"
+                + str(int(LONG_RUN_DURATION / constants.minute))
+                + " mins)",
                 self.count_sessions(user, "Running", LONG_RUN_DURATION),
             )

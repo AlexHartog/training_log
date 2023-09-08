@@ -97,8 +97,6 @@ class StravaAuthTest(TestCase):
 
         access_token = "refreshed_access_token"
 
-        print("Timestamp: ", self.not_expired_datetime.timestamp())
-
         token_response = StravaTokenResponse(
             access_token=access_token,
             expires_at=int(self.not_expired_datetime.timestamp()),

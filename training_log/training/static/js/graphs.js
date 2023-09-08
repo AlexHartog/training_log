@@ -7,11 +7,11 @@ function createChart({canvasId, all_data, settings}) {
 //    }
     console.log(all_data)
 
-    labels = all_data[0].x_values
     dataSets = []
 
-    for (const item of all_data) {
-        dataSets.push({label: item.label, data: item.y_values})
+    for (const [key, value] of Object.entries(all_data)) {
+        dataSets.push({label: key, data: value.y_values})
+        labels = value.x_values
     }
 
     if ('title' in settings) {
