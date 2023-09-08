@@ -1,4 +1,4 @@
-function createChart({canvasId, chartType, all_data, settings}) {
+function createChart({canvasId, all_data, settings}) {
 //     if (backgroundColor === undefined) {
 //        backgroundColor = 'rgba(75, 192, 192, 0.2)'
 //    }
@@ -7,40 +7,61 @@ function createChart({canvasId, chartType, all_data, settings}) {
 //    }
     console.log(all_data)
 
-    labels = all_data[0].dates
-    data_sets = []
+    labels = all_data[0].x_values
+    dataSets = []
 
     for (const item of all_data) {
-        data_sets.push({label: item.user, data: item.values})
+        dataSets.push({label: item.label, data: item.y_values})
     }
 
-    title = {}
     if ('title' in settings) {
         title = {
             display: true,
             text: settings['title']
         }
+    } else {
+        title = {}
     }
 
-    y_title = {}
     if ('y_label' in settings) {
-        y_title = {
+        yTitle = {
             display: true,
             text: settings['y_label']
         }
+    } else {
+        yTitle = {}
     }
+
+    if ('chart_type' in settings) {
+        chartType = settings['chart_type']
+    } else {
+        chartType = 'line'
+    }
+
+    if ('x_type' in settings) {
+        xAxisType = settings['x_type']
+    } else {
+        xAxisType = 'time'
+    }
+
+    if ('x_label' in settings) {
+        xLabel = settings['x_label']
+    } else {
+        xLabel = 'Date'
+    }
+
 
     var ctx = document.getElementById(canvasId).getContext('2d');
     return new Chart(ctx, {
         type: chartType,
         data: {
             labels: labels,
-            datasets: data_sets,
+            datasets: dataSets,
         },
         options: {
             scales: {
                 x: {
-                    type: 'time',
+                    type: xAxisType,
                     time: {
                         parser: 'yyyy-MM-dd\'T\'HH:mm:ss',
                         displayFormats: {
@@ -49,11 +70,11 @@ function createChart({canvasId, chartType, all_data, settings}) {
                     },
                     title: {
                         display: true,
-                        text: 'Date',
+                        text: xLabel,
                     },
                 },
                 y: {
-                    title: y_title
+                    title: yTitle
                 }
             },
             plugins: {

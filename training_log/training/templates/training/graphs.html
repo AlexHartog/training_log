@@ -5,7 +5,8 @@
 {% block content %}
 
 <div class="graphDiv">
-  <canvas id="myChart" class="graph"></canvas>
+  <canvas id="totalHoursTrainedGraph" class="graph"></canvas>
+  <canvas id="weeklyHoursTrainedGraph" class="graph"></canvas>
 </div>
 
 <!-- Move this to header?-->
@@ -18,10 +19,15 @@
 <script src="{% static 'js/graphs.js' %}"> </script>
 
 {% autoescape off %}
-<script>
+<script id="totalHoursTrainedScript">
 
-var chart1 = createChart({canvasId: 'myChart', chartType: 'line', all_data: {{ graph_data }}, settings: {{ settings }}});
+var totalHoursTrainedGraph = createChart({canvasId: 'totalHoursTrainedGraph', all_data: {{ graph_data.total_hours_trained }},
+  settings: {{ settings.total_hours_trained }}});
+</script>
 
+<script id="weeklyHoursTrainedScript">
+var weeklyHoursTrainedGraph = createChart({canvasId: 'weeklyHoursTrainedGraph', all_data: {{ graph_data.weekly_hours_trained }},
+  settings: {{ settings.weekly_hours_trained }}});
 </script>
 {% endautoescape %}
 
