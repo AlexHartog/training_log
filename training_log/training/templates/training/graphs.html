@@ -12,6 +12,8 @@
 <!-- Move this to header?-->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
 {% load static %}
 <script src="{% static 'js/graphs.js' %}"> </script>
@@ -19,7 +21,7 @@
 {% autoescape off %}
 <script>
 
-var chart1 = createChart({canvasId: 'myChart', chartType: 'line', labels: {{ graph_data.alex.dates }}, data: {{ graph_data.alex.values }}});
+var chart1 = createChart({canvasId: 'myChart', chartType: 'line', all_data: {{ graph_data }}, settings: {{ settings }}});
 
 </script>
 {% endautoescape %}

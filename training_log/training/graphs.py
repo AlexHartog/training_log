@@ -1,19 +1,20 @@
 import csv
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pandas as pd
 from django.contrib.auth.models import User
-from django.db.models import F, Q, Sum
-from django.http import HttpResponse
-from django_pandas.io import read_frame
+from django.db.models import F, Q
 from training.models import TrainingSession
 
 DEFAULT_START_DATE = datetime(2023, 5, 1)
 
 
 class GraphsData:
+    """This class generates data to be used by graphs."""
+
     def __init__(self):
-        self.data = {}
+        self.data = []
+        self.settings = {}
         self.start_date = DEFAULT_START_DATE
         self.datelist = pd.date_range(self.start_date, datetime.today())
         self.users = User.objects.all()
@@ -36,6 +37,7 @@ class GraphsData:
         )
 
     def write_csv(self):
+        """Write the training sessions to a csv file. Intended for debugging."""
         field_names = [field.name for field in TrainingSession._meta.get_fields()]
 
         with open("training_sessions.csv", "w") as csvfile:
@@ -46,6 +48,7 @@ class GraphsData:
                 writer.writerow([getattr(session, field) for field in field_names])
 
     def get_total_trained_data(self):
+        """Get the total hours trained as a cumulative sum per user."""
         self.total_trained_data = self.training_sessions.fillna(0)
         self.total_trained_data["moving_duration"] = (
             self.total_trained_data["moving_duration"] / 3600
@@ -60,8 +63,7 @@ class GraphsData:
             trained_data = trained_data.reindex(self.datelist, fill_value=0)
 
             values = trained_data.transform(pd.Series.cumsum).values.tolist()
-            dates = (
-                pd.to_datetime(trained_data.index).strftime("%d-%m-%Y").values.tolist()
-            )
+            dates = [pd.to_datetime(x).isoformat() for x in trained_data.index.values]
 
-            self.data[user.username] = {"dates": dates, "values": values}
+            self.data.append({"dates": dates, "values": values, "user": user.username})
+            self.settings = {"y_label": "Hours trained"}

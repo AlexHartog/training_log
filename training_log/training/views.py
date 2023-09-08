@@ -120,5 +120,6 @@ def graphs(request):
             "labels": training_dates,
             "data": training_hours,
             "graph_data": graphs_data.data,
+            "settings": graphs_data.settings,
         },
     )

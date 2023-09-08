@@ -52,7 +52,7 @@ Run `docker exec -t -i 66175bfd6ae6 bash`
 ### First release
 - [x] Add a good overview of all training
 - [x] Create a cronjob for strava imports (implemented using huey)
-- [] Clean up data
+- [x] Clean up data
 - [x] Add a link to add manual training
 - [x] Convert duration from minutes to seconds for new training
 
@@ -60,6 +60,7 @@ Run `docker exec -t -i 66175bfd6ae6 bash`
 - [] More statistics 
 - [] Calendar
 - [] Supplement existing training data with strava data
+- [] Graphs
 
 ### Important 
 - [x] Fix migrations in docker compose. What is happening? It thinks it's on version 1

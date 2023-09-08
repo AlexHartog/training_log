@@ -1,47 +1,59 @@
-function createChart({canvasId, chartType, labels, data, backgroundColor, borderColor}) {
-     if (backgroundColor === undefined) {
-        backgroundColor = 'rgba(75, 192, 192, 0.2)'
+function createChart({canvasId, chartType, all_data, settings}) {
+//     if (backgroundColor === undefined) {
+//        backgroundColor = 'rgba(75, 192, 192, 0.2)'
+//    }
+//    if (borderColor == undefined) {
+//        borderColor = 'rgba(75, 192, 192, 1)'
+//    }
+    console.log(all_data)
+
+    labels = all_data[0].dates
+    data_sets = []
+
+    for (const item of all_data) {
+        data_sets.push({label: item.user, data: item.values})
     }
-    if (borderColor == undefined) {
-        borderColor = 'rgba(75, 192, 192, 1)'
+
+    y_title = {}
+    if ('y_label' in settings) {
+        y_title = {
+            display: true,
+            text: settings['y_label']
+        }
     }
+
     var ctx = document.getElementById(canvasId).getContext('2d');
     return new Chart(ctx, {
         type: chartType,
         data: {
             labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: backgroundColor,
-                borderColor: borderColor,
-                borderWidth: 1
-            }]
+            datasets: data_sets,
         },
         options: {
             scales: {
                 x: {
                     type: 'time',
                     time: {
-                        parser: 'YYYY-MM-DDTHH:mm:ss',
+                        parser: 'yyyy-MM-dd\'T\'HH:mm:ss',
                         displayFormats: {
-                            quarter: 'MMM YYYY'
+                            day: 'dd-MM-yyyy'
                         }
-                    }
-                }
-            }
-            plugins: {
-                zoom: {
-                    zoom: {
-                        wheel: {
-                            enabled: false,
-                        },
-                        pinch: {
-                            enabled: false,
-                        },
-                        mode: 'xy',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Date',
                     },
                 },
+                y: {
+                    title: y_title
+                }
             },
-        },
+            plugins: {
+                legend: {
+                    display: true
+                }
+            }
+        }
+
     });
 }
