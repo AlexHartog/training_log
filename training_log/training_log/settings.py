@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     "bootstrap5",
     "crispy_forms",
     "crispy_bootstrap5",
-    "django_pandas",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
