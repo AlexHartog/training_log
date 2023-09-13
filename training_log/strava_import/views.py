@@ -1,17 +1,20 @@
 import datetime
 
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from training.models import TrainingSession
+from django.http import HttpResponse, HttpResponseBadRequest
+import json
 
 from . import strava, strava_authentication, strava_start_time_sync
 from .models import StravaAuth
 
 DAYS_BACK = 10
-MANUAL_IMPORT_COUNT = 200
+MANUAL_IMPORT_COUNT = 1
 
 
 def admin_check(user):
@@ -34,6 +37,7 @@ def index(request):
         "days_back": DAYS_BACK,
         "user_auth": user_auth,
         "admin": request.user.is_superuser,
+        "strava_subscribed": False,
     }
     return render(request, "strava_import/index.html", context=context)
 
@@ -97,3 +101,44 @@ def get_strava_data(request):
         print("We don't have proper authorization yet")
 
     return redirect("strava-auth")
+
+
+@user_passes_test(admin_check)
+def subscribe_strava(request, subscribe: int):
+    if subscribe:
+        strava.start_subscription(request)
+
+    context = {}
+
+    return redirect("strava-index")
+
+
+@csrf_exempt
+def activity_feed(request):
+    # TODO: Is there a better solution than to make this CSRF exempt?
+
+    if request.method == "GET":
+        hub_challenge = request.GET.get("hub.challenge")
+        print("Hub challenge: ", hub_challenge)
+        response_data = {"hub.challenge": hub_challenge}
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    elif request.method == "POST":
+        content_type = request.META.get("CONTENT_TYPE")
+        print("Content type: ", content_type)
+
+        if content_type != "application/json":
+            print("Unexpected content type: ", content_type)
+            return HttpResponseBadRequest("Unexpected content type: ", content_type)
+
+        try:
+            data = json.loads(request.body)
+            print("Received data: ", data)
+            strava.handle_event_data(data)
+        except json.JSONDecodeError:
+            print("Data is not valid JSON")
+            return HttpResponseBadRequest("Data is not valid JSON")
+
+        return HttpResponse("OK")
+
+    # return render(request, "strava_import/activity_feed.html")
+    return HttpResponseBadRequest("Unexpected request method: ", request.method)

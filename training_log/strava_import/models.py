@@ -2,6 +2,9 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from datetime import datetime
+from enum import Enum
 
 from .schemas import StravaTokenResponse
 
@@ -63,3 +66,101 @@ class StravaTypeMapping(models.Model):
             f"{self.strava_type} ->"
             f" {self.discipline.name if self.discipline else 'None'}"
         )
+
+
+class StravaActivityImport(models.Model):
+    """A model for saving the json data from strava."""
+
+    ACTIVITY = "activity"
+    ACTIVITY_ZONES = "activity_zones"
+
+    strava_id = models.BigIntegerField()
+    type = models.CharField(max_length=200)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    json_data = models.JSONField()
+    imported_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    def __str__(self):
+        """Return a string representation of the model."""
+        return f"{self.type.capitalize()} for {self.user.username.capitalize() or 'no user'} with id {self.strava_id}"
+
+
+class StravaRateLimit(models.Model):
+    """A model for saving the rate limit from strava."""
+
+    SHORT_LIMIT_PLENTY = 50
+    DAILY_LIMIT_PLENTY = 200
+
+    short_limit = models.IntegerField()
+    daily_limit = models.IntegerField()
+    short_limit_usage = models.IntegerField()
+    daily_limit_usage = models.IntegerField()
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def remaining_short_limit(self):
+        if self.is_same_quarter_hour(self.updated_at, timezone.now()):
+            return self.short_limit - self.short_limit_usage
+        else:
+            return self.short_limit
+
+    @staticmethod
+    def is_same_quarter_hour(datetime_1: datetime, datetime_2: datetime):
+        return (
+            datetime_1.minute // 15 == datetime_2.minute // 15
+            and datetime_1.hour == datetime_2.hour
+            and datetime_1.date() == datetime_2.date()
+        )
+
+    @property
+    def remaining_daily_limit(self):
+        if self.updated_at.date() == timezone.now().date():
+            return self.daily_limit - self.daily_limit_usage
+        else:
+            return self.daily_limit
+
+    def have_usage_remaining(self):
+        return self.remaining_short_limit > 0 and self.remaining_daily_limit > 0
+
+    def have_plenty_usage_remaining(self):
+        return (
+            self.remaining_short_limit > 0
+            and self.remaining_daily_limit > self.DAILY_LIMIT_PLENTY
+        )
+
+    def __str__(self):
+        """Return a string representation of the model."""
+        return (
+            f"Short: {self.short_limit_usage}/{self.short_limit} - {self.remaining_short_limit} left, "
+            f"Daily: {self.daily_limit_usage}/{self.daily_limit} - {self.remaining_daily_limit} left "
+            f"at {self.updated_at}"
+        )
+
+
+class StravaSubscription(models.Model):
+    """A model for saving the strava subscription."""
+
+    class SubscriptionState(models.TextChoices):
+        ACTIVE = "AC", _("Active")
+        CREATED = "CR", _("Created")
+
+    enabled = models.BooleanField(default=False)
+    callback_url = models.URLField()
+    verify_token = models.CharField(max_length=200)
+    state = models.CharField(
+        max_length=2,
+        choices=SubscriptionState.choices,
+    )
+
+    # TODO: How to check if still active?
+
+
+class StravaUser(models.Model):
+    """A model for saving strava user data."""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    strava_id = models.BigIntegerField()
+
+    def __str__(self):
+        """Return a string representation of the model."""
+        return f"{self.strava_id} - {self.user.username.capitalize()}"

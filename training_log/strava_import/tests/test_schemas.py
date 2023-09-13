@@ -1,9 +1,18 @@
 from datetime import datetime
+import os
+import json
 
 import pytz
 from django.test import TestCase
 from django.utils import timezone
-from strava_import.schemas import StravaSession
+from strava_import.schemas import (
+    StravaSession,
+    StravaSessionZones,
+    StravaEventData,
+    ObjectTypeEnum,
+    AspectTypeEnum,
+)
+from training.models import SessionZones
 
 
 class StravaSessionTest(TestCase):
@@ -56,3 +65,90 @@ class StravaSessionTest(TestCase):
         self.assertEqual(
             strava_session.proper_timezone, pytz.timezone("Europe/Amsterdam")
         )
+
+
+class StravaJSONReaderTest(TestCase):
+    def setUp(self):
+        """Set json location and empty list for zones"""
+        self.json_location = os.path.join(
+            "training_log",
+            "strava_import",
+            "tests",
+            "test_data",
+        )
+
+    def read_json_file(self, file_name):
+        """Read a json file with specified file name and default json location."""
+        file_path = os.path.join(self.json_location, file_name)
+        try:
+            with open(file_path, "r", encoding="utf-8") as file:
+                return json.load(file)
+        except FileNotFoundError:
+            print(f"File not found {file_path}")
+            raise
+        except json.JSONDecodeError as e:
+            print(f"JSON Decode Error - {e}")
+            raise
+
+
+class StravaZonesSchemaTest(StravaJSONReaderTest):
+    def setUp(self):
+        self.zones = []
+        super().setUp()
+
+    def read_zones_json(self):
+        """Read strava_zones data from json file."""
+        json_data = self.read_json_file("strava_zones.json")
+        for zones in json_data:
+            self.zones.append(StravaSessionZones.model_validate(zones))
+
+    def test_session_zones_import(self):
+        """Test imported data for the session zones object."""
+        self.read_zones_json()
+        self.assertEqual(len(self.zones), 3)
+        self.assertEqual(self.zones[0].custom_zones, False)
+        self.assertEqual(self.zones[0].resource_state, 3)
+        self.assertEqual(self.zones[1].zone_type, SessionZones.PACE)
+
+    def test_zones_import(self):
+        """Test imported data for specific zones."""
+        self.read_zones_json()
+        first_zones = self.zones[0].zones
+        self.assertEqual(len(first_zones), 5)
+        self.assertEqual(first_zones[0].time, 2561)
+        self.assertEqual(first_zones[1].max, 153)
+        self.assertEqual(first_zones[2].min, 153)
+
+
+class StravaEventDataTest(StravaJSONReaderTest):
+    def test_event_data_create(self):
+        """Read event data create and check if data is correct."""
+        json_data = self.read_json_file("event_data_create.json")
+        event_data = StravaEventData.model_validate(json_data)
+
+        expected = StravaEventData(
+            object_type=ObjectTypeEnum.ACTIVITY,
+            object_id=9841144171,
+            aspect_type=AspectTypeEnum.CREATE,
+            event_time=1694611869,
+            updates={},
+            owner_id=17716848,
+            subscription_id=247939,
+        )
+        self.assertEqual(event_data, expected)
+
+    def test_event_data_update(self):
+        """Read event data update and check if data is correct."""
+        json_data = self.read_json_file("event_data_update.json")
+        event_data = StravaEventData.model_validate(json_data)
+
+        expected = StravaEventData(
+            object_type=ObjectTypeEnum.ACTIVITY,
+            object_id=9834770609,
+            aspect_type=AspectTypeEnum.UPDATE,
+            event_time=1694607943,
+            updates={"title": "New Title"},
+            owner_id=17716848,
+            subscription_id=247939,
+        )
+        self.assertEqual(event_data, expected)

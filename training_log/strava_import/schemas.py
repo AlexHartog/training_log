@@ -4,6 +4,12 @@ from datetime import datetime
 import pytz
 from django.utils import timezone
 from pydantic import BaseModel, Field, computed_field
+from typing import List
+from enum import Enum
+
+
+class StravaAthleteData(BaseModel):
+    strava_id: int = Field(..., alias="id")
 
 
 class StravaTokenResponse(BaseModel):
@@ -12,6 +18,7 @@ class StravaTokenResponse(BaseModel):
     access_token: str
     expires_at: int
     refresh_token: str
+    athlete: StravaAthleteData
 
     @property
     def expires_at_datetime(self) -> datetime:
@@ -59,3 +66,53 @@ class StravaSession(BaseModel):
             r"\(([^)]+)\)\s+(.+)", self.timezone
         ).group(2)
         return pytz.timezone(iana_timezone_identifier)
+
+
+class StravaZone(BaseModel):
+    """Class to parse a single strava zone."""
+
+    min: float
+    max: float
+    time: int
+
+
+class StravaSessionZones(BaseModel):
+    """Class to parse the zones for a training session."""
+
+    # session = models.ForeignKey(TrainingSession, on_delete=models.CASCADE)
+    resource_state: int | None = Field(default=None)
+    points: float | None = Field(default=None)
+    sensor_based: bool | None = Field(default=None)
+    zone_type: str = Field(..., alias="type")
+    score: int | None = Field(default=None)
+    custom_zones: bool | None = Field(default=None)
+    zones: List[StravaZone] = Field(exclude=True, alias="distribution_buckets")
+
+
+class AspectTypeEnum(str, Enum):
+    CREATE = "create"
+    UPDATE = "update"
+    DELETE = "delete"
+
+
+class ObjectTypeEnum(str, Enum):
+    ACTIVITY = "activity"
+    ATHLETE = "athlete"
+
+
+class StravaEventData(BaseModel):
+    object_type_str: str = Field(..., alias="object_type")
+    object_id: int
+    aspect_type_str: str = Field(..., alias="aspect_type")
+    updates: dict
+    owner_id: int
+    subscription_id: int
+    event_time: int
+
+    @property
+    def aspect_type(self) -> AspectTypeEnum:
+        return AspectTypeEnum(self.aspect_type_str)
+
+    @property
+    def object_type(self) -> ObjectTypeEnum:
+        return ObjectTypeEnum(self.object_type_str)

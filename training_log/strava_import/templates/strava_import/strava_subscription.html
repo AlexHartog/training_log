@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block title %}Subscribe to strava{% endblock title %}
+
+{% block content %}
+{% autoescape off %}
+<h1>Strava subscription</h1>
+
+{% if subscribed %}
+<p class="ok">Subscription is enabled.</p>
+{% else %}
+<p class="highlight">Subscription is disabled.</p>
+{% endif %}
+
+{% if admin %}
+<p>
+{% bootstrap_button "Start strava subscription" href="strava-start-time-sync" button_class="btn btn-primary" %}
+</p>
+{% endif %}
+
+
+{% endautoescape %}
+
+{% endblock content %}
+

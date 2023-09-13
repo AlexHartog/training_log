@@ -6,8 +6,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from dotenv import dotenv_values
 
-from .models import StravaAuth
-from .schemas import StravaTokenResponse
+from .models import StravaAuth, StravaUser
+from .schemas import StravaTokenResponse, StravaAthleteData
 
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 
@@ -110,6 +110,9 @@ def refresh_token_if_expired(strava_auth: StravaAuth):
 def _get_token_payload(strava_auth: StravaAuth, refresh=False):
     """Creates the payload for a token request. Either initial or refresh."""
     # TODO: Raise error if no client id or secret is set
+    if not os.getenv("STRAVA_CLIENT_ID") or not os.getenv("STRAVA_CLIENT_SECRET"):
+        return
+
     payload = {
         "client_id": os.getenv("STRAVA_CLIENT_ID"),
         "client_secret": os.getenv("STRAVA_CLIENT_SECRET"),
@@ -132,6 +135,8 @@ def _access_token_update(strava_auth: StravaAuth, refresh=False):
 
     response = requests.post(ACCESS_TOKEN_URL, data=payload)
 
+    print("Response: ", response.json())
+
     # TODO: Deal with invalid client secret (weird reponse from strava)
     if response.status_code != 200:
         print(f"Token request failed {response.status_code}.")
@@ -140,6 +145,16 @@ def _access_token_update(strava_auth: StravaAuth, refresh=False):
 
     strava_token_response = StravaTokenResponse(**response.json())
     strava_auth.update_token(strava_token_response)
+
+    update_strava_user(strava_auth.user, strava_token_response.athlete)
+
+
+def update_strava_user(user: User, strava_athlete: StravaAthleteData):
+    strava_user = StravaUser.objects.filter(strava_id=strava_athlete.strava_id).first()
+
+    if not strava_user:
+        StravaUser.objects.create(user=user, strava_id=strava_athlete.strava_id)
+        StravaUser.save()
 
 
 def refresh_token(strava_auth: StravaAuth):

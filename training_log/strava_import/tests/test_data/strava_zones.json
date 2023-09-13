@@ -1,0 +1,137 @@
+[
+  {
+    "custom_zones": false,
+    "distribution_buckets": [
+      {
+        "max": 123,
+        "min": 0,
+        "time": 2561
+      },
+      {
+        "max": 153,
+        "min": 123,
+        "time": 8262
+      },
+      {
+        "max": 169,
+        "min": 153,
+        "time": 0
+      },
+      {
+        "max": 184,
+        "min": 169,
+        "time": 0
+      },
+      {
+        "max": -1,
+        "min": 184,
+        "time": 0
+      }
+    ],
+    "points": 0,
+    "resource_state": 3,
+    "score": 45.0,
+    "sensor_based": true,
+    "type": "heartrate"
+  },
+  {
+    "distribution_buckets": [
+      {
+        "max": 3.008561622428613,
+        "min": 0,
+        "time": 10534
+      },
+      {
+        "max": 3.495240708409712,
+        "min": 3.008561622428613,
+        "time": 289
+      },
+      {
+        "max": 3.8934326878487933,
+        "min": 3.495240708409712,
+        "time": 0
+      },
+      {
+        "max": 4.158894007474847,
+        "min": 3.8934326878487933,
+        "time": 0
+      },
+      {
+        "max": 4.424355327100901,
+        "min": 4.158894007474847,
+        "time": 0
+      },
+      {
+        "max": -1,
+        "min": 4.424355327100901,
+        "time": 0
+      }
+    ],
+    "resource_state": 3,
+    "score": 3,
+    "sensor_based": true,
+    "type": "pace"
+  },
+  {
+    "distribution_buckets": [
+      {
+        "max": 0,
+        "min": 0,
+        "time": 6
+      },
+      {
+        "max": 50,
+        "min": 0,
+        "time": 1
+      },
+      {
+        "max": 100,
+        "min": 50,
+        "time": 43
+      },
+      {
+        "max": 150,
+        "min": 100,
+        "time": 210
+      },
+      {
+        "max": 200,
+        "min": 150,
+        "time": 9987
+      },
+      {
+        "max": 250,
+        "min": 200,
+        "time": 576
+      },
+      {
+        "max": 300,
+        "min": 250,
+        "time": 0
+      },
+      {
+        "max": 350,
+        "min": 300,
+        "time": 0
+      },
+      {
+        "max": 400,
+        "min": 350,
+        "time": 0
+      },
+      {
+        "max": 450,
+        "min": 400,
+        "time": 0
+      },
+      {
+        "max": -1,
+        "min": 450,
+        "time": 0
+      }
+    ],
+    "resource_state": 3,
+    "sensor_based": true,
+    "type": "power"
+  }
+]

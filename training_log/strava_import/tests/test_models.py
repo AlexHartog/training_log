@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
-from strava_import.models import StravaAuth, StravaTypeMapping
+from strava_import.models import StravaAuth, StravaTypeMapping, StravaRateLimit
 from strava_import.schemas import StravaTokenResponse
 from training.models import Discipline
 
@@ -142,3 +142,49 @@ class StravaTypeMappingTest(TestCase):
         )
 
         self.assertEqual(str(type_mapping), f"{strava_type} -> {discipline}")
+
+
+class StravaRateLimitsTest(TestCase):
+    def create_strava_rate_limits(
+        self,
+        short_limit=200,
+        daily_limit=2000,
+        short_limit_usage=20,
+        daily_limit_usage=200,
+        updated_at=None,
+    ):
+        strava_rate_limit = StravaRateLimit.objects.create(
+            short_limit=short_limit,
+            daily_limit=daily_limit,
+            short_limit_usage=short_limit_usage,
+            daily_limit_usage=daily_limit_usage,
+            updated_at=updated_at,
+        )
+
+        if updated_at:
+            strava_rate_limit.updated_at = updated_at
+            strava_rate_limit.save()
+
+        return strava_rate_limit
+
+    def test_remaining_limits(self):
+        """Test remaining limits if both short and daily limit are in use."""
+        strava_rate_limit = self.create_strava_rate_limits()
+        self.assertEqual(strava_rate_limit.remaining_daily_limit, 1800)
+        self.assertEqual(strava_rate_limit.remaining_short_limit, 180)
+
+    def test_remaining_limits_hour_old(self):
+        """Test remaining limits if short should be reset already."""
+        strava_rate_limit = self.create_strava_rate_limits(
+            updated_at=timezone.now() - timedelta(hours=1)
+        )
+        self.assertEqual(strava_rate_limit.remaining_daily_limit, 1800)
+        self.assertEqual(strava_rate_limit.remaining_short_limit, 200)
+
+    def test_remaining_limits_day_old(self):
+        """Test remaining limits if both limits should have been reset already."""
+        strava_rate_limit = self.create_strava_rate_limits(
+            updated_at=timezone.now() - timedelta(days=1)
+        )
+        self.assertEqual(strava_rate_limit.remaining_daily_limit, 2000)
+        self.assertEqual(strava_rate_limit.remaining_short_limit, 200)

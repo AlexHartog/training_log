@@ -272,10 +272,11 @@ class StatsTestData:
         self.brick_count = 1
 
     def load_graph_data(self):
+        test_date = datetime(2023, 9, 8)
         days_back = 2
         self.create_session(
             discipline="Swimming",
-            date=self.date - timedelta(days=days_back),
+            date=test_date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
             moving_duration=3500,
             total_duration=3700,
@@ -285,7 +286,7 @@ class StatsTestData:
         days_back = 1
         self.create_session(
             discipline="Swimming",
-            date=self.date - timedelta(days=days_back),
+            date=test_date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
             moving_duration=3610,
             total_duration=4000,
@@ -295,7 +296,7 @@ class StatsTestData:
         days_back = 7
         self.create_session(
             discipline="Running",
-            date=self.date - timedelta(days=days_back),
+            date=test_date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
             moving_duration=5500,
             total_duration=5600,
@@ -305,7 +306,7 @@ class StatsTestData:
         days_back = 20
         self.create_session(
             discipline="Running",
-            date=self.date - timedelta(days=days_back),
+            date=test_date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
             moving_duration=7200,
             total_duration=8000,
@@ -315,7 +316,7 @@ class StatsTestData:
         days_back = 30
         self.create_session(
             discipline="Cycling",
-            date=self.date - timedelta(days=days_back),
+            date=test_date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
             moving_duration=18000,
             total_duration=20000,
@@ -325,7 +326,7 @@ class StatsTestData:
         days_back = 8
         self.create_session(
             discipline="Running",
-            date=self.date - timedelta(days=days_back),
+            date=test_date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
             moving_duration=None,
             total_duration=None,
@@ -336,7 +337,7 @@ class StatsTestData:
         self.create_session(
             username="testuser_2",
             discipline="Running",
-            date=self.date - timedelta(days=days_back),
+            date=test_date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
             moving_duration=1850,
             total_duration=2050,
@@ -347,7 +348,7 @@ class StatsTestData:
         self.create_session(
             username="testuser_2",
             discipline="Swimming",
-            date=self.date - timedelta(days=days_back),
+            date=test_date - timedelta(days=days_back),
             start_date=self.start_date - timedelta(days=days_back),
             moving_duration=18000,
             total_duration=21000,

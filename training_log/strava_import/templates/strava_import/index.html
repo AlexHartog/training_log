@@ -15,13 +15,24 @@
 {% endif %}
 
 {% if admin %}
+
+{% if strava_subscribed %}
+<p class="ok">Strava is subscribed. <a href="{% url 'strava-subscribe' 0 %}?next=/">Unsubscribe</a></p>
+{% else %}
+<p class="highlight">Strava is not subscribed. <a href="{% url 'strava-subscribe' 1 %}?next=/">Subscribe</a>
+</p>
+{% endif %}
+
 <p>
 {% bootstrap_button "Run start time update" href="strava-start-time-sync" button_class="btn btn-primary" %}
 </p>
+
 {% endif %}
 
 {% bootstrap_button "Run manual import" href="import_data" button_class="btn btn-primary" %}
 </p>
+
+
 
 {% if imported_sessions %}
     <p>Imported {{ imported_sessions|length }} sessions {% if days_back > 1 %} in last {{ days_back }} days{% else %} since yesterday{% endif %}.</p>

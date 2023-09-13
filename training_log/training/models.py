@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from scipy import constants
 
 
 class Discipline(models.Model):
@@ -51,8 +52,8 @@ class TrainingSession(models.Model):
     def formatted_duration(self):
         """Format duration nicely."""
         if self.moving_duration:
-            hours = self.moving_duration // 3600
-            minutes = (self.moving_duration % 3600) // 60
+            hours = self.moving_duration // constants.hour
+            minutes = (self.moving_duration % constants.hour) // constants.minute
             return f"{hours}h {minutes}m"
         else:
             return "N/A"
@@ -61,7 +62,7 @@ class TrainingSession(models.Model):
     def formatted_distance(self):
         """Format distance nicely"""
         if self.distance:
-            return f"{self.distance/1000:.2f} km"
+            return f"{self.distance/constants.kilo:.2f} km"
         else:
             return "N/A"
 
@@ -72,3 +73,36 @@ class TrainingSession(models.Model):
             f"{self.discipline} on {self.date} "
             f"({self.formatted_distance} in {self.formatted_duration})"
         )
+
+
+class SessionZones(models.Model):
+    """The zones of a training session."""
+
+    HEART_RATE = "heart_rate"
+    POWER = "power"
+    PACE = "pace"
+
+    session = models.ForeignKey(TrainingSession, on_delete=models.CASCADE)
+    resource_state = models.IntegerField(blank=True, null=True)
+    points = models.FloatField(blank=True, null=True)
+    sensor_based = models.BooleanField(default=True)
+    zone_type = models.CharField()
+    score = models.IntegerField(blank=True, null=True)
+    custom_zones = models.BooleanField(blank=True, null=True)
+
+    def __str__(self):
+        """Return a string representation of the model."""
+        return f"{self.zone_type.capitalize()} zones for session {self.session}"
+
+
+class Zone(models.Model):
+    """A zone of a training session."""
+
+    min = models.FloatField()
+    max = models.FloatField()
+    time = models.IntegerField()
+    session_zones = models.ForeignKey(SessionZones, on_delete=models.CASCADE)
+
+    def __str__(self):
+        """Return a string representation of the model."""
+        return f"{int(self.time / constants.minute)} minutes in {self.min} - {self.max}"

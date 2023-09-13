@@ -1,0 +1,11 @@
+{
+    "aspect_type": "update",
+    "event_time": 1694607943,
+    "object_id": 9834770609,
+    "object_type": "activity",
+    "owner_id": 17716848,
+    "subscription_id": 247939,
+    "updates": {
+        "title": "New Title"
+    }
+}
