@@ -243,7 +243,7 @@ def handle_event_data(strava_event_data):
         strava.request_and_import_activity(event_data.object_id, strava_user.user)
     else:
         logger.info(
-            f"Received event of type {event_data.object_type} and "
-            f"aspect {event_data.aspect_type}. "
+            f"Received event of type {event_data.object_type.value} and "
+            f"aspect {event_data.aspect_type.value}. "
             f"Not handling at the moment."
         )
