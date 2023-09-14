@@ -1,4 +1,5 @@
 import os
+import logging
 
 import requests
 from django.conf import settings
@@ -10,6 +11,8 @@ from . import strava_authentication
 from .models import StravaActivityImport, StravaAuth, StravaRateLimit, StravaTypeMapping
 from .schemas import StravaSession, StravaSessionZones, StravaZone
 
+
+logger = logging.getLogger(__name__)
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 
 
@@ -182,18 +185,19 @@ def import_session_zones(strava_id: int, user: User):
 
     activity_zones_json = get_activity_zones(user, strava_id)
 
-    save_activity_json(
-        activity_zones_json, user, strava_id, StravaActivityImport.ACTIVITY_ZONES
-    )
+    if activity_zones_json:
+        save_activity_json(
+            activity_zones_json, user, strava_id, StravaActivityImport.ACTIVITY_ZONES
+        )
 
-    for activity_zone in activity_zones_json:
-        strava_activity_zones = StravaSessionZones.model_validate(activity_zone)
-        session_zones = SessionZones(**strava_activity_zones.model_dump())
-        session_zones.session_id = session_id
-        session_zones.save()
+        for activity_zone in activity_zones_json:
+            strava_activity_zones = StravaSessionZones.model_validate(activity_zone)
+            session_zones = SessionZones(**strava_activity_zones.model_dump())
+            session_zones.session_id = session_id
+            session_zones.save()
 
-        for strava_zone in strava_activity_zones.zones:
-            save_strava_zone(strava_zone, session_zones.id)
+            for strava_zone in strava_activity_zones.zones:
+                save_strava_zone(strava_zone, session_zones.id)
 
 
 def save_strava_zone(strava_zone: StravaZone, session_zones_id: int):
