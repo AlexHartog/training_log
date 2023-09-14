@@ -1,6 +1,7 @@
 import os
 import random
 import string
+import logging
 
 import requests
 
@@ -17,6 +18,8 @@ from .schemas import (
     SubscriptionCreation,
 )
 
+logger = logging.getLogger(__name__)
+
 SUBSCRIPTION_CREATION_URL = "https://www.strava.com/api/v3/push_subscriptions"
 SUBSCRIPTION_VIEW_URL = (
     "https://www.strava.com/api/v3/push_subscriptions"
@@ -32,7 +35,7 @@ CALLBACK_URL = "{http_host}/strava/activity_feed"
 def get_subscription_view_url():
     """Create view subscription url."""
     if not os.getenv("STRAVA_CLIENT_ID") or not os.getenv("STRAVA_CLIENT_SECRET"):
-        print(
+        logger.error(
             "No STRAVA_CLIENT_ID or STRAVA_CLIENT_SECRET"
         )  # TODO: Create nicer error message
         return
@@ -90,15 +93,15 @@ def start_subscription(request):
     strava_subscription = get_current_subscription()
 
     if strava_subscription.enabled:
-        print("We already have an active subscription")
+        logger.warning("We already have an active subscription")
         return
 
     if (subscription_id := view_subscription()) is not None:
-        print("We have an unknown subscription outstanding. Deleting this one")
+        logger.info("We have an unknown subscription outstanding. Deleting this one")
         if delete_subscription(subscription_id):
-            print("Successfully deleted subscription")
+            logger.info("Successfully deleted subscription")
         else:
-            print("Failed to delete subscription")
+            logger.error("Failed to delete subscription")
             return
 
     if os.getenv("HOST_OVERRIDE"):
@@ -122,12 +125,12 @@ def start_subscription(request):
     )
 
     if response.status_code != 201:
-        print(f"Subscription request failed {response.status_code}.")
-        print(f'Errors: {response.content.decode("utf-8")}')
-        print(f"Response: {response.json()}")
+        logger.error(f"Subscription request failed {response.status_code}.")
+        logger.error(f'Errors: {response.content.decode("utf-8")}')
+        logger.error(f"Response: {response.json()}")
         return
     else:
-        print("Successfully subscribed to strava.")
+        logger.info("Successfully subscribed to strava.")
         subscription_creation = SubscriptionCreation.model_validate(response.json())
 
         change_subscription(
@@ -182,7 +185,7 @@ def view_subscription():
     response_json = response.json()
 
     if len(response_json) > 1:
-        print(
+        logger.error(
             "Received ",
             len(response_json),
             " responses. We only support one subscription.",
@@ -190,7 +193,7 @@ def view_subscription():
         return
 
     if len(response_json) == 0:
-        print("No subscriptions found.")
+        logger.info("No subscriptions found.")
         return
 
     subscription_view = SubscriptionView.model_validate(response_json[0])
@@ -205,12 +208,12 @@ def delete_subscription(subscription_id: int):
     )
 
     if response.status_code != 204:
-        print(f"Subscription request failed {response.status_code}.")
-        print(f'Errors: {response.content.decode("utf-8")}')
-        print(f"Response: {response.json()}")
+        logger.error(f"Subscription request failed {response.status_code}.")
+        logger.error(f'Errors: {response.content.decode("utf-8")}')
+        logger.error(f"Response: {response.json()}")
         return False
     else:
-        print("Successfully unsubscribed from strava.")
+        logger.info("Successfully unsubscribed from strava.")
         return True
 
 
@@ -221,7 +224,7 @@ def stop_subscription():
         if delete_subscription(current_subscription.strava_id):
             current_subscription.delete()
     else:
-        print("No subscription to stop")
+        logger.warning("No subscription to stop")
 
 
 def handle_event_data(strava_event_data):
@@ -236,12 +239,12 @@ def handle_event_data(strava_event_data):
         strava_user = StravaUser.objects.filter(strava_id=event_data.owner_id).first()
 
         if strava_user is None:
-            print("Could not find strava user for id ", event_data.object_id)
+            logger.warn("Could not find strava user for id ", event_data.object_id)
             return
 
         strava.request_and_import_activity(event_data.object_id, strava_user.user)
     else:
-        print(
+        logger.info(
             f"Received event of type {event_data.object_type} and "
             f"aspect {event_data.aspect_type}. "
             f"Not handling at the moment."
