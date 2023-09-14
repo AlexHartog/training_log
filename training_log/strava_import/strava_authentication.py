@@ -1,5 +1,6 @@
 import enum
 import os
+import logging
 
 import requests
 from django.conf import settings
@@ -8,6 +9,8 @@ from dotenv import dotenv_values
 
 from .models import StravaAuth, StravaUser
 from .schemas import StravaAthleteData, StravaTokenResponse
+
+logger = logging.getLogger(__name__)
 
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 
@@ -101,7 +104,7 @@ def get_authorization_url(http_host):
 def refresh_token_if_expired(strava_auth: StravaAuth):
     """Checks if the access token for a user is expired and refreshes it if it is."""
     if strava_auth.is_access_token_expired():
-        print(
+        logger.info(
             "Access token expired for ", strava_auth.user.username, ". Refreshing token"
         )
         refresh_token(strava_auth)
@@ -135,12 +138,12 @@ def _access_token_update(strava_auth: StravaAuth, refresh=False):
 
     response = requests.post(ACCESS_TOKEN_URL, data=payload)
 
-    print("Response: ", response.json())
+    logger.debug("Access Token Response: ", response.json())
 
     # TODO: Deal with invalid client secret (weird reponse from strava)
     if response.status_code != 200:
-        print(f"Token request failed {response.status_code}.")
-        print(f'Errors: {response.content.decode("utf-8")}')
+        logger.error(f"Token request failed {response.status_code}.")
+        logger.error(f'Errors: {response.content.decode("utf-8")}')
         return
 
     strava_token_response = StravaTokenResponse(**response.json())
@@ -169,7 +172,7 @@ def request_access_token(strava_auth: StravaAuth):
 
 def save_auth(request):
     if "code" not in request.GET:
-        print("No code in request")
+        logger.error("No code in request")
         return
 
     code = request.GET["code"]
