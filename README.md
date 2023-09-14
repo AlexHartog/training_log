@@ -63,16 +63,17 @@ Run `docker exec -t -i 66175bfd6ae6 bash`
 - [x] Graphs
 - [] Additional graphs
 - [] Add HTTPS
-- [] Save JSON data from strava
+- [x] Save JSON data from strava
 - [] Move to proper logger
 - [] Add activity zones
 - [] CRUD operations
 - [] Squash migrations
-- [] Add strava import action on an activity
-- [] How to deal with too many requests to strava when getting activity zones?
-- [] Implement Strava webhooks
+- [x] Add strava import action on an activity
+- [x] How to deal with too many requests to strava when getting activity zones?
+- [x] Implement Strava webhooks
 - [] Add more athlete data
-- [] Save strava athlete id
+- [x] Save strava athlete id
+- [] Delete invalid subscription
 
 ### Important 
 - [x] Fix migrations in docker compose. What is happening? It thinks it's on version 1
