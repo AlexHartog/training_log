@@ -1,10 +1,10 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from datetime import datetime
-from enum import Enum
 
 from .schemas import StravaTokenResponse
 
@@ -82,13 +82,16 @@ class StravaActivityImport(models.Model):
 
     def __str__(self):
         """Return a string representation of the model."""
-        return f"{self.type.capitalize()} for {self.user.username.capitalize() or 'no user'} with id {self.strava_id}"
+        return (
+            f"{self.type.capitalize()} for "
+            f"{self.user.username.capitalize() or 'no user'} with id {self.strava_id}"
+        )
 
 
 class StravaRateLimit(models.Model):
     """A model for saving the rate limit from strava."""
 
-    SHORT_LIMIT_PLENTY = 50
+    SHORT_LIMIT_PLENTY = 20
     DAILY_LIMIT_PLENTY = 200
 
     short_limit = models.IntegerField()
@@ -99,6 +102,7 @@ class StravaRateLimit(models.Model):
 
     @property
     def remaining_short_limit(self):
+        """Calculate the remaining short limit."""
         if self.is_same_quarter_hour(self.updated_at, timezone.now()):
             return self.short_limit - self.short_limit_usage
         else:
@@ -106,6 +110,7 @@ class StravaRateLimit(models.Model):
 
     @staticmethod
     def is_same_quarter_hour(datetime_1: datetime, datetime_2: datetime):
+        """Check if two datetimes are in the same quarter hour on the same day."""
         return (
             datetime_1.minute // 15 == datetime_2.minute // 15
             and datetime_1.hour == datetime_2.hour
@@ -114,25 +119,30 @@ class StravaRateLimit(models.Model):
 
     @property
     def remaining_daily_limit(self):
+        """Calculate the remaining daily limit."""
         if self.updated_at.date() == timezone.now().date():
             return self.daily_limit - self.daily_limit_usage
         else:
             return self.daily_limit
 
     def have_usage_remaining(self):
+        """Check if we have any usage remaining."""
         return self.remaining_short_limit > 0 and self.remaining_daily_limit > 0
 
     def have_plenty_usage_remaining(self):
+        """Check if we have plenty of usage remaining."""
         return (
-            self.remaining_short_limit > 0
+            self.remaining_short_limit > self.SHORT_LIMIT_PLENTY
             and self.remaining_daily_limit > self.DAILY_LIMIT_PLENTY
         )
 
     def __str__(self):
         """Return a string representation of the model."""
         return (
-            f"Short: {self.short_limit_usage}/{self.short_limit} - {self.remaining_short_limit} left, "
-            f"Daily: {self.daily_limit_usage}/{self.daily_limit} - {self.remaining_daily_limit} left "
+            f"Short: {self.short_limit_usage}/{self.short_limit} - "
+            f"{self.remaining_short_limit} left, "
+            f"Daily: {self.daily_limit_usage}/{self.daily_limit} - "
+            f"{self.remaining_daily_limit} left "
             f"at {self.updated_at}"
         )
 
@@ -142,15 +152,17 @@ class StravaSubscription(models.Model):
 
     class SubscriptionState(models.TextChoices):
         ACTIVE = "AC", _("Active")
+        VALIDATED = "VA", _("Validated")
         CREATED = "CR", _("Created")
 
     enabled = models.BooleanField(default=False)
-    callback_url = models.URLField()
-    verify_token = models.CharField(max_length=200)
+    callback_url = models.URLField(null=True, blank=True)
+    verify_token = models.CharField(max_length=200, null=True, blank=True)
     state = models.CharField(
         max_length=2,
         choices=SubscriptionState.choices,
     )
+    strava_id = models.BigIntegerField(null=True, blank=True)
 
     # TODO: How to check if still active?
 

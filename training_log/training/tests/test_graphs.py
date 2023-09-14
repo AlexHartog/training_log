@@ -1,9 +1,9 @@
 from datetime import datetime
-from dateutil.rrule import rrule, DAILY
-from scipy import constants
 
 import pandas as pd
+from dateutil.rrule import DAILY, rrule
 from django.test import TestCase
+from scipy import constants
 from training.graphs import DEFAULT_START_DATE, GraphsData
 from training.tests.test_data.stats_tests_data import StatsTestData
 

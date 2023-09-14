@@ -1,11 +1,11 @@
 import re
 from datetime import datetime
+from enum import Enum
+from typing import List
 
 import pytz
 from django.utils import timezone
 from pydantic import BaseModel, Field, computed_field
-from typing import List
-from enum import Enum
 
 
 class StravaAthleteData(BaseModel):
@@ -116,3 +116,14 @@ class StravaEventData(BaseModel):
     @property
     def object_type(self) -> ObjectTypeEnum:
         return ObjectTypeEnum(self.object_type_str)
+
+
+class SubscriptionView(BaseModel):
+    strava_id: int = Field(..., alias="id")
+    resource_state: int
+    application_id: int
+    callback_url: str
+
+
+class SubscriptionCreation(BaseModel):
+    strava_id: int = Field(..., alias="id")

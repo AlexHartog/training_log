@@ -1,14 +1,16 @@
 import json
+
 from django.contrib import admin
 from django.db import models
 from django.forms import widgets
 
 from .models import (
-    StravaAuth,
-    StravaTypeMapping,
     StravaActivityImport,
+    StravaAuth,
     StravaRateLimit,
+    StravaTypeMapping,
     StravaUser,
+    StravaSubscription,
 )
 
 
@@ -23,7 +25,7 @@ class PrettyJSONWidget(widgets.Textarea):
             self.attrs["cols"] = min(max(max(row_lengths) + 2, 40), 120)
             return value
         except Exception as e:
-            # logger.warning("Error while formatting JSON: {}".format(e))
+            print("Error while formatting JSON: {}".format(e))
             return super(PrettyJSONWidget, self).format_value(value)
 
 
@@ -36,3 +38,4 @@ admin.site.register(StravaTypeMapping)
 admin.site.register(StravaActivityImport, StravaActivityImportAdmin)
 admin.site.register(StravaRateLimit)
 admin.site.register(StravaUser)
+admin.site.register(StravaSubscription)

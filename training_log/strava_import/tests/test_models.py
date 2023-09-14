@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
-from strava_import.models import StravaAuth, StravaTypeMapping, StravaRateLimit
-from strava_import.schemas import StravaTokenResponse
+from strava_import.models import StravaAuth, StravaRateLimit, StravaTypeMapping
+from strava_import.schemas import StravaTokenResponse, StravaAthleteData
 from training.models import Discipline
 
 
@@ -101,6 +101,7 @@ class StravaAuthTest(TestCase):
             access_token=access_token,
             expires_at=int(self.not_expired_datetime.timestamp()),
             refresh_token="refreshtoken",
+            athlete=StravaAthleteData(id=1),
         )
 
         strava_auth.update_token(token_response)

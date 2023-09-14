@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from dotenv import dotenv_values
 
 from .models import StravaAuth, StravaUser
-from .schemas import StravaTokenResponse, StravaAthleteData
+from .schemas import StravaAthleteData, StravaTokenResponse
 
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 

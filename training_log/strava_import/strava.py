@@ -4,24 +4,11 @@ import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from dotenv import dotenv_values
-from training.models import TrainingSession, SessionZones, Zone
+from training.models import SessionZones, TrainingSession, Zone
 
 from . import strava_authentication
-from .models import (
-    StravaAuth,
-    StravaTypeMapping,
-    StravaActivityImport,
-    StravaRateLimit,
-    StravaUser,
-)
-from .schemas import (
-    StravaSession,
-    StravaSessionZones,
-    StravaZone,
-    StravaEventData,
-    ObjectTypeEnum,
-    AspectTypeEnum,
-)
+from .models import StravaActivityImport, StravaAuth, StravaRateLimit, StravaTypeMapping
+from .schemas import StravaSession, StravaSessionZones, StravaZone
 
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 
@@ -30,14 +17,11 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities?per_page={per_page}"
 ACITIVITY_URL = "https://www.strava.com/api/v3/activities/{activity_id}"
 ACITIVITY_ZONES_URL = "https://www.strava.com/api/v3/activities/{activity_id}/zones"
-CALLBACK_URL = "{http_host}/strava/activity_feed"
-SUBSCRIPTION_CREATION_URL = "https://www.strava.com/api/v3/push_subscriptions"
-SYNC_PAGE_COUNT = 5
+SYNC_PAGE_COUNT = 100
 
 
 def strava_sync():
     """Syncs activities for all users with auto import enabled."""
-    print("Syncing")
     for strava_auth in StravaAuth.objects.all():
         if strava_auth.auto_import:
             print("Running auto import for ", strava_auth.user)
@@ -272,109 +256,3 @@ def update_rate_limits(headers):
         short_limit_usage=int(short_limit_usage),
         daily_limit_usage=int(daily_limit_usage),
     ).save()
-
-
-def get_subscription_payload(verify_token: str, http_host: str):
-    if not os.getenv("STRAVA_CLIENT_ID") or not os.getenv("STRAVA_CLIENT_SECRET"):
-        return
-
-    return {
-        "client_id": os.getenv("STRAVA_CLIENT_ID"),
-        "client_secret": os.getenv("STRAVA_CLIENT_SECRET"),
-        "callback_url": CALLBACK_URL.format(http_host=http_host),
-        "verify_token": verify_token,
-    }
-
-
-def start_subscription(request):
-    print("Starting subscription")
-
-    if os.getenv("HOST_OVERRIDE"):
-        http_host = os.getenv("HOST_OVERRIDE")
-    else:
-        http_host = f'http://{request.META["HTTP_HOST"]}'
-
-    verify_token = "123TeST"
-    # TODO: Create small algo for verify token
-
-    payload = get_subscription_payload(verify_token, http_host)
-    print("Payload: ", payload)
-
-    # return
-
-    response = requests.post(
-        SUBSCRIPTION_CREATION_URL,
-        data=payload,
-    )
-
-    if response.status_code != 201:
-        print(f"Subscription request failed {response.status_code}.")
-        print(f'Errors: {response.content.decode("utf-8")}')
-        print(f"Response: {response.json()}")
-        return
-    else:
-        print("Successfully subscribed to strava.")
-
-    pass
-
-
-def view_subscription(request):
-    pass
-
-
-def handle_event_data(strava_event_data):
-    event_data = StravaEventData.model_validate(strava_event_data)
-    print("Read event data: ", event_data)
-
-    if (
-        event_data.object_type == ObjectTypeEnum.ACTIVITY
-        and event_data.aspect_type == AspectTypeEnum.CREATE
-    ):
-        strava_user = StravaUser.objects.filter(strava_id=event_data.owner_id).first()
-
-        if strava_user is None:
-            print("Could not find strava user for id ", event_data.object_id)
-            return
-
-        new_session = request_and_import_activity(
-            event_data.object_id, strava_user.user
-        )
-        print("Imported session from strava: ", new_session)
-    else:
-        print(
-            f"Received event of type {event_data.object_type} and aspect {event_data.aspect_type}. "
-            f"Not handling at the moment."
-        )
-
-
-# def subscribe():
-#     """Subscribe to strava notifications."""
-#     verify_token = "123TeST"
-#     # TODO: Create small algo for verify token
-#
-#     payload = get_subscription_payload(verify_token)
-#     print("Payload: ", payload)
-#
-#     return
-#     assert False
-#     response = requests.post(
-#         SUBSCRIPTION_CREATION_URL,
-#         data=(payload := get_subscription_payload(verify_token)),
-#     )
-#
-#     if response.status_code != 200:
-#         print(f"Subscription request failed {response.status_code}.")
-#         print(f'Errors: {response.content.decode("utf-8")}')
-#         print(f"Response: {response.json()}")
-#         return
-#     else:
-#         print("Successfully subscribed to strava.")
-#
-#     pass
-#
-#
-# def subscribe_if_needed():
-#     if not os.getenv("SUBSCRIBE_STRAVA"):
-#         return
-#
-#     subscribe()

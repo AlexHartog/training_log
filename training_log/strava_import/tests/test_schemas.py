@@ -1,17 +1,13 @@
-from datetime import datetime
-import os
 import json
+import os
+from datetime import datetime
 
 import pytz
 from django.test import TestCase
 from django.utils import timezone
-from strava_import.schemas import (
-    StravaSession,
-    StravaSessionZones,
-    StravaEventData,
-    ObjectTypeEnum,
-    AspectTypeEnum,
-)
+from strava_import.schemas import (AspectTypeEnum, ObjectTypeEnum,
+                                   StravaEventData, StravaSession,
+                                   StravaSessionZones)
 from training.models import SessionZones
 
 

@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Discipline, TrainingSession, TrainingType, SessionZones, Zone
+from .models import (Discipline, SessionZones, TrainingSession, TrainingType,
+                     Zone)
 
 
 class ZonesInline(admin.TabularInline):
