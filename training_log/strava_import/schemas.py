@@ -18,7 +18,7 @@ class StravaTokenResponse(BaseModel):
     access_token: str
     expires_at: int
     refresh_token: str
-    athlete: StravaAthleteData
+    athlete: StravaAthleteData | None = Field(default=None)
 
     @property
     def expires_at_datetime(self) -> datetime:

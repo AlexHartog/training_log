@@ -149,7 +149,8 @@ def _access_token_update(strava_auth: StravaAuth, refresh=False):
     strava_token_response = StravaTokenResponse(**response.json())
     strava_auth.update_token(strava_token_response)
 
-    update_strava_user(strava_auth.user, strava_token_response.athlete)
+    if strava_token_response.athlete:
+        update_strava_user(strava_auth.user, strava_token_response.athlete)
 
 
 def update_strava_user(user: User, strava_athlete: StravaAthleteData):
