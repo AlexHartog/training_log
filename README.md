@@ -74,6 +74,7 @@ Run `docker exec -t -i 66175bfd6ae6 bash`
 - [] Add more athlete data
 - [x] Save strava athlete id
 - [] Delete invalid subscription
+- [] Check if athlete has premium before checking zones
 
 ### Important 
 - [x] Fix migrations in docker compose. What is happening? It thinks it's on version 1

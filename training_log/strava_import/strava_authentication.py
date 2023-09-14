@@ -154,11 +154,23 @@ def _access_token_update(strava_auth: StravaAuth, refresh=False):
 
 
 def update_strava_user(user: User, strava_athlete: StravaAthleteData):
-    strava_user = StravaUser.objects.filter(strava_id=strava_athlete.strava_id).first()
+    strava_user = StravaUser.objects.filter(user=user).first()
 
     if not strava_user:
         StravaUser.objects.create(user=user, strava_id=strava_athlete.strava_id)
         StravaUser.save()
+        logger.info(
+            f"Created new strava user for {user.username} "
+            f"with strava id {strava_athlete.strava_id}"
+        )
+        return
+
+    if strava_user.strava_id != strava_athlete.strava_id:
+        strava_user.strava_id = strava_athlete.strava_id
+        strava_user.save()
+        logger.info(
+            f"Updated strava id for {user.username} to {strava_athlete.strava_id}"
+        )
 
 
 def refresh_token(strava_auth: StravaAuth):
