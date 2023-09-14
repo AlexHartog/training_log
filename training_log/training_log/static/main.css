@@ -123,7 +123,18 @@ input {
     content: "*";
 }
 
-
+.standard th {
+    background-color: #4c4c4c;
+    color: white;
+    text-align: center;
+    padding: 8px 5px;
+}
+.standard td {
+    padding: 5px 10px;
+}
+.altrow td {
+    background-color: #e0e0e0;
+}
 
 .quotehdr th {
     background-color: #4c4c4c;

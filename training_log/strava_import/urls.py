@@ -17,4 +17,10 @@ urlpatterns = [
         name="strava-subscribe",
     ),
     path("activity_feed", views.activity_feed, name="strava-activity-feed"),
+    path("strava_admin", views.strava_admin, name="strava-admin"),
+    path(
+        "admin_import_data/<str:username>/",
+        views.admin_import_data,
+        name="admin-import-data",
+    ),
 ]

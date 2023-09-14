@@ -5,20 +5,33 @@
 
 {% block content %}
 {% autoescape off %}
-<h1>Strava import</h1>
+<h1>Strava Admin</h1>
 
-{% if user_auth.auto_import %}
-<p class="ok">Auto import is enabled <a href="{% url 'strava-auto-import' 0 %}?next=/">Disable</a></p>
+{% if strava_subscribed %}
+<p class="ok">Strava is subscribed. <a href="{% url 'strava-subscribe' 0 %}?next=/">Unsubscribe</a></p>
 {% else %}
-<p class="highlight">Auto import is disabled. <a href="{% url 'strava-auto-import' 1 %}?next=/">Enable now</a>
+<p class="highlight">Strava is not subscribed. <a href="{% url 'strava-subscribe' 1 %}?next=/">Subscribe</a>
 </p>
 {% endif %}
 
-
-
-{% bootstrap_button "Run manual import" href="import_data" button_class="btn btn-primary" %}
+<p>
+{% bootstrap_button "Run start time update" href="strava-start-time-sync" button_class="btn btn-primary" %}
 </p>
 
+<table class="standard">
+    <tr>
+        <th>User</th>
+        <th>Valid Token</th>
+        <th>Import</th>
+    </tr>
+{% for strava_user in strava_users %}
+    <tr class="standard {% cycle 'altrow' '' %} clickablerow">
+        <td>{{ strava_user.user.username.capitalize }}</td>
+        <td>{{ strava_user.has_valid_access_token }}</td>
+        <td><a href="{% url 'admin-import-data' strava_user.user %}">Import</a></td>
+    </tr>
+{% endfor %}
+</table>
 
 
 {% if imported_sessions %}

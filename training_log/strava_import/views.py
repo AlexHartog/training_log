@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from training.models import TrainingSession
 
@@ -93,7 +94,7 @@ def save_strava_auth(request):
 
 
 @login_required(login_url=reverse_lazy("login"))
-def get_strava_data(request):
+def get_strava_data(request, user=None):
     if request.method == "GET" and "code" in request.GET:
         strava_authentication.save_auth(request)
         return redirect(request.path)
@@ -161,3 +162,26 @@ def activity_feed(request):
         return HttpResponse("OK")
 
     return HttpResponseBadRequest("Unexpected request method: ", request.method)
+
+
+@user_passes_test(admin_check)
+def strava_admin(request):
+    context = {
+        "strava_subscribed": strava_subscription_manager.get_current_subscription().enabled,
+        "strava_users": StravaAuth.objects.all(),
+    }
+
+    return render(request, "strava_import/strava_admin.html", context=context)
+
+
+@user_passes_test(admin_check)
+def admin_import_data(_, username):
+    user_to_import = User.objects.get(username__iexact=username)
+
+    imported_sessions = strava.get_activities(user_to_import, MANUAL_IMPORT_COUNT)
+
+    logger.info(f"Imported {len(imported_sessions)} sessions")
+
+    # TODO: Can we use messages to display imports
+
+    return redirect("strava-admin")
