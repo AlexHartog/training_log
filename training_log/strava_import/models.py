@@ -172,6 +172,15 @@ class StravaUser(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     strava_id = models.BigIntegerField()
+    username = models.CharField(max_length=200, null=True, blank=True)
+    firstname = models.CharField(max_length=200, null=True, blank=True)
+    lastname = models.CharField(max_length=200, null=True, blank=True)
+    resource_state = models.IntegerField(null=True, blank=True)
+    city = models.CharField(max_length=200, null=True, blank=True)
+    sex = models.CharField(max_length=200, null=True, blank=True)
+    premium = models.BooleanField(null=True, blank=True)
+    summit = models.BooleanField(null=True, blank=True)
+    weight = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         """Return a string representation of the model."""

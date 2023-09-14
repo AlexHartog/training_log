@@ -9,7 +9,18 @@ from pydantic import BaseModel, Field, computed_field
 
 
 class StravaAthleteData(BaseModel):
+    """Class to parse strava user data."""
+
     strava_id: int = Field(..., alias="id")
+    username: str | None = Field(default=None)
+    firstname: str | None = Field(default=None)
+    lastname: str | None = Field(default=None)
+    resource_state: int | None = Field(default=None)
+    city: str | None = Field(default=None)
+    sex: str | None = Field(default=None)
+    premium: bool | None = Field(default=None)
+    summit: bool | None = Field(default=None)
+    weight: float | None = Field(default=None)
 
 
 class StravaTokenResponse(BaseModel):
