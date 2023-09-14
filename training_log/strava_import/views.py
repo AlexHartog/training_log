@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -17,6 +18,8 @@ from . import (
     strava_subscription_manager,
 )
 from .models import StravaAuth, StravaSubscription
+
+logger = logging.getLogger(__name__)
 
 DAYS_BACK = 10
 MANUAL_IMPORT_COUNT = 1
@@ -103,7 +106,7 @@ def get_strava_data(request):
         }
         return render(request, "strava_import/strava_import.html", context)
     else:
-        print("We don't have proper authorization yet")
+        logger.warning("We don't have proper authorization yet")
 
     return redirect("strava-auth")
 
@@ -129,30 +132,31 @@ def activity_feed(request):
         strava_subscription = StravaSubscription.objects.first()
 
         if not strava_subscription:
-            print("No strava subscription found")
+            logger.error("No strava subscription found")
             return HttpResponseBadRequest("No strava subscription found")
 
         if verify_token != strava_subscription.verify_token:
-            print("Invalid verify token")
+            logger.error("Invalid verify token")
             return HttpResponseBadRequest("Invalid verify token")
 
         strava_subscription.state = StravaSubscription.SubscriptionState.VALIDATED
         strava_subscription.save()
 
         response_data = {"hub.challenge": request.GET.get("hub.challenge")}
+        logger.info("Replying with ", response_data)
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     elif request.method == "POST":
         content_type = request.META.get("CONTENT_TYPE")
 
         if content_type != "application/json":
-            print("Unexpected content type: ", content_type)
+            logger.error("Unexpected content type: ", content_type)
             return HttpResponseBadRequest("Unexpected content type: ", content_type)
 
         try:
             data = json.loads(request.body)
             strava_subscription_manager.handle_event_data(data)
         except json.JSONDecodeError:
-            print("Data is not valid JSON")
+            logger.error("Data is not valid JSON")
             return HttpResponseBadRequest("Data is not valid JSON")
 
         return HttpResponse("OK")

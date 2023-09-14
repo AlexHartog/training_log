@@ -239,7 +239,7 @@ def handle_event_data(strava_event_data):
         strava_user = StravaUser.objects.filter(strava_id=event_data.owner_id).first()
 
         if strava_user is None:
-            logger.warn("Could not find strava user for id ", event_data.object_id)
+            logger.warning("Could not find strava user for id ", event_data.object_id)
             return
 
         strava.request_and_import_activity(event_data.object_id, strava_user.user)
