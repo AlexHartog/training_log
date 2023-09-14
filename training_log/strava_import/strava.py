@@ -17,14 +17,19 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities?per_page={per_page}"
 ACITIVITY_URL = "https://www.strava.com/api/v3/activities/{activity_id}"
 ACITIVITY_ZONES_URL = "https://www.strava.com/api/v3/activities/{activity_id}/zones"
-SYNC_PAGE_COUNT = 100
+SYNC_PAGE_COUNT = os.getenv("STRAVA_SYNC_COUNT") or 1
 
 
 def strava_sync():
     """Syncs activities for all users with auto import enabled."""
     for strava_auth in StravaAuth.objects.all():
         if strava_auth.auto_import:
-            print("Running auto import for ", strava_auth.user)
+            print(
+                "Running auto import (",
+                SYNC_PAGE_COUNT,
+                " page(s)) for ",
+                strava_auth.user,
+            )
             get_activities(strava_auth.user, SYNC_PAGE_COUNT)
 
 
