@@ -230,10 +230,7 @@ def handle_event_data(strava_event_data):
     if it is an event type that we handle."""
     event_data = StravaEventData.model_validate(strava_event_data)
 
-    if (
-        event_data.object_type == ObjectTypeEnum.ACTIVITY
-        and event_data.aspect_type == AspectTypeEnum.CREATE
-    ):
+    if event_data.object_type == ObjectTypeEnum.ACTIVITY:
         strava_user = StravaUser.objects.filter(strava_id=event_data.owner_id).first()
 
         if strava_user is None:
