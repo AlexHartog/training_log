@@ -81,8 +81,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "timestamp": {
-            "format": "[{asctime}][{module}][{levelname}] {message}",
-            "style": "{",
+            "format": "[%(asctime)s.%(msecs)d][%(module)s][%(levelname)s] %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         }
     },

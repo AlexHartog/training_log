@@ -10,5 +10,5 @@ python manage.py migrate
 
 # Start server
 echo "Starting server"
-gunicorn training_log.wsgi:application --bind 0.0.0.0:8000
+gunicorn training_log.wsgi:application --threads=2 --bind 0.0.0.0:8000
 

@@ -143,13 +143,12 @@ def activity_feed(request):
         strava_subscription.save()
 
         response_data = {"hub.challenge": request.GET.get("hub.challenge")}
-        logger.info("Replying with ", response_data)
         return HttpResponse(json.dumps(response_data), content_type="application/json")
     elif request.method == "POST":
         content_type = request.META.get("CONTENT_TYPE")
 
         if content_type != "application/json":
-            logger.error("Unexpected content type: ", content_type)
+            logger.error(f"Unexpected content type: {content_type}")
             return HttpResponseBadRequest("Unexpected content type: ", content_type)
 
         try:
