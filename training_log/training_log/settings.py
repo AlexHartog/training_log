@@ -79,9 +79,17 @@ ROOT_URLCONF = "training_log.urls"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "timestamp": {
+            "format": "[{asctime}][{module}][{levelname}] {message}",
+            "style": "{",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        }
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "timestamp",
         },
     },
     "root": {
