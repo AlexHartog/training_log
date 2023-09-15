@@ -33,9 +33,13 @@ class StravaActivityImportAdmin(admin.ModelAdmin):
     formfield_overrides = {models.JSONField: {"widget": PrettyJSONWidget}}
 
 
+class StravaUserAdmin(admin.ModelAdmin):
+    readonly_fields = ("updated_at",)
+
+
 admin.site.register(StravaAuth)
 admin.site.register(StravaTypeMapping)
 admin.site.register(StravaActivityImport, StravaActivityImportAdmin)
 admin.site.register(StravaRateLimit)
-admin.site.register(StravaUser)
+admin.site.register(StravaUser, StravaUserAdmin)
 admin.site.register(StravaSubscription)

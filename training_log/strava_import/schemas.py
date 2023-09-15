@@ -17,10 +17,14 @@ class StravaAthleteData(BaseModel):
     lastname: str | None = Field(default=None)
     resource_state: int | None = Field(default=None)
     city: str | None = Field(default=None)
+    state: str | None = Field(default=None)
+    country: str | None = Field(default=None)
     sex: str | None = Field(default=None)
     premium: bool | None = Field(default=None)
     summit: bool | None = Field(default=None)
     weight: float | None = Field(default=None)
+    profile_medium: str | None = Field(default=None)
+    profile: str | None = Field(default=None)
 
 
 class StravaTokenResponse(BaseModel):

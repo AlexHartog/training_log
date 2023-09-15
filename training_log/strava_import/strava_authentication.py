@@ -10,6 +10,8 @@ from dotenv import dotenv_values
 from .models import StravaAuth, StravaUser
 from .schemas import StravaAthleteData, StravaTokenResponse
 
+from . import strava
+
 logger = logging.getLogger(__name__)
 
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
@@ -150,24 +152,7 @@ def _access_token_update(strava_auth: StravaAuth, refresh=False):
     strava_auth.update_token(strava_token_response)
 
     if strava_token_response.athlete:
-        update_strava_user(strava_auth.user, strava_token_response.athlete)
-
-
-def update_strava_user(user: User, strava_athlete: StravaAthleteData):
-    """Create or update the strava user data."""
-    strava_user, created = StravaUser.objects.get_or_create(
-        user=user, defaults=strava_athlete
-    )
-
-    if not created:
-        for field in strava_athlete.model_fields:
-            setattr(strava_user, field, getattr(strava_athlete, field))
-
-        strava_user.save()
-
-    logger.info(
-        f"Strava user {strava_user} was { 'created' if created else 'updated' }"
-    )
+        strava.update_strava_user(strava_auth.user, strava_token_response.athlete)
 
 
 def refresh_token(strava_auth: StravaAuth):

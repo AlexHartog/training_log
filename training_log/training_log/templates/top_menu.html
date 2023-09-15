@@ -23,9 +23,21 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'new-session' %}">
               Add Training</a></li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'strava-index' %}">
-              Strava Data</a></li>
+          {% if user.is_staff %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Strava
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="{% url 'strava-index' %}">Import</a></li>
+              <li><a class="dropdown-item" href="{% url 'strava-admin' %}">Admin</a></li>
+            </ul>
+          </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'strava-index' %}">
+                Strava Data</a></li>
+          {% endif %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               {% if user.is_authenticated %}

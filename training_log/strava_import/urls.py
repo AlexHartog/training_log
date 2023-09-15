@@ -23,4 +23,9 @@ urlpatterns = [
         views.admin_import_data,
         name="admin-import-data",
     ),
+    path(
+        "admin_athlete_update/<str:username>/",
+        views.admin_athlete_update,
+        name="admin-athlete-update",
+    ),
 ]

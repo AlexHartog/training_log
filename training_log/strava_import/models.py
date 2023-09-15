@@ -98,7 +98,7 @@ class StravaRateLimit(models.Model):
     daily_limit = models.IntegerField()
     short_limit_usage = models.IntegerField()
     daily_limit_usage = models.IntegerField()
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     @property
     def remaining_short_limit(self):
@@ -163,6 +163,7 @@ class StravaSubscription(models.Model):
         choices=SubscriptionState.choices,
     )
     strava_id = models.BigIntegerField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     # TODO: How to check if still active?
 
@@ -177,10 +178,15 @@ class StravaUser(models.Model):
     lastname = models.CharField(max_length=200, null=True, blank=True)
     resource_state = models.IntegerField(null=True, blank=True)
     city = models.CharField(max_length=200, null=True, blank=True)
+    state = models.CharField(max_length=200, null=True, blank=True)
+    country = models.CharField(max_length=200, null=True, blank=True)
     sex = models.CharField(max_length=200, null=True, blank=True)
     premium = models.BooleanField(null=True, blank=True)
     summit = models.BooleanField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
+    profile_medium = models.CharField(max_length=200, null=True, blank=True)
+    profile = models.CharField(max_length=200, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         """Return a string representation of the model."""

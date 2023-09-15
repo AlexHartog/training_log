@@ -23,12 +23,18 @@
         <th>User</th>
         <th>Valid Token</th>
         <th>Import</th>
+        <th>Update</th>
     </tr>
 {% for strava_user in strava_users %}
     <tr class="standard {% cycle 'altrow' '' %} clickablerow">
         <td>{{ strava_user.user.username.capitalize }}</td>
         <td>{{ strava_user.has_valid_access_token }}</td>
-        <td><a href="{% url 'admin-import-data' strava_user.user %}">Import</a></td>
+        {% if strava_user.has_valid_access_token %}
+            <td><a href="{% url 'admin-import-data' strava_user.user %}">Import</a></td>
+            <td><a href="{% url 'admin-athlete-update' strava_user.user %}">Update Athlete</a></td>
+        {% else %}
+            <td></td><td></td>
+        {% endif %}
     </tr>
 {% endfor %}
 </table>

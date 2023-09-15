@@ -8,8 +8,14 @@ from dotenv import dotenv_values
 from training.models import SessionZones, TrainingSession, Zone
 
 from . import strava_authentication
-from .models import StravaActivityImport, StravaAuth, StravaRateLimit, StravaTypeMapping
-from .schemas import StravaSession, StravaSessionZones, StravaZone
+from .models import (
+    StravaActivityImport,
+    StravaAuth,
+    StravaRateLimit,
+    StravaTypeMapping,
+    StravaUser,
+)
+from .schemas import StravaSession, StravaSessionZones, StravaZone, StravaAthleteData
 
 
 logger = logging.getLogger(__name__)
@@ -20,6 +26,7 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities?per_page={per_page}"
 ACITIVITY_URL = "https://www.strava.com/api/v3/activities/{activity_id}"
 ACITIVITY_ZONES_URL = "https://www.strava.com/api/v3/activities/{activity_id}/zones"
+ATHLETE_URL = "https://www.strava.com/api/v3/athlete"
 SYNC_PAGE_COUNT = os.getenv("STRAVA_SYNC_COUNT") or 1
 
 
@@ -49,6 +56,11 @@ def get_activity_url(activity_id: int):
 def get_activity_zones_url(strava_id: int):
     """Builds the url to get activity zones from strava."""
     return ACITIVITY_ZONES_URL.format(activity_id=strava_id)
+
+
+def get_athlete_url():
+    """Builds the url to get the athlete from strava."""
+    return ATHLETE_URL
 
 
 def check_rate_limits_left(plenty: bool = False):
@@ -265,3 +277,44 @@ def update_rate_limits(headers):
         short_limit_usage=int(short_limit_usage),
         daily_limit_usage=int(daily_limit_usage),
     ).save()
+
+
+def update_strava_user(user: User, strava_athlete: StravaAthleteData):
+    """Create or update the strava user data."""
+    strava_user, created = StravaUser.objects.get_or_create(
+        user=user, defaults=strava_athlete
+    )
+
+    if not created:
+        for field in strava_athlete.model_fields:
+            setattr(strava_user, field, getattr(strava_athlete, field))
+
+        strava_user.save()
+
+    logger.info(
+        f"Strava user {strava_user} was { 'created' if created else 'updated' }"
+    )
+
+
+def get_athlete_data(strava_auth: StravaAuth):
+    """Get athlete data from strava."""
+    if not strava_auth:
+        raise strava_authentication.NoAuthorizationException()
+
+    if not check_rate_limits_left():
+        logger.warning("No rate limits left, so skipping request")
+        return
+
+    headers = {"Authorization": f"Bearer {strava_auth.access_token}"}
+    response = requests.get(get_athlete_url(), headers=headers)
+
+    update_rate_limits(response.headers)
+
+    if response.status_code != 200:
+        logger.error("Strava API returned error: ", response.json())
+        return
+
+    athlete = response.json()
+    athlete_data = StravaAthleteData.model_validate(athlete)
+
+    update_strava_user(strava_auth.user, athlete_data)

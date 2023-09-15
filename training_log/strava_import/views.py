@@ -185,3 +185,16 @@ def admin_import_data(_, username):
     # TODO: Can we use messages to display imports
 
     return redirect("strava-admin")
+
+
+@user_passes_test(admin_check)
+def admin_athlete_update(_, username):
+    user_to_update = User.objects.get(username__iexact=username)
+    strava_auth = strava_authentication.get_authentication(user_to_update)
+
+    if not strava_auth:
+        raise strava_authentication.NoAuthorizationException()
+
+    strava.get_athlete_data(strava_auth)
+
+    return redirect("strava-admin")
