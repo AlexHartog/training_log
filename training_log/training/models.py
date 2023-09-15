@@ -52,8 +52,8 @@ class TrainingSession(models.Model):
     def formatted_duration(self):
         """Format duration nicely."""
         if self.moving_duration:
-            hours = self.moving_duration // constants.hour
-            minutes = (self.moving_duration % constants.hour) // constants.minute
+            hours = int(self.moving_duration // constants.hour)
+            minutes = int((self.moving_duration % constants.hour) // constants.minute)
             return f"{hours}h {minutes}m"
         else:
             return "N/A"
@@ -62,7 +62,7 @@ class TrainingSession(models.Model):
     def formatted_distance(self):
         """Format distance nicely"""
         if self.distance:
-            return f"{self.distance/constants.kilo:.2f} km"
+            return f"{self.distance / constants.kilo:.2f} km"
         else:
             return "N/A"
 
@@ -105,4 +105,4 @@ class Zone(models.Model):
 
     def __str__(self):
         """Return a string representation of the model."""
-        return f"{int(self.time / constants.minute)} minutes in {self.min} - {self.max}"
+        return f"{int(self.time / int(constants.minute))} minutes in {self.min} - {self.max}"
