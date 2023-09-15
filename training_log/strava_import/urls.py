@@ -19,12 +19,12 @@ urlpatterns = [
     path("activity_feed", views.activity_feed, name="strava-activity-feed"),
     path("strava_admin", views.strava_admin, name="strava-admin"),
     path(
-        "admin_import_data/<str:username>/",
+        "admin_import_data/",
         views.admin_import_data,
         name="admin-import-data",
     ),
     path(
-        "admin_athlete_update/<str:username>/",
+        "admin_athlete_update",
         views.admin_athlete_update,
         name="admin-athlete-update",
     ),

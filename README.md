@@ -21,13 +21,17 @@ STRAVA_CLIENT_SECRET=
 # OPTIONAL SETTINGS
 COMPOSE_PROJECT_NAME=
 DJANGO_PORT=
+STRAVA_SYNC_COUNT=5
+NGINX_PORT=5015
+DJANGO_DEBUG=True
+DJANGO_LOG_LEVEL=DEBUG
 ~~~
-
 
 
 
 #### Docker Compose
 
+The app can be start by running `docker-compose up`.
 
 
 
@@ -57,24 +61,24 @@ Run `docker exec -t -i 66175bfd6ae6 bash`
 - [x] Convert duration from minutes to seconds for new training
 
 ### Later releases
-- [] More statistics 
-- [] Calendar
-- [] Supplement existing training data with strava data
+- [ ] More statistics 
+- [ ] Calendar
+- [ ] Supplement existing training data with strava data
 - [x] Graphs
-- [] Additional graphs
-- [] Add HTTPS
+- [ ] Additional graphs
+- [ ] Add HTTPS
 - [x] Save JSON data from strava
-- [] Move to proper logger
-- [] Add activity zones
-- [] CRUD operations
-- [] Squash migrations
+- [ ] Move to proper logger
+- [x] Add activity zones
+- [ ] CRUD operations
+- [x] Squash migrations
 - [x] Add strava import action on an activity
 - [x] How to deal with too many requests to strava when getting activity zones?
 - [x] Implement Strava webhooks
-- [] Add more athlete data
+- [x] Add more athlete data
 - [x] Save strava athlete id
-- [] Delete invalid subscription
-- [] Check if athlete has premium before checking zones
+- [ ] Delete invalid subscription
+- [x] Check if athlete has premium before checking zones
 
 ### Important 
 - [x] Fix migrations in docker compose. What is happening? It thinks it's on version 1

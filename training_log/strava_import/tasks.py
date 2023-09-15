@@ -3,6 +3,6 @@ from huey.contrib.djhuey import periodic_task
 from strava_import.strava import strava_sync
 
 
-@periodic_task(crontab(minute="29"))
+@periodic_task(crontab(hours="3"))
 def strava_sync_task():
     strava_sync()

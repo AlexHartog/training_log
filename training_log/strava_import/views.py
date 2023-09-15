@@ -4,7 +4,7 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -175,10 +175,16 @@ def strava_admin(request):
 
 
 @user_passes_test(admin_check)
-def admin_import_data(_, username):
+def admin_import_data(request):
+    """Importing data as an admin for a user."""
+    if request.method != "POST":
+        raise Http404
+
+    username = request.POST.get("username")
+    num_sessions = int(request.POST.get("num_sessions"))
     user_to_import = User.objects.get(username__iexact=username)
 
-    imported_sessions = strava.get_activities(user_to_import, MANUAL_IMPORT_COUNT)
+    imported_sessions = strava.get_activities(user_to_import, num_sessions)
 
     logger.info(f"Imported {len(imported_sessions)} sessions")
 
@@ -188,7 +194,13 @@ def admin_import_data(_, username):
 
 
 @user_passes_test(admin_check)
-def admin_athlete_update(_, username):
+def admin_athlete_update(request):
+    """Update athlete data as an admin for a user."""
+    if request.method != "POST":
+        raise Http404
+
+    username = request.POST.get("username")
+
     user_to_update = User.objects.get(username__iexact=username)
     strava_auth = strava_authentication.get_authentication(user_to_update)
 

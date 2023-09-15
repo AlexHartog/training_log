@@ -22,6 +22,7 @@
     <tr>
         <th>User</th>
         <th>Valid Token</th>
+        <th>Num Sessions</th></td>
         <th>Import</th>
         <th>Update</th>
     </tr>
@@ -30,8 +31,17 @@
         <td>{{ strava_user.user.username.capitalize }}</td>
         <td>{{ strava_user.has_valid_access_token }}</td>
         {% if strava_user.has_valid_access_token %}
-            <td><a href="{% url 'admin-import-data' strava_user.user %}">Import</a></td>
-            <td><a href="{% url 'admin-athlete-update' strava_user.user %}">Update Athlete</a></td>
+            <form action="{% url 'admin-import-data' %}"  method="post">
+                <input type="hidden" name="username" value="{{ strava_user.user.username }}">
+                <td><input type="number" max="200" name="num_sessions" value="5" class="num_sessions"></td>
+                <td><button type="submit" name="action" value="import">Import</button></td>
+                {% csrf_token %}
+            </form>
+            <form action="{% url 'admin-athlete-update' %}" method="post">
+                <input type="hidden" name="username" value="{{ strava_user.user.username }}">
+                <td><button type="submit" name="action" value="update_athlete">Update Athlete</button></td>
+                {% csrf_token %}
+            </form>
         {% else %}
             <td></td><td></td>
         {% endif %}

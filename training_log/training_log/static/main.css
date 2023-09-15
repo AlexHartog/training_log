@@ -241,3 +241,7 @@ input {
   color: white; /* Link color */
 }
 
+input.num_sessions  {
+    width: 60px;
+}
+
