@@ -7,6 +7,10 @@ from django.contrib.auth.models import User
 from dotenv import dotenv_values
 from training.models import SessionZones, TrainingSession, Zone
 
+# TODO: Move this somewhere better
+from training.stats import DEFAULT_START_DATE
+from datetime import datetime
+
 from . import strava_authentication
 from .models import (
     StravaActivityImport,
@@ -23,7 +27,9 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 
 
 # TODO: Where to keep these constants?
-ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities?per_page={per_page}"
+ACTIVITIES_URL = (
+    "https://www.strava.com/api/v3/athlete/activities?per_page={per_page}&after={after}"
+)
 ACITIVITY_URL = "https://www.strava.com/api/v3/activities/{activity_id}"
 ACITIVITY_ZONES_URL = "https://www.strava.com/api/v3/activities/{activity_id}/zones"
 ATHLETE_URL = "https://www.strava.com/api/v3/athlete"
@@ -40,9 +46,11 @@ def strava_sync():
             get_activities(strava_auth.user, SYNC_PAGE_COUNT)
 
 
-def get_activities_url(result_per_page: int):
+def get_activities_url(result_per_page: int, after: datetime = None):
     """Builds the url to get activities from strava."""
-    return ACTIVITIES_URL.format(per_page=result_per_page)
+    return ACTIVITIES_URL.format(
+        per_page=result_per_page, after=int((after or DEFAULT_START_DATE).timestamp())
+    )
 
 
 def get_activity_url(activity_id: int):
