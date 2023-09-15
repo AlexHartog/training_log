@@ -188,6 +188,13 @@ class StravaUser(models.Model):
     profile = models.CharField(max_length=200, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def name(self):
+        if self.firstname and self.lastname:
+            return f"{self.firstname} {self.lastname}"
+        else:
+            return self.user.username.capitalize()
+
     def __str__(self):
         """Return a string representation of the model."""
         return f"{self.strava_id} - {self.user.username.capitalize()}"

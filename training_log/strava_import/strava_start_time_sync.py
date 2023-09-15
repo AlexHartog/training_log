@@ -1,4 +1,5 @@
 import requests
+import logging
 from django.contrib.auth.models import User
 from training.models import TrainingSession
 
@@ -7,15 +8,16 @@ from .models import StravaAuth
 from .schemas import StravaSession
 from .strava import get_activities_url
 
+logger = logging.getLogger(__name__)
+
 SYNC_PAGE_COUNT = 200
 
 
 def strava_start_time_sync():
     """Gets strava start times for all users."""
-    print("Syncing")
     for strava_auth in StravaAuth.objects.all():
         if strava_auth.auto_import:
-            print("Syncing start times for ", strava_auth.user)
+            logger.info(f"Syncing start times for {strava_auth.user}")
             get_strava_start_time(strava_auth.user, SYNC_PAGE_COUNT)
 
 
@@ -30,10 +32,10 @@ def get_strava_start_time(user: User, result_per_page: int):
     activities = response.json()
 
     if response.status_code != 200:
-        print("Strava API returned error: ", response.json())
+        logger.error(f"Strava API returned error: {response.json()}")
         return
 
-    print("We've imported ", len(activities), " activities to update start time")
+    logger.info(f"We've imported {len(activities)} activities to update start time")
 
     for activity in activities:
         sync_start_time(user, activity)
@@ -51,6 +53,5 @@ def sync_start_time(user, activity):
     if not training_session:
         return
 
-    print("Updating for training session ", training_session)
     training_session.start_date = strava_session.start_date
     training_session.save()

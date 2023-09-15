@@ -34,11 +34,8 @@ def strava_sync():
     """Syncs activities for all users with auto import enabled."""
     for strava_auth in StravaAuth.objects.all():
         if strava_auth.auto_import:
-            print(
-                "Running auto import (",
-                SYNC_PAGE_COUNT,
-                " page(s)) for ",
-                strava_auth.user,
+            logger.info(
+                f"Running auto import ({SYNC_PAGE_COUNT} page(s)) for {strava_auth.user}"
             )
             get_activities(strava_auth.user, SYNC_PAGE_COUNT)
 
@@ -82,7 +79,7 @@ def get_activities(user: User, result_per_page: int):
         raise strava_authentication.NoAuthorizationException()
 
     if not check_rate_limits_left(plenty=True):
-        print("No rate limits left, so skipping request")
+        logger.info("No rate limits left, so skipping request")
         return
 
     headers = {"Authorization": f"Bearer {strava_auth.access_token}"}
@@ -91,11 +88,11 @@ def get_activities(user: User, result_per_page: int):
     update_rate_limits(response.headers)
 
     if response.status_code != 200:
-        print("Strava API returned error: ", response.json())
+        logger.error(f"Strava API returned error: {response.json()}")
         return
 
     activities = response.json()
-    print("We've imported ", len(activities), " activities")
+    logger.info(f"We've imported {len(activities)} activities")
 
     imported_sessions = []
     for activity in activities:
@@ -113,7 +110,7 @@ def get_activity_zones(user: User, strava_id: int):
         raise strava_authentication.NoAuthorizationException()
 
     if not check_rate_limits_left(plenty=True):
-        print("Not enough rate limits left, so skipping activity zones request")
+        logger.info("Not enough rate limits left, so skipping activity zones request")
         return
 
     headers = {"Authorization": f"Bearer {strava_auth.access_token}"}
@@ -122,7 +119,7 @@ def get_activity_zones(user: User, strava_id: int):
     update_rate_limits(response.headers)
 
     if response.status_code != 200:
-        print("Strava API returned error: ", response.json())
+        logger.error(f"Strava API returned error: {response.json()}")
         return
 
     activity_zones = response.json()
@@ -136,8 +133,8 @@ def get_discipline(activity: StravaSession):
     discipline = StravaTypeMapping.objects.filter(strava_type=activity.type).first()
 
     if not discipline:
-        print("No discipline found for strava type ", activity.type)
-        print("Adding this to database")
+        logger.info(f"No discipline found for strava type {activity.type}")
+        logger.info("Adding this to database")
         discipline = StravaTypeMapping(strava_type=activity.type)
         discipline.save()
 
@@ -160,12 +157,14 @@ def save_activity_json(activity: dict, user: User, strava_id: int, data_type: st
 def import_training_session(strava_session: StravaSession, user: User):
     # TODO: Should we move this to not query the database for every activity?
     if TrainingSession.objects.filter(strava_id=strava_session.strava_id).exists():
-        print("Activity already imported from strava")
+        logger.info(
+            f"Activity with id {strava_session.strava_id} already imported from strava"
+        )
         return
 
     discipline = get_discipline(strava_session)
     if not discipline.discipline:
-        print("No discipline found for strava type ", strava_session.type)
+        logger.info(f"No discipline found for strava type {strava_session.type}")
         return
 
     training_session = TrainingSession(**strava_session.model_dump())
@@ -173,7 +172,7 @@ def import_training_session(strava_session: StravaSession, user: User):
     training_session.discipline = discipline.discipline
     training_session.save()
 
-    print("Imported session from strava with name ", strava_session.name)
+    logger.info(f"Imported session from strava with name {strava_session.name}")
     return training_session
 
     # TODO: Add logic to suplement activity data with strava data
@@ -181,17 +180,29 @@ def import_training_session(strava_session: StravaSession, user: User):
 
 def import_session_zones(strava_id: int, user: User):
     """If zones do not exist, import them from strava and save them to the database."""
+    strava_user = StravaUser.objects.filter(user=user).first()
+
+    if not strava_user:
+        logger.warning(f"No user found for strava id {strava_id}. Not importing zones.")
+        return
+
+    if not strava_user.premium:
+        logger.info(
+            f"User {strava_user.name} does not have premium. " f"Not importing zones."
+        )
+        return
+
     try:
         session_id = TrainingSession.objects.get(strava_id=strava_id).id
     except TrainingSession.DoesNotExist:
-        print("No session found for strava id ", strava_id, ". Cannot import zones.")
+        logger.warning(
+            f"No session found for strava id {strava_id}. Cannot import zones."
+        )
         return
 
     if (zones_count := SessionZones.objects.filter(session_id=session_id).count()) > 0:
-        print(
-            zones_count,
-            "session zones already imported from strava for id",
-            strava_id,
+        logger.info(
+            f"{zones_count} session zones already imported from strava for id {strava_id}"
         )
         return
 
@@ -211,6 +222,11 @@ def import_session_zones(strava_id: int, user: User):
             for strava_zone in strava_activity_zones.zones:
                 save_strava_zone(strava_zone, session_zones.id)
 
+        logger.info(
+            f"Imported {len(activity_zones_json)} zones "
+            f"for activity with id {strava_id}"
+        )
+
 
 def save_strava_zone(strava_zone: StravaZone, session_zones_id: int):
     """Convert a strava zone to a zone and save it to the database."""
@@ -225,7 +241,7 @@ def request_and_import_activity(activity_id: int, user: User):
         raise strava_authentication.NoAuthorizationException()
 
     if not check_rate_limits_left():
-        print("No rate limits left, so skipping request")
+        logger.info("No rate limits left, so skipping request")
         return
 
     headers = {"Authorization": f"Bearer {strava_auth.access_token}"}
@@ -234,7 +250,7 @@ def request_and_import_activity(activity_id: int, user: User):
     update_rate_limits(response.headers)
 
     if response.status_code != 200:
-        print("Strava API returned error: ", response.json())
+        logger.error(f"Strava API returned error: {response.json()}")
         return
 
     activity = response.json()
@@ -265,7 +281,7 @@ def update_rate_limits(headers):
     RATE_LIMIT_LIMIT = "X-RateLimit-Limit"
     RATE_LIMIT_USAGE = "X-RateLimit-Usage"
     if RATE_LIMIT_LIMIT not in headers or RATE_LIMIT_USAGE not in headers:
-        print("Could not update rate limits, missing headers")
+        logger.warning("Could not update rate limits, missing headers")
         return
 
     short_limit_limit, daily_limit_limit = headers[RATE_LIMIT_LIMIT].split(",")
@@ -311,7 +327,7 @@ def get_athlete_data(strava_auth: StravaAuth):
     update_rate_limits(response.headers)
 
     if response.status_code != 200:
-        logger.error("Strava API returned error: ", response.json())
+        logger.error(f"Strava API returned error: {response.json()}")
         return
 
     athlete = response.json()
