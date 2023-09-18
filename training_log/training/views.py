@@ -1,3 +1,4 @@
+import logging
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,6 +15,8 @@ from .forms import SessionForm
 from .graphs import GraphsData
 from .models import TrainingSession
 from strava_import.models import StravaUser
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -56,9 +59,11 @@ class SessionList(LoginRequiredMixin, ListView):
         except User.DoesNotExist:
             raise Http404("User does not exist")
 
-        strava_user = StravaUser.objects.get(user=user)
-
-        context["strava_user"] = strava_user
+        try:
+            strava_user = StravaUser.objects.get(user=user)
+            context["strava_user"] = strava_user
+        except StravaUser.DoesNotExist:
+            logger.warning(f"Strava User does not exist for {user}")
 
         return context
 

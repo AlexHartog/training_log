@@ -5,16 +5,18 @@
 {% block content %}
 <h1>User Overview</h1>
 
-<table class="user">
-  <tr class="userhdr"><th colspan="2">{{ strava_user.name }}</th></tr>
-  <tr><td colspan="2" style="text-align: center;"><img src="{{ strava_user.profile }}" height="150" width="150"></td></tr>
-  <tr><td>Premium</td><td>{{ strava_user.premium_string }}</td></tr>
-  <tr><td>Sex</td><td>{{ strava_user.sex_string }}</td></td></tr>
-  <tr><td>Weight</td><td>{{ strava_user.weight }} kg</td></tr>
-  <tr><td>City</td><td>{{ strava_user.city }}</td></td></tr>
-  <tr><td>Country</td><td>{{ strava_user.country }}</td></td></tr>
+{% if strava_user %}
+  <table class="user">
+    <tr class="userhdr"><th colspan="2">{{ strava_user.name }}</th></tr>
+    <tr><td colspan="2" style="text-align: center;"><img src="{{ strava_user.profile }}" height="150" width="150"></td></tr>
+    <tr><td>Premium</td><td>{{ strava_user.premium_string }}</td></tr>
+    <tr><td>Sex</td><td>{{ strava_user.sex_string }}</td></td></tr>
+    <tr><td>Weight</td><td>{{ strava_user.weight }} kg</td></tr>
+    <tr><td>City</td><td>{{ strava_user.city }}</td></td></tr>
+    <tr><td>Country</td><td>{{ strava_user.country }}</td></td></tr>
 
-</table>
+  </table>
+{% endif %}
 
 <div style="margin-top: 20px;"></div>
 
