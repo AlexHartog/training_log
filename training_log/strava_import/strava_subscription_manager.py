@@ -200,6 +200,19 @@ def view_subscription():
 
 def delete_subscription(subscription_id: int):
     """Delete a strava subscription."""
+
+    active_subscription_id = view_subscription()
+
+    if active_subscription_id != subscription_id:
+        logger.warning("Our subscription is not the active one. Not deleting.")
+        subscription = StravaSubscription.objects.filter(
+            strava_id=subscription_id
+        ).first()
+        subscription.enabled = False
+        subscription.state = StravaSubscription.SubscriptionState.INVALID
+        subscription.save()
+        return
+
     payload = get_subscription_delete_payload()
     response = requests.delete(
         get_subscription_delete_url(subscription_id), data=payload

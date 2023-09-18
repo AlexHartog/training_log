@@ -13,6 +13,7 @@ from . import stats
 from .forms import SessionForm
 from .graphs import GraphsData
 from .models import TrainingSession
+from strava_import.models import StravaUser
 
 
 def index(request):
@@ -45,6 +46,21 @@ class SessionList(LoginRequiredMixin, ListView):
             raise Http404("User does not exist")
 
         return TrainingSession.objects.filter(user=user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        username = self.kwargs.get("username")
+
+        try:
+            user = User.objects.get(username__iexact=username)
+        except User.DoesNotExist:
+            raise Http404("User does not exist")
+
+        strava_user = StravaUser.objects.get(user=user)
+
+        context["strava_user"] = strava_user
+
+        return context
 
 
 class SessionView(LoginRequiredMixin, DetailView):

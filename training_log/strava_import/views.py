@@ -166,6 +166,7 @@ def activity_feed(request):
 
 @user_passes_test(admin_check)
 def strava_admin(request):
+    """Create data for an admin page. Includes user data."""
     users_with_strava_auth = User.objects.prefetch_related("stravaauth_set").all()
     users = []
     for user in users_with_strava_auth:

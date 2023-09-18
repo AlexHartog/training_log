@@ -162,6 +162,7 @@ class StravaSubscription(models.Model):
         ACTIVE = "AC", _("Active")
         VALIDATED = "VA", _("Validated")
         CREATED = "CR", _("Created")
+        INVALID = "IN", _("Invalid")
 
     enabled = models.BooleanField(default=False)
     callback_url = models.URLField(null=True, blank=True)
@@ -202,6 +203,20 @@ class StravaUser(models.Model):
             return f"{self.firstname} {self.lastname}"
         else:
             return self.user.username.capitalize()
+
+    @property
+    def sex_string(self):
+        if self.sex == "M":
+            return "Male"
+        elif self.sex == "F":
+            return "Female"
+
+    @property
+    def premium_string(self):
+        if self.premium:
+            return "Yes"
+        else:
+            return "No"
 
     def __str__(self):
         """Return a string representation of the model."""
