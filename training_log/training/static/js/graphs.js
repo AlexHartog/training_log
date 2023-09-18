@@ -1,12 +1,4 @@
 function createChart({canvasId, all_data, settings}) {
-//     if (backgroundColor === undefined) {
-//        backgroundColor = 'rgba(75, 192, 192, 0.2)'
-//    }
-//    if (borderColor == undefined) {
-//        borderColor = 'rgba(75, 192, 192, 1)'
-//    }
-    console.log(all_data)
-
     dataSets = []
 
     for (const [key, value] of Object.entries(all_data)) {
@@ -91,5 +83,62 @@ function createChart({canvasId, all_data, settings}) {
                 }
             }
         },
+    });
+}
+
+function getColors(start, end, numColors) {
+    var start = 230
+    var end = 0
+    colors = []
+
+    for (var i = 0; i < numColors; i++) {
+        step_size = (start-end) / numColors
+        var red = 255
+        var green = start - i * step_size
+        var blue = start - i * step_size
+        colors.push(`rgb(${red}, ${green}, ${blue})`)
+    }
+    return colors
+}
+
+
+function createHorizontalBarChart({canvasId, all_data, settings}) {
+    var data = {
+        labels: all_data['labels'],
+        datasets: [{
+            label: 'Minutes in zone',
+            data: all_data['values'],
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            backgroundColor: getColors(233, 0, all_data['labels'].length),
+        }]
+    };
+
+    var ctx = document.getElementById(canvasId).getContext('2d');
+    return new Chart(ctx, {
+        type: 'bar',
+        data: data,
+        options: {
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: "Minutes",
+                    },
+                }
+            }
+        },
+
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right',
+          },
+          title: {
+            display: true,
+            text: 'Chart.js Horizontal Bar Chart'
+          }
+        }
     });
 }

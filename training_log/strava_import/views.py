@@ -12,8 +12,12 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from training.models import TrainingSession
 
-from . import (strava, strava_authentication, strava_start_time_sync,
-               strava_subscription_manager)
+from . import (
+    strava,
+    strava_authentication,
+    strava_start_time_sync,
+    strava_subscription_manager,
+)
 from .models import StravaAuth, StravaSubscription
 
 logger = logging.getLogger(__name__)

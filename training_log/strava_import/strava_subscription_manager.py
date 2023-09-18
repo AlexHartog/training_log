@@ -7,12 +7,8 @@ import requests
 
 from . import strava
 from .models import StravaSubscription, StravaUser
-from .schemas import (
-    ObjectTypeEnum,
-    StravaEventData,
-    SubscriptionCreation,
-    SubscriptionView,
-)
+from .schemas import (ObjectTypeEnum, StravaEventData, SubscriptionCreation,
+                      SubscriptionView)
 
 logger = logging.getLogger(__name__)
 

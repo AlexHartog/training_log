@@ -94,26 +94,30 @@ class TrainingSession(models.Model):
         return self.formatted_speed(self.max_speed, self.discipline)
 
     @staticmethod
-    def formatted_speed(speed, discipline):
+    def formatted_speed(speed, discipline, include_label=True):
         """Format speed based on the speed type of the discipline."""
         match discipline.speed_type:
             case Discipline.SpeedType.KILOMETER_PER_HOUR:
-                return f"{TrainingSession.convert_meters_per_second_to_km_per_hour(speed):.1f} km/h"
+                return (
+                    f"{TrainingSession.convert_meters_per_second_to_km_per_hour(speed):.1f}"
+                    f"{' km/h' if include_label else ''}"
+                )
             case Discipline.SpeedType.MIN_PER_100M:
                 minutes_per_100m = (
                     TrainingSession.convert_meters_per_second_to_minutes_per_100m(speed)
                 )
                 return (
-                    f"{int(minutes_per_100m)}:{(minutes_per_100m % 1) * constants.minute :02.0f} "
-                    f"min/100m"
+                    f"{int(minutes_per_100m)}:"
+                    f"{(minutes_per_100m % 1) * constants.minute :02.0f}"
+                    f"{' min/100m' if include_label else ''}"
                 )
             case Discipline.SpeedType.MIN_PER_KM:
                 minutes_per_km = (
                     TrainingSession.convert_meters_per_second_to_minutes_per_km(speed)
                 )
                 return (
-                    f"{int(minutes_per_km)}:{(minutes_per_km % 1) * constants.minute :02.0f} "
-                    f"min/km"
+                    f"{int(minutes_per_km)}:{(minutes_per_km % 1) * constants.minute :02.0f}"
+                    f"{' min/km' if include_label else ''}"
                 )
 
     @staticmethod
@@ -153,21 +157,49 @@ class TrainingSession(models.Model):
 class SessionZones(models.Model):
     """The zones of a training session."""
 
-    HEART_RATE = "heart_rate"
-    POWER = "power"
-    PACE = "pace"
+    class ZoneType(models.TextChoices):
+        HEART_RATE = "HR", _("Heart rate")
+        POWER = "PW", _("Power")
+        PACE = "PC", _("Pace")
 
     session = models.ForeignKey(TrainingSession, on_delete=models.CASCADE)
     resource_state = models.IntegerField(blank=True, null=True)
     points = models.FloatField(blank=True, null=True)
     sensor_based = models.BooleanField(default=True)
-    zone_type = models.CharField()
+    zone_type = models.CharField(
+        max_length=2,
+        choices=ZoneType.choices,
+    )
     score = models.IntegerField(blank=True, null=True)
     custom_zones = models.BooleanField(blank=True, null=True)
 
+    def zones_data(self):
+        """Creates zones data with proper labels."""
+        labels = []
+        values = []
+        for zone in self.zone_set.all():
+            if self.zone_type == self.ZoneType.PACE:
+                if zone.max != -1:
+                    labels.append(
+                        f"{TrainingSession.formatted_speed(zone.min, self.session.discipline, include_label=False)} - "
+                        f"{TrainingSession.formatted_speed(zone.max, self.session.discipline, include_label=False)}"
+                    )
+                else:
+                    labels.append(
+                        f"< {TrainingSession.formatted_speed(zone.min, self.session.discipline, include_label=False)}"
+                    )
+
+            else:
+                if zone.max != -1:
+                    labels.append(f"{zone.min : .1f} - {zone.max: .1f}")
+                else:
+                    labels.append(f"> {zone.min : .1f}")
+            values.append(zone.time / constants.minute)
+        return {"labels": labels, "values": values}
+
     def __str__(self):
         """Return a string representation of the model."""
-        return f"{self.zone_type.capitalize()} zones for session {self.session}"
+        return f"{ str(self.get_zone_type_display()) } zones for session {self.session}"
 
 
 class Zone(models.Model):

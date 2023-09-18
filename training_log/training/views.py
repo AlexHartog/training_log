@@ -15,7 +15,7 @@ from strava_import.models import StravaUser
 from . import stats
 from .forms import SessionForm
 from .graphs import GraphsData
-from .models import TrainingSession
+from .models import SessionZones, TrainingSession
 
 logger = logging.getLogger(__name__)
 
@@ -72,10 +72,14 @@ class SessionList(LoginRequiredMixin, ListView):
 class SessionView(LoginRequiredMixin, DetailView):
     login_url = reverse_lazy("login")
     context_object_name = "session"
+    model = TrainingSession
 
-    def get_queryset(self):
-        session = TrainingSession.objects.all()
-        return session
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        session_zones = SessionZones.objects.filter(session=self.object)
+        context["session_zones"] = session_zones
+
+        return context
 
 
 @login_required(login_url=reverse_lazy("login"))
