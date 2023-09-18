@@ -80,11 +80,17 @@ class TrainingSession(models.Model):
     @property
     def formatted_average_speed(self):
         """Format average speed based on the speed type of the discipline."""
+        if self.average_speed is None:
+            return "N/A"
+
         return self.formatted_speed(self.average_speed, self.discipline)
 
     @property
     def formatted_max_speed(self):
         """Format max speed based on the speed type of the discipline."""
+        if self.average_speed is None:
+            return "N/A"
+
         return self.formatted_speed(self.max_speed, self.discipline)
 
     @staticmethod
@@ -113,11 +119,17 @@ class TrainingSession(models.Model):
     @staticmethod
     def convert_meters_per_second_to_minutes_per_km(meters_per_second: float):
         """Convert meters per second to minutes per km."""
+        if not meters_per_second:
+            return 0
+
         return (1 / meters_per_second) * constants.kilo / constants.minute
 
     @staticmethod
     def convert_meters_per_second_to_minutes_per_100m(meters_per_second: float):
         """Convert meters per second to minutes per 100m."""
+        if not meters_per_second:
+            return 0
+
         return (1 / meters_per_second) * constants.hecto / constants.minute
 
     @staticmethod

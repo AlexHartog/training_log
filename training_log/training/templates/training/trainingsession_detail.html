@@ -7,7 +7,9 @@
 
 <table class="session">
   <tr class="sessionhdr"><th colspan="2">{{ session.discipline }} session</th></tr>
-  <tr><td>Strava</td><td><a href="{{ session.strava_link }}" target="_blank">Click Here</a></td></tr>
+  {% if session.strava_id %}
+    <tr><td>Strava</td><td><a href="{{ session.strava_link }}" target="_blank">Click Here</a></td></tr>
+  {% endif %}
   <tr><td>Date</td><td>{{ session.date }}</td></tr>
   <tr><td>Duration</td><td>{{ session.formatted_duration }}</td></tr>
   <tr><td>Distance</td><td>{{ session.formatted_distance }}</td></tr>
