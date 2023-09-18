@@ -7,13 +7,14 @@
 
 <table class="session">
   <tr class="sessionhdr"><th colspan="2">{{ session.discipline }} session</th></tr>
-  <tr><td>Date:</td><td>{{ session.date }}</td></tr>
-  <tr><td>Duration:</td><td>{{ session.formatted_duration }}</td></tr>
-  <tr><td>Distance:</td><td>{{ session.formatted_distance }}</td></tr>
-  <tr><td>Avg Heart Rate:</td><td>{{ session.average_hr }}</td></tr>
-  <tr><td>Max Heart Rate:</td><td>{{ session.max_hr }}</td></tr>
-  <tr><td>Avg Speed:</td><td>{{ session.formatted_average_speed }}</td></tr>
-  <tr><td>Max Speed:</td><td>{{ session.formatted_max_speed }}</td></tr>
+  <tr><td>Strava</td><td><a href="{{ session.strava_link }}" target="_blank">Click Here</a></td></tr>
+  <tr><td>Date</td><td>{{ session.date }}</td></tr>
+  <tr><td>Duration</td><td>{{ session.formatted_duration }}</td></tr>
+  <tr><td>Distance</td><td>{{ session.formatted_distance }}</td></tr>
+  <tr><td>Avg Heart Rate</td><td>{{ session.average_hr }}</td></tr>
+  <tr><td>Max Heart Rate</td><td>{{ session.max_hr }}</td></tr>
+  <tr><td>Avg Speed</td><td>{{ session.formatted_average_speed }}</td></tr>
+  <tr><td>Max Speed</td><td>{{ session.formatted_max_speed }}</td></tr>
 </table>
 <div style="margin-top: 20px;"></div>
 <p><a href="../sessions/{{ session.user.username }}">Back to training overview</a></p>

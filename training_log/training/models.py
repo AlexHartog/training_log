@@ -125,6 +125,10 @@ class TrainingSession(models.Model):
         """Convert meters per second to km per hour."""
         return meters_per_second / constants.kilo * constants.hour
 
+    @property
+    def strava_link(self):
+        return f"https://www.strava.com/activities/{self.strava_id}"
+
     def __str__(self):
         """Return a string representation of the model."""
         return (
