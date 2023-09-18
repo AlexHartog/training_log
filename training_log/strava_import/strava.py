@@ -1,5 +1,6 @@
-import os
 import logging
+import os
+from datetime import datetime
 
 import requests
 from django.conf import settings
@@ -9,7 +10,6 @@ from training.models import SessionZones, TrainingSession, Zone
 
 # TODO: Move this somewhere better
 from training.stats import DEFAULT_START_DATE
-from datetime import datetime
 
 from . import strava_authentication
 from .models import (
@@ -19,8 +19,7 @@ from .models import (
     StravaTypeMapping,
     StravaUser,
 )
-from .schemas import StravaSession, StravaSessionZones, StravaZone, StravaAthleteData
-
+from .schemas import StravaAthleteData, StravaSession, StravaSessionZones, StravaZone
 
 logger = logging.getLogger(__name__)
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
@@ -41,7 +40,8 @@ def strava_sync():
     for strava_auth in StravaAuth.objects.all():
         if strava_auth.auto_import:
             logger.info(
-                f"Running auto import ({SYNC_PAGE_COUNT} page(s)) for {strava_auth.user}"
+                f"Running auto import ({SYNC_PAGE_COUNT} page(s)) "
+                f"for {strava_auth.user}"
             )
             get_activities(strava_auth.user, SYNC_PAGE_COUNT)
 
@@ -210,7 +210,8 @@ def import_session_zones(strava_id: int, user: User):
 
     if (zones_count := SessionZones.objects.filter(session_id=session_id).count()) > 0:
         logger.info(
-            f"{zones_count} session zones already imported from strava for id {strava_id}"
+            f"{zones_count} session zones already imported "
+            f"from strava for id {strava_id}"
         )
         return
 

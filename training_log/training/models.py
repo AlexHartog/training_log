@@ -66,6 +66,28 @@ class TrainingSession(models.Model):
         else:
             return "N/A"
 
+    @property
+    def formatted_average_speed(self):
+        return self.formatted_speed(self.average_speed)
+
+    @property
+    def formatted_max_speed(self):
+        return self.formatted_speed(self.max_speed)
+
+    @staticmethod
+    def formatted_speed(speed):
+        minutes_per_km = TrainingSession.convert_meters_per_second_to_minutes_per_km(
+            speed
+        )
+        return (
+            f"{int(minutes_per_km)}:{(minutes_per_km % 1) * constants.minute :02.0f} "
+            f"min/km"
+        )
+
+    @staticmethod
+    def convert_meters_per_second_to_minutes_per_km(meters_per_second: float):
+        return (1 / meters_per_second) * constants.kilo / constants.minute
+
     def __str__(self):
         """Return a string representation of the model."""
         return (
@@ -105,4 +127,7 @@ class Zone(models.Model):
 
     def __str__(self):
         """Return a string representation of the model."""
-        return f"{int(self.time / int(constants.minute))} minutes in {self.min} - {self.max}"
+        return (
+            f"{int(self.time / int(constants.minute))} minutes "
+            f"in {self.min} - {self.max}"
+        )

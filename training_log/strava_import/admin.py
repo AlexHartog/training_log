@@ -4,14 +4,8 @@ from django.contrib import admin
 from django.db import models
 from django.forms import widgets
 
-from .models import (
-    StravaActivityImport,
-    StravaAuth,
-    StravaRateLimit,
-    StravaTypeMapping,
-    StravaUser,
-    StravaSubscription,
-)
+from .models import (StravaActivityImport, StravaAuth, StravaRateLimit,
+                     StravaSubscription, StravaTypeMapping, StravaUser)
 
 
 class PrettyJSONWidget(widgets.Textarea):

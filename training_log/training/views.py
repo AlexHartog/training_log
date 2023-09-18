@@ -1,4 +1,5 @@
 import logging
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,12 +10,12 @@ from django.urls import reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
+from strava_import.models import StravaUser
 
 from . import stats
 from .forms import SessionForm
 from .graphs import GraphsData
 from .models import TrainingSession
-from strava_import.models import StravaUser
 
 logger = logging.getLogger(__name__)
 

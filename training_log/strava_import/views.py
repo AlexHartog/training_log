@@ -4,20 +4,16 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponse, HttpResponseBadRequest, Http404
+from django.contrib.auth.models import User
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from training.models import TrainingSession
 
-from . import (
-    strava,
-    strava_authentication,
-    strava_start_time_sync,
-    strava_subscription_manager,
-)
+from . import (strava, strava_authentication, strava_start_time_sync,
+               strava_subscription_manager)
 from .models import StravaAuth, StravaSubscription
 
 logger = logging.getLogger(__name__)
@@ -46,7 +42,7 @@ def index(request):
         "days_back": DAYS_BACK,
         "user_auth": user_auth,
         "admin": request.user.is_superuser,
-        "strava_subscribed": strava_subscription_manager.get_current_subscription().enabled,
+        "strava_subscribed": strava_subscription_manager.get_current_subscription_enabled(),
     }
     return render(request, "strava_import/index.html", context=context)
 
@@ -177,7 +173,7 @@ def strava_admin(request):
         users.append(new_user)
 
     context = {
-        "strava_subscribed": strava_subscription_manager.get_current_subscription().enabled,
+        "strava_subscribed": strava_subscription_manager.get_current_subscription_enabled(),
         "strava_users": users,
     }
 

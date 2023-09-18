@@ -1,16 +1,15 @@
 import enum
-import os
 import logging
+import os
 
 import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from dotenv import dotenv_values
 
-from .models import StravaAuth, StravaUser
-from .schemas import StravaAthleteData, StravaTokenResponse
-
 from . import strava
+from .models import StravaAuth
+from .schemas import StravaTokenResponse
 
 logger = logging.getLogger(__name__)
 

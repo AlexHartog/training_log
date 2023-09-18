@@ -1,21 +1,17 @@
+import logging
 import os
 import random
 import string
-import logging
 
 import requests
 
 from . import strava
-from .models import (
-    StravaSubscription,
-    StravaUser,
-)
+from .models import StravaSubscription, StravaUser
 from .schemas import (
-    AspectTypeEnum,
     ObjectTypeEnum,
     StravaEventData,
-    SubscriptionView,
     SubscriptionCreation,
+    SubscriptionView,
 )
 
 logger = logging.getLogger(__name__)
@@ -175,6 +171,11 @@ def get_current_subscription():
     return strava_subscription
 
 
+def get_current_subscription_enabled():
+    """Return if the current subscription is enabled."""
+    return get_current_subscription().enabled
+
+
 def view_subscription():
     """View the current subscription."""
     response = requests.get(get_subscription_view_url())
@@ -186,7 +187,8 @@ def view_subscription():
 
     if len(response_json) > 1:
         logger.error(
-            f"Received {len(response_json)} responses. We only support one subscription."
+            f"Received {len(response_json)} responses. "
+            f"We only support one subscription."
         )
         return
 
