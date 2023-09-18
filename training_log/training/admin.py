@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from .models import (Discipline, SessionZones, TrainingSession, TrainingType,
-                     Zone)
+from .models import Discipline, SessionZones, TrainingSession, TrainingType, Zone
 
 
 class ZonesInline(admin.TabularInline):
@@ -14,6 +13,8 @@ class SessionZonesInline(admin.StackedInline):
     model = SessionZones
 
     extra = 0
+
+    show_change_link = True
 
 
 class SessionZonesAdmin(admin.ModelAdmin):

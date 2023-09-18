@@ -43,6 +43,14 @@ class StravaAuth(models.Model):
         """Return true if the scope is valid."""
         return "activity:read" in self.scope
 
+    def status_string(self):
+        if self.needs_authorization():
+            return "Needs authorization"
+        elif self.has_valid_access_token():
+            return "Valid"
+        else:
+            return "Expired"
+
     def __str__(self):
         """Return a string representation of the model."""
         return (

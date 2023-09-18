@@ -21,7 +21,7 @@
 <table class="standard">
     <tr>
         <th>User</th>
-        <th>Valid Token</th>
+        <th>Token</th>
         <th>Num Sessions</th></td>
         <th>Import</th>
         <th>Update</th>
@@ -29,8 +29,14 @@
 {% for strava_user in strava_users %}
     <tr class="standard {% cycle 'altrow' '' %} clickablerow">
         <td>{{ strava_user.user.username.capitalize }}</td>
-        <td>{{ strava_user.has_valid_access_token }}</td>
-        {% if strava_user.has_valid_access_token %}
+        <td>
+            {% if strava_user.strava_auth %}
+                {{ strava_user.strava_auth.status_string }}
+            {% else %}
+                None
+            {% endif %}
+        </td>
+        {% if strava_user.strava_auth and not strava_user.needs_authorization %}
             <form action="{% url 'admin-import-data' %}"  method="post">
                 <input type="hidden" name="username" value="{{ strava_user.user.username }}">
                 <td><input type="number" max="200" name="num_sessions" value="5" class="num_sessions"></td>
@@ -43,7 +49,7 @@
                 {% csrf_token %}
             </form>
         {% else %}
-            <td></td><td></td>
+            <td></td><td></td><td></td>
         {% endif %}
     </tr>
 {% endfor %}

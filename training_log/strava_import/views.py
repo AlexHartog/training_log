@@ -119,7 +119,7 @@ def subscribe_strava(request, subscribe: int):
     else:
         strava_subscription_manager.stop_subscription()
 
-    return redirect("strava-index")
+    return redirect("strava-admin")
 
 
 @csrf_exempt
@@ -166,9 +166,18 @@ def activity_feed(request):
 
 @user_passes_test(admin_check)
 def strava_admin(request):
+    users_with_strava_auth = User.objects.prefetch_related("stravaauth_set").all()
+    users = []
+    for user in users_with_strava_auth:
+        new_user = {"user": user, "strava_auth": None}
+        if user.stravaauth_set.exists():
+            for strava_auth in user.stravaauth_set.all():
+                new_user["strava_auth"] = strava_auth
+        users.append(new_user)
+
     context = {
         "strava_subscribed": strava_subscription_manager.get_current_subscription().enabled,
-        "strava_users": StravaAuth.objects.all(),
+        "strava_users": users,
     }
 
     return render(request, "strava_import/strava_admin.html", context=context)
