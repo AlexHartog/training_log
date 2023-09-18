@@ -1,12 +1,23 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from scipy import constants
 
 
 class Discipline(models.Model):
     """A discipline that can be practiced."""
 
+    class SpeedType(models.TextChoices):
+        KILOMETER_PER_HOUR = "KM", _("km/h")
+        MIN_PER_100M = "MM", _("min/100m")
+        MIN_PER_KM = "MK", _("min/km")
+
     name = models.CharField(max_length=200)
+    speed_type = models.CharField(
+        max_length=2,
+        choices=SpeedType.choices,
+        default=SpeedType.KILOMETER_PER_HOUR,
+    )
 
     def __str__(self):
         """Return a string representation of the model."""
@@ -68,25 +79,51 @@ class TrainingSession(models.Model):
 
     @property
     def formatted_average_speed(self):
-        return self.formatted_speed(self.average_speed)
+        """Format average speed based on the speed type of the discipline."""
+        return self.formatted_speed(self.average_speed, self.discipline)
 
     @property
     def formatted_max_speed(self):
-        return self.formatted_speed(self.max_speed)
+        """Format max speed based on the speed type of the discipline."""
+        return self.formatted_speed(self.max_speed, self.discipline)
 
     @staticmethod
-    def formatted_speed(speed):
-        minutes_per_km = TrainingSession.convert_meters_per_second_to_minutes_per_km(
-            speed
-        )
-        return (
-            f"{int(minutes_per_km)}:{(minutes_per_km % 1) * constants.minute :02.0f} "
-            f"min/km"
-        )
+    def formatted_speed(speed, discipline):
+        """Format speed based on the speed type of the discipline."""
+        match discipline.speed_type:
+            case Discipline.SpeedType.KILOMETER_PER_HOUR:
+                return f"{TrainingSession.convert_meters_per_second_to_km_per_hour(speed):.1f} km/h"
+            case Discipline.SpeedType.MIN_PER_100M:
+                minutes_per_100m = (
+                    TrainingSession.convert_meters_per_second_to_minutes_per_100m(speed)
+                )
+                return (
+                    f"{int(minutes_per_100m)}:{(minutes_per_100m % 1) * constants.minute :02.0f} "
+                    f"min/100m"
+                )
+            case Discipline.SpeedType.MIN_PER_KM:
+                minutes_per_km = (
+                    TrainingSession.convert_meters_per_second_to_minutes_per_km(speed)
+                )
+                return (
+                    f"{int(minutes_per_km)}:{(minutes_per_km % 1) * constants.minute :02.0f} "
+                    f"min/km"
+                )
 
     @staticmethod
     def convert_meters_per_second_to_minutes_per_km(meters_per_second: float):
+        """Convert meters per second to minutes per km."""
         return (1 / meters_per_second) * constants.kilo / constants.minute
+
+    @staticmethod
+    def convert_meters_per_second_to_minutes_per_100m(meters_per_second: float):
+        """Convert meters per second to minutes per 100m."""
+        return (1 / meters_per_second) * constants.hecto / constants.minute
+
+    @staticmethod
+    def convert_meters_per_second_to_km_per_hour(meters_per_second: float):
+        """Convert meters per second to km per hour."""
+        return meters_per_second / constants.kilo * constants.hour
 
     def __str__(self):
         """Return a string representation of the model."""
