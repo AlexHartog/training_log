@@ -26,9 +26,7 @@ config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 
 
 # TODO: Where to keep these constants?
-ACTIVITIES_URL = (
-    "https://www.strava.com/api/v3/athlete/activities?per_page={per_page}&after={after}"
-)
+ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities?per_page={per_page}"
 ACITIVITY_URL = "https://www.strava.com/api/v3/activities/{activity_id}"
 ACITIVITY_ZONES_URL = "https://www.strava.com/api/v3/activities/{activity_id}/zones"
 ATHLETE_URL = "https://www.strava.com/api/v3/athlete"
@@ -46,11 +44,9 @@ def strava_sync():
             get_activities(strava_auth.user, SYNC_PAGE_COUNT)
 
 
-def get_activities_url(result_per_page: int, after: datetime = None):
+def get_activities_url(result_per_page: int):
     """Builds the url to get activities from strava."""
-    return ACTIVITIES_URL.format(
-        per_page=result_per_page, after=int((after or DEFAULT_START_DATE).timestamp())
-    )
+    return ACTIVITIES_URL.format(per_page=result_per_page)
 
 
 def get_activity_url(activity_id: int):
@@ -91,6 +87,7 @@ def get_activities(user: User, result_per_page: int):
         return
 
     headers = {"Authorization": f"Bearer {strava_auth.access_token}"}
+    logger.info(f"Headers: {headers}")
     response = requests.get(get_activities_url(result_per_page), headers=headers)
 
     update_rate_limits(response.headers)
