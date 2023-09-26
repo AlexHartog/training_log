@@ -23,7 +23,7 @@ from .models import StravaAuth, StravaSubscription
 logger = logging.getLogger(__name__)
 
 DAYS_BACK = 10
-MANUAL_IMPORT_COUNT = 1
+MANUAL_IMPORT_COUNT = 100
 
 
 def admin_check(user):

@@ -5,9 +5,13 @@ from datetime import datetime
 import pytz
 from django.test import TestCase
 from django.utils import timezone
-from strava_import.schemas import (AspectTypeEnum, ObjectTypeEnum,
-                                   StravaEventData, StravaSession,
-                                   StravaSessionZones)
+from strava_import.schemas import (
+    AspectTypeEnum,
+    ObjectTypeEnum,
+    StravaEventData,
+    StravaSession,
+    StravaSessionZones,
+)
 from training.models import SessionZones
 
 
@@ -104,7 +108,7 @@ class StravaZonesSchemaTest(StravaJSONReaderTest):
         self.assertEqual(len(self.zones), 3)
         self.assertEqual(self.zones[0].custom_zones, False)
         self.assertEqual(self.zones[0].resource_state, 3)
-        self.assertEqual(self.zones[1].zone_type, SessionZones.PACE)
+        self.assertEqual(self.zones[1].zone_type, SessionZones.ZoneType.PACE.value)
 
     def test_zones_import(self):
         """Test imported data for specific zones."""
@@ -114,6 +118,13 @@ class StravaZonesSchemaTest(StravaJSONReaderTest):
         self.assertEqual(first_zones[0].time, 2561)
         self.assertEqual(first_zones[1].max, 153)
         self.assertEqual(first_zones[2].min, 153)
+
+    def test_convert_zones_to_session_zones(self):
+        self.read_zones_json()
+
+        session_zones = SessionZones(**self.zones[0].model_dump())
+
+        self.assertEqual(session_zones.zone_type, SessionZones.ZoneType.HEART_RATE)
 
 
 class StravaEventDataTest(StravaJSONReaderTest):

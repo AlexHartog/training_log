@@ -7,6 +7,8 @@ import pytz
 from django.utils import timezone
 from pydantic import BaseModel, Field, computed_field
 
+from training.models import SessionZones
+
 
 class StravaAthleteData(BaseModel):
     """Class to parse strava user data."""
@@ -98,10 +100,21 @@ class StravaSessionZones(BaseModel):
     resource_state: int | None = Field(default=None)
     points: float | None = Field(default=None)
     sensor_based: bool | None = Field(default=None)
-    zone_type: str = Field(..., alias="type")
+    zone_type_string: str = Field(exclude=True, alias="type")
     score: int | None = Field(default=None)
     custom_zones: bool | None = Field(default=None)
     zones: List[StravaZone] = Field(exclude=True, alias="distribution_buckets")
+
+    @computed_field()
+    @property
+    def zone_type(self) -> str:
+        match self.zone_type_string:
+            case "heartrate":
+                return SessionZones.ZoneType.HEART_RATE.value
+            case "pace":
+                return SessionZones.ZoneType.PACE.value
+            case "power":
+                return SessionZones.ZoneType.POWER.value
 
 
 class AspectTypeEnum(str, Enum):
