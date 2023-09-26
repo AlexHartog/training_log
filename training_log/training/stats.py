@@ -72,6 +72,7 @@ class AllPlayerStats:
     def get_training_sessions(self):
         """Get the training sessions to be used in the stats."""
         filter_condition = Q(date__gte=self.start_date)
+        filter_condition &= Q(excluded=False)
 
         if self.end_date:
             filter_condition &= Q(date__lte=self.end_date)

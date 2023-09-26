@@ -28,7 +28,7 @@
     <th>Distance</th>
   </tr>
     {% for session in all_sessions %}
-      <tr class="quoterow {% cycle '' 'altrow' %} clickablerow" data-href="{% url 'session-detail' session.id %}">
+      <tr class="quoterow {% cycle '' 'altrow' %} clickablerow {% if session.excluded %}excluded-session-list{% endif %}" data-href="{% url 'session-detail' session.id %}">
         <td>{{ session.date|date:"d-m-y" }}</td>
         <td>{{ session.discipline }}</td>
         <td>{{ session.formatted_duration }}</td>

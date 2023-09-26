@@ -271,6 +271,8 @@ input.num_sessions  {
     padding: 5px 10px;
 }
 
+
+
 .sessionhdr th {
     background-color: #4c4c4c;
     color: white;
@@ -293,6 +295,34 @@ input.num_sessions  {
     font-weight: bold;
 }
 
+.excludedsession td:first-child {
+    background-color: #dcdedc;
+    color: white;
+    text-align: right,
+    padding: 8px 5px;
+    border: none;
+    font-weight: bold;
+}
+
+.excludedsessionhdr th {
+    background-color: #dcdedc;
+    color: white;
+    text-align: center;
+    padding: 8px 5px;
+    border: none;
+    font-size: 25px;
+}
+
 .session td {
     padding: 5px 10px;
+}
+
+.excludedbanner h2 {
+    text-align: center;
+    color: red;
+}
+
+.excluded-session-list td {
+    background-color: #dee0df;
+    color: #c9c9c9;
 }

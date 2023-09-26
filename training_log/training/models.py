@@ -55,6 +55,7 @@ class TrainingSession(models.Model):
     max_speed = models.FloatField(blank=True, null=True)
     strava_updated = models.DateTimeField(blank=True, null=True)
     strava_id = models.BigIntegerField(blank=True, null=True)
+    excluded = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-date"]
@@ -191,7 +192,7 @@ class SessionZones(models.Model):
 
             else:
                 if zone.max != -1:
-                    labels.append(f"{zone.min : .1f} - {zone.max: .1f}")
+                    labels.append(f"{zone.min : .0f} - {zone.max: .0f}")
                 else:
                     labels.append(f"> {zone.min : .1f}")
             values.append(zone.time / constants.minute)

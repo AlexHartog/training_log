@@ -5,8 +5,11 @@
 {% block content %}
 <h1>Session Details</h1>
 
-<table class="session">
-  <tr class="sessionhdr"><th colspan="2">{{ session.discipline }} session</th></tr>
+<table class="{% if session.excluded %}excludedsession{% else %}session{% endif %}">
+  <tr class="{% if session.exclude %}excludedsessionhdr{% else %}sessionhdr{% endif %}"><th colspan="2">{{ session.discipline }} session</th></tr>
+  {% if session.excluded %}
+    <tr><td colspan="2" class="excludedbanner"><h2>Excluded</h2></td></tr>
+  {% endif %}
   {% if session.strava_id %}
     <tr><td>Strava</td><td><a href="{{ session.strava_link }}" target="_blank">Click Here</a></td></tr>
   {% endif %}
@@ -17,14 +20,33 @@
   <tr><td>Max Heart Rate</td><td>{{ session.max_hr }}</td></tr>
   <tr><td>Avg Speed</td><td>{{ session.formatted_average_speed }}</td></tr>
   <tr><td>Max Speed</td><td>{{ session.formatted_max_speed }}</td></tr>
+  {% if user == session.user or user.is_superuser %}
+    <tr><td>Exclusion</td><td>
+      <form action="{% url 'exclude-session' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="session_id" value="{{ session.id }}">
+        <input type="hidden" name="excluded" value="{% if session.excluded %}False{% else %}True{% endif %}">
+        <button role="button" class="btn btn-secondary">{% if session.excluded %}Include{% else %}Exclude{% endif %}</button>
+      </form>
+    </td>
+    </tr>
+    <tr><td>Delete Session</td><td>
+      <form action="{% url 'delete-session' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ session.user.username }}">
+        <input type="hidden" name="session_id" value="{{ session.id }}">
+        <button id="confirm-delete" role="button" class="btn btn-danger confirm-delete">Delete</button>
+      </form>
+    </td></tr>
+  {% endif %}
 </table>
 <div style="margin-top: 20px;"></div>
 <p><a href="../sessions/{{ session.user.username }}">Back to training overview</a></p>
-<div style="margin-top: 50px;"></div>
+
+<div style="margin-top: 20px;"></div>
 
 
-
-<!-- Move this to header?-->
+<!-- Move this to scripts section?-->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.js"></script>
@@ -37,16 +59,29 @@
 {% autoescape off %}
 {% for session_zone in session_zones %}
 <h2>{{ session_zone.get_zone_type_display }} zones</h2>
-<div class="graphDiv">
-  <canvas id="zone_bars_{{ session_zone.id }}" class="graph"></canvas>
+<div>
+  <canvas id="zone_bars_{{ session_zone.id }}"></canvas>
 </div>
 <script id="zonesScript_{{ session_zone.id }}">
 var totalHoursTrainedGraph = createHorizontalBarChart({canvasId: 'zone_bars_{{ session_zone.id }}', all_data: {{ session_zone.zones_data }} });
 </script>
-<div style="margin-top: 50px;"></div>
 
 {% endfor %}
 {% endautoescape %}
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const deleteLinks = document.querySelectorAll(".confirm-delete");
+
+    deleteLinks.forEach(link => {
+        link.addEventListener("click", function(event) {
+            const confirmed = window.confirm("Are you sure you want to delete this session?");
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        });
+    });
+});
+</script>
 
 {% endblock content %}

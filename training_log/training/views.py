@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
@@ -131,6 +132,7 @@ def all_stats(request, period):
 
 
 def graphs(request):
+    """Create graphs with training data."""
     training_data = TrainingSession.objects.filter(moving_duration__gt=0).all()
     training_dates = [
         date.isoformat() for date in list(training_data.values_list("date", flat=True))
@@ -149,3 +151,43 @@ def graphs(request):
             "settings": graphs_data.settings,
         },
     )
+
+
+def delete_session(request):
+    """Delete a session based on post data."""
+    if request.method != "POST":
+        raise Http404("Method not allowed")
+
+    session_id = int(request.POST.get("session_id"))
+    user = request.POST.get("user")
+
+    logger.info(f"Deleting session {session_id} for user {user}")
+
+    try:
+        session = TrainingSession.objects.get(pk=session_id)
+        session.delete()
+        messages.success(request, "Session deleted")
+    except TrainingSession.DoesNotExist:
+        messages.error(request, "The session that was being deleted does not exist")
+
+    return redirect("session-list", username=user)
+
+
+def exclude_session(request):
+    """Exclude a session based on post data."""
+    if request.method != "POST":
+        raise Http404("Method not allowed")
+
+    session_id = int(request.POST.get("session_id"))
+    excluded = request.POST.get("excluded")
+
+    logger.info(f"Setting session {session_id} to {excluded}")
+
+    try:
+        session = TrainingSession.objects.get(pk=session_id)
+        session.excluded = excluded
+        session.save()
+    except TrainingSession.DoesNotExist:
+        raise Http404("The session that was being excluded does not exist")
+
+    return redirect("session-detail", pk=session_id)

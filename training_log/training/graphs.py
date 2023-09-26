@@ -34,7 +34,7 @@ class GraphsData:
 
     def get_training_sessions(self):
         """Get the training sessions ot be used in the stats."""
-        filter_condition = Q(date__gte=self.start_date)
+        filter_condition = Q(date__gte=self.start_date) & Q(excluded=False)
 
         django_training_sessions = TrainingSession.objects.filter(
             filter_condition
