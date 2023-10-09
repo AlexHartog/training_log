@@ -30,4 +30,5 @@ urlpatterns = [
         name="register-success",
     ),
     path("register/", Register.as_view(), name="register"),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]

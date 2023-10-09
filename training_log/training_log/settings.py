@@ -35,6 +35,10 @@ ALLOWED_HOSTS = [
     "*",
 ]
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
 CSRF_TRUSTED_ORIGINS = [
     # EC2 Server
     "http://3.77.124.210:{port}".format(port=os.getenv("NGINX_PORT", 80)),
@@ -56,6 +60,7 @@ INSTALLED_APPS = [
     "bootstrap5",
     "crispy_forms",
     "crispy_bootstrap5",
+    "debug_toolbar",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -65,6 +70,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
