@@ -46,7 +46,8 @@ def index(request):
         "days_back": DAYS_BACK,
         "user_auth": user_auth,
         "admin": request.user.is_superuser,
-        "strava_subscribed": strava_subscription_manager.get_current_subscription_enabled(),
+        "strava_subscribed":
+            strava_subscription_manager.get_current_subscription_enabled(),
     }
     return render(request, "strava_import/index.html", context=context)
 
@@ -177,7 +178,8 @@ def strava_admin(request):
         users.append(new_user)
 
     context = {
-        "strava_subscribed": strava_subscription_manager.get_current_subscription_enabled(),
+        "strava_subscribed":
+            strava_subscription_manager.get_current_subscription_enabled(),
         "strava_users": users,
     }
 

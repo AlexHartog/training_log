@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import mock
 
 from django.test import TestCase
 from training.stats import DEFAULT_START_DATE, AllPlayerStats, StatsPeriod
@@ -7,10 +8,18 @@ from training.tests.test_data.stats_tests_data import StatsTestData
 
 class TrainingStatsTest(TestCase):
     def setUp(self):
-        self.test_data = StatsTestData()
+        self.datetime_to_test = datetime(2023, 9, 1)
+
+        self.test_data = StatsTestData(self.datetime_to_test)
         self.test_data.load_regular_data()
 
-        self.all_player_stats = AllPlayerStats(period=StatsPeriod.ALL)
+        self.all_player_stats = None
+        self.update_all_player_stats()
+
+    def update_all_player_stats(self, period=StatsPeriod.ALL):
+        with mock.patch('training.stats.datetime') as mock_datetime:
+            mock_datetime.now.return_value = self.datetime_to_test
+            self.all_player_stats = AllPlayerStats(period=period)
 
     @staticmethod
     def convert_formatted_string_to_seconds(formatted_string):
@@ -62,7 +71,7 @@ class TrainingStatsTest(TestCase):
         """Test if weekly hours are calculated correctly."""
         result = self.all_player_stats.stats["Average weekly hours"][0]
 
-        weeks_trained = (datetime.now() - DEFAULT_START_DATE).days / 7
+        weeks_trained = (self.datetime_to_test - DEFAULT_START_DATE).days / 7
         expected = self.all_player_stats.formatted_duration(
             self.test_data.total_time_trained / weeks_trained
         )
@@ -223,26 +232,26 @@ class TrainingStatsTest(TestCase):
 
     def test_last_week_data(self):
         """Test if last week period leads to correct number of sessions."""
-        self.all_player_stats = AllPlayerStats(period=StatsPeriod.WEEK)
+        self.update_all_player_stats(period=StatsPeriod.WEEK)
 
-        self.assertEqual(len(self.all_player_stats.training_sessions), 2)
+        self.assertEqual(len(self.all_player_stats.training_sessions), 3)
 
     def test_last_month_data(self):
         """Test if last month period leads to correct number of sessions."""
-        self.all_player_stats = AllPlayerStats(period=StatsPeriod.MONTH)
+        self.update_all_player_stats(period=StatsPeriod.MONTH)
 
         self.assertEqual(len(self.all_player_stats.training_sessions), 6)
 
     def test_last_three_months_data(self):
         """Test if last three month period leads to correct number of sessions."""
-        self.all_player_stats = AllPlayerStats(period=StatsPeriod.THREE_MONTHS)
+        self.update_all_player_stats(period=StatsPeriod.THREE_MONTHS)
 
         self.assertEqual(len(self.all_player_stats.training_sessions), 7)
 
     def test_brick_count(self):
         """Test if brick session count is calculated correctly."""
         self.test_data.add_brick_test_data()
-        self.all_player_stats = AllPlayerStats(period=StatsPeriod.ALL)
+        self.update_all_player_stats(period=StatsPeriod.ALL)
 
         self.assertEqual(
             self.all_player_stats.stats["Number of brick workouts"][0],

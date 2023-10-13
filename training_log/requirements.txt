@@ -17,3 +17,5 @@ coverage
 selenium
 pandas
 scipy
+django-debug-toolbar
+mock

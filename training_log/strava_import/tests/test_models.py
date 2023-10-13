@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import mock
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -152,19 +153,13 @@ class StravaRateLimitsTest(TestCase):
         daily_limit=2000,
         short_limit_usage=20,
         daily_limit_usage=200,
-        updated_at=None,
     ):
         strava_rate_limit = StravaRateLimit.objects.create(
             short_limit=short_limit,
             daily_limit=daily_limit,
             short_limit_usage=short_limit_usage,
             daily_limit_usage=daily_limit_usage,
-            updated_at=updated_at,
         )
-
-        if updated_at:
-            strava_rate_limit.updated_at = updated_at
-            strava_rate_limit.save()
 
         return strava_rate_limit
 
@@ -176,16 +171,18 @@ class StravaRateLimitsTest(TestCase):
 
     def test_remaining_limits_hour_old(self):
         """Test remaining limits if short should be reset already."""
-        strava_rate_limit = self.create_strava_rate_limits(
-            updated_at=timezone.now() - timedelta(hours=1)
-        )
+        one_hour_ago = timezone.now() - timedelta(hours=1)
+        with mock.patch('django.utils.timezone.now', return_value=one_hour_ago):
+            strava_rate_limit = self.create_strava_rate_limits()
+
         self.assertEqual(strava_rate_limit.remaining_daily_limit, 1800)
         self.assertEqual(strava_rate_limit.remaining_short_limit, 200)
 
     def test_remaining_limits_day_old(self):
         """Test remaining limits if both limits should have been reset already."""
-        strava_rate_limit = self.create_strava_rate_limits(
-            updated_at=timezone.now() - timedelta(days=1)
-        )
+        one_day_ago = timezone.now() - timedelta(days=1)
+        with mock.patch('django.utils.timezone.now', return_value=one_day_ago):
+            strava_rate_limit = self.create_strava_rate_limits()
+
         self.assertEqual(strava_rate_limit.remaining_daily_limit, 2000)
         self.assertEqual(strava_rate_limit.remaining_short_limit, 200)
