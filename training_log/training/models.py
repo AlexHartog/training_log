@@ -100,24 +100,24 @@ class TrainingSession(models.Model):
         match discipline.speed_type:
             case Discipline.SpeedType.KILOMETER_PER_HOUR:
                 return (
-                    f"{TrainingSession.convert_meters_per_second_to_km_per_hour(speed):.1f}"
+                    f"{TrainingSession.convert_mps_to_kmph(speed):.1f}"
                     f"{' km/h' if include_label else ''}"
                 )
             case Discipline.SpeedType.MIN_PER_100M:
-                minutes_per_100m = (
+                min_per_100m = (
                     TrainingSession.convert_meters_per_second_to_minutes_per_100m(speed)
                 )
                 return (
-                    f"{int(minutes_per_100m)}:"
-                    f"{(minutes_per_100m % 1) * constants.minute :02.0f}"
+                    f"{int(min_per_100m)}:"
+                    f"{(min_per_100m % 1) * constants.minute :02.0f}"
                     f"{' min/100m' if include_label else ''}"
                 )
             case Discipline.SpeedType.MIN_PER_KM:
-                minutes_per_km = (
+                min_per_km = (
                     TrainingSession.convert_meters_per_second_to_minutes_per_km(speed)
                 )
                 return (
-                    f"{int(minutes_per_km)}:{(minutes_per_km % 1) * constants.minute :02.0f}"
+                    f"{int(min_per_km)}:{(min_per_km % 1) * constants.minute :02.0f}"
                     f"{' min/km' if include_label else ''}"
                 )
 
@@ -138,13 +138,14 @@ class TrainingSession(models.Model):
         return (1 / meters_per_second) * constants.hecto / constants.minute
 
     @staticmethod
-    def convert_meters_per_second_to_km_per_hour(meters_per_second: float):
+    def convert_mps_to_kmph(meters_per_second: float):
         """Convert meters per second to km per hour."""
         return meters_per_second / constants.kilo * constants.hour
 
     @property
     def strava_link(self):
-        return f"https://www.strava.com/activities/{self.strava_id}"
+        return (f"https://www"
+                f".strava.com/activities/{self.strava_id}")
 
     def __str__(self):
         """Return a string representation of the model."""
@@ -181,13 +182,19 @@ class SessionZones(models.Model):
         for zone in self.zone_set.all():
             if self.zone_type == self.ZoneType.PACE:
                 if zone.max != -1:
+                    min_pace = TrainingSession.formatted_speed(
+                        zone.min, self.session.discipline, include_label=False)
+                    max_pace = TrainingSession.formatted_speed(
+                        zone.max, self.session.discipline, include_label=False)
                     labels.append(
-                        f"{TrainingSession.formatted_speed(zone.min, self.session.discipline, include_label=False)} - "
-                        f"{TrainingSession.formatted_speed(zone.max, self.session.discipline, include_label=False)}"
+                        f"{min_pace} - "
+                        f"{max_pace}"
                     )
                 else:
+                    min_pace = TrainingSession.formatted_speed(
+                        zone.min, self.session.discipline, include_label=False)
                     labels.append(
-                        f"< {TrainingSession.formatted_speed(zone.min, self.session.discipline, include_label=False)}"
+                        f"< {min_pace}"
                     )
 
             else:

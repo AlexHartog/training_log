@@ -1,15 +1,11 @@
 import logging
 import os
-from datetime import datetime
 
 import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from dotenv import dotenv_values
 from training.models import SessionZones, TrainingSession, Zone
-
-# TODO: Move this somewhere better
-from training.stats import DEFAULT_START_DATE
 
 from . import strava_authentication
 from .models import (
