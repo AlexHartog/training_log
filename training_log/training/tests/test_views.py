@@ -1,8 +1,6 @@
 from django.contrib.auth.models import User
-from django.test import LiveServerTestCase, TestCase
+from django.test import TestCase
 from django.urls import reverse
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 
 
 class TestViews(TestCase):
