@@ -171,18 +171,18 @@ class StravaRateLimitsTest(TestCase):
 
     def test_remaining_limits_hour_old(self):
         """Test remaining limits if short should be reset already."""
-        with mock.patch('django.utils.timezone.now') as mock_now:
-            mock_now.return_value = datetime.now() - timedelta(hours=1)
-            strava_rate_limit = self.create_strava_rate_limits(
-                updated_at=timezone.now() - timedelta(hours=1))
+        one_hour_ago = timezone.now() - timedelta(hours=1)
+        with mock.patch('django.utils.timezone.now', return_value=one_hour_ago):
+            strava_rate_limit = self.create_strava_rate_limits()
 
         self.assertEqual(strava_rate_limit.remaining_daily_limit, 1800)
         self.assertEqual(strava_rate_limit.remaining_short_limit, 200)
 
     def test_remaining_limits_day_old(self):
         """Test remaining limits if both limits should have been reset already."""
-        strava_rate_limit = self.create_strava_rate_limits(
-            updated_at=timezone.now() - timedelta(days=1)
-        )
+        one_day_ago = timezone.now() - timedelta(days=1)
+        with mock.patch('django.utils.timezone.now', return_value=one_day_ago):
+            strava_rate_limit = self.create_strava_rate_limits()
+
         self.assertEqual(strava_rate_limit.remaining_daily_limit, 2000)
         self.assertEqual(strava_rate_limit.remaining_short_limit, 200)
