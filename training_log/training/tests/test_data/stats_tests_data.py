@@ -6,9 +6,9 @@ from training.models import Discipline, TrainingSession
 
 
 class StatsTestData:
-    def __init__(self):
+    def __init__(self, date):
         self.test_user = "testuser"
-        self.date = datetime.today() - timedelta(days=1)
+        self.date = date
         self.start_date = timezone.make_aware(self.date + timedelta(hours=12))
 
     def create_discipline(self, name="test"):
