@@ -14,7 +14,7 @@ import os
 import sys
 from pathlib import Path
 
-from dotenv import dotenv_values, load_dotenv
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +26,29 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-&18%n7etx1t7)!@5q!-xuc9fcoc-s^5*e@ys!w+o6ybviwv01#"
 
 load_dotenv()
+
+required_env_vars = [
+    "DB_ENGINE",
+    "DB_SCHEMA",
+    "DB_NAME",
+    "DB_USER",
+    "DB_PASSWORD",
+    "DB_HOST",
+    "DB_PORT",
+    "STRAVA_CLIENT_ID",
+    "STRAVA_CLIENT_SECRET",
+]
+
+missing_env_vars = []
+
+for var in required_env_vars:
+    if var not in os.environ:
+        missing_env_vars.append(var)
+
+if missing_env_vars:
+    raise EnvironmentError(
+        f"The following required environment variables are missing: {', '.join(missing_env_vars)}"
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", False)
