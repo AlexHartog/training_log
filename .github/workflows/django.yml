@@ -25,4 +25,4 @@ jobs:
         pip install -r training_log/requirements.txt
     - name: Run Tests
       run: |
-        python training_log/manage.py test
+        python training_log/manage.py test training_log
