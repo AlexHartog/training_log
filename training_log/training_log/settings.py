@@ -27,6 +27,9 @@ SECRET_KEY = "django-insecure-&18%n7etx1t7)!@5q!-xuc9fcoc-s^5*e@ys!w+o6ybviwv01#
 
 load_dotenv()
 
+test_mode = "test" in sys.argv or "test_coverage" in sys.argv
+
+
 required_env_vars = [
     "DB_ENGINE",
     "DB_SCHEMA",
@@ -39,16 +42,17 @@ required_env_vars = [
     "STRAVA_CLIENT_SECRET",
 ]
 
-missing_env_vars = []
+if not test_mode:
+    missing_env_vars = []
 
-for var in required_env_vars:
-    if var not in os.environ:
-        missing_env_vars.append(var)
+    for var in required_env_vars:
+        if var not in os.environ:
+            missing_env_vars.append(var)
 
-if missing_env_vars:
-    raise EnvironmentError(
-        f"The following required environment variables are missing: {', '.join(missing_env_vars)}"
-    )
+    if missing_env_vars:
+        raise EnvironmentError(
+            f"The following required environment variables are missing: {', '.join(missing_env_vars)}"
+        )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", False)
@@ -148,24 +152,36 @@ WSGI_APPLICATION = "training_log.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
-        "OPTIONS": {
-            "options": f'-c search_path={os.getenv("DB_SCHEMA")}',
-        },
-    },
-}
 
-if (
-    "test" in sys.argv or "test_coverage" in sys.argv
-):  # For testing we can use public schema, because django does not create a new one
-    DATABASES["default"]["OPTIONS"]["options"] = "-c search_path=public"
+if test_mode:
+    # For testing we can use public schema, because django does not create a new one
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "testdb",
+            "USER": "postgres",
+            "PASSWORD": "postgres",
+            "HOST": "localhost",
+            "PORT": 5432,
+            "OPTIONS": {
+                "options": f"-c search_path=public",
+            },
+        },
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DB_NAME"),
+            "USER": os.getenv("DB_USER"),
+            "PASSWORD": os.getenv("DB_PASSWORD"),
+            "HOST": os.getenv("DB_HOST"),
+            "PORT": os.getenv("DB_PORT"),
+            "OPTIONS": {
+                "options": f'-c search_path={os.getenv("DB_SCHEMA")}',
+            },
+        },
+    }
 
 
 # Password validation
