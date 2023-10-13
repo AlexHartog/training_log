@@ -1,4 +1,5 @@
 from datetime import datetime
+import mock
 
 import pandas as pd
 from dateutil.rrule import DAILY, rrule
@@ -10,10 +11,14 @@ from training.tests.test_data.stats_tests_data import StatsTestData
 
 class TrainingStatsTest(TestCase):
     def setUp(self):
-        self.test_data = StatsTestData()
+        self.datetime_to_test = datetime(2023, 9, 8)
+
+        self.test_data = StatsTestData(date=self.datetime_to_test)
         self.test_data.load_graph_data()
 
-        self.graph_data = GraphsData()
+        with mock.patch('training.graphs.datetime') as mock_datetime:
+            mock_datetime.today.return_value = self.datetime_to_test
+            self.graph_data = GraphsData()
 
     def get_x_values(self, graph_name):
         return self.graph_data.data[graph_name][self.test_data.test_user.capitalize()][
@@ -31,7 +36,7 @@ class TrainingStatsTest(TestCase):
 
         datelist = [
             x.isoformat()
-            for x in pd.date_range(DEFAULT_START_DATE, datetime.today()).tolist()
+            for x in pd.date_range(DEFAULT_START_DATE, self.datetime_to_test).tolist()
         ]
 
         self.assertTrue(x_values_test_user, datelist)
@@ -46,14 +51,14 @@ class TrainingStatsTest(TestCase):
     def test_x_axis_weekly_hours_trained(self):
         x_values_test_user = self.get_x_values("weekly_hours_trained")
 
-        expected_week_numbers = list(
+        expected_week_numbers = sorted(list(
             set(
                 date.isocalendar()[1]
                 for date in rrule(
-                    DAILY, dtstart=DEFAULT_START_DATE, until=datetime.today()
+                    DAILY, dtstart=DEFAULT_START_DATE, until=self.datetime_to_test
                 )
             )
-        )
+        ))
 
         self.assertEquals(x_values_test_user, expected_week_numbers)
 

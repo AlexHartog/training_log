@@ -272,7 +272,7 @@ class StatsTestData:
         self.brick_count = 1
 
     def load_graph_data(self):
-        test_date = datetime(2023, 9, 8)
+        test_date = self.date
         days_back = 2
         self.create_session(
             discipline="Swimming",
