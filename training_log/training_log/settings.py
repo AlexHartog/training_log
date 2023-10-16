@@ -51,7 +51,8 @@ if not test_mode:
 
     if missing_env_vars:
         raise EnvironmentError(
-            f"The following required environment variables are missing: {', '.join(missing_env_vars)}"
+            f"The following required environment variables are missing: "
+            f"{', '.join(missing_env_vars)}"
         )
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -169,7 +170,7 @@ DATABASES = {
 
 if test_mode:
     # While testing schema should always be public as new schemas will not be created
-    DATABASES["default"]["OPTIONS"]["options"] = f'-c search_path=public'
+    DATABASES["default"]["OPTIONS"]["options"] = '-c search_path=public'
 
 
 
