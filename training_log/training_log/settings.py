@@ -22,8 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-&18%n7etx1t7)!@5q!-xuc9fcoc-s^5*e@ys!w+o6ybviwv01#"
 
 load_dotenv()
 
@@ -40,6 +38,7 @@ required_env_vars = [
     "DB_PORT",
     "STRAVA_CLIENT_ID",
     "STRAVA_CLIENT_SECRET",
+    "SECRET_KEY",
 ]
 
 if not test_mode:
@@ -54,6 +53,8 @@ if not test_mode:
             f"The following required environment variables are missing: "
             f"{', '.join(missing_env_vars)}"
         )
+
+SECRET_KEY = os.getenv("SECRET_KEY", "UNSAFE_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", False)
