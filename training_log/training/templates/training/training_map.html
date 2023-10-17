@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Training Map{% endblock title %}
+
+{% block content %}
+
+<div id="map-loading" style="position: fixed; top: 0; right: 0; bottom: 0; left: 0; background-color: rgba(255, 255, 255, 0.8); z-index: 10000; text-align: center;">
+    <h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Loading...</h1>
+</div>
+
+<div id="map-id">
+    {{ map | safe }}
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var mapElement = document.getElementById('map-id');
+        if (mapElement) {
+            mapElement.addEventListener("load", function() {
+                document.getElementById("map-loading").style.display = "none";
+            }, true);
+        }
+    });
+</script>
+
+{% endblock scripts %}
+

@@ -1,4 +1,5 @@
 import logging
+import geopandas as gpd
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -13,7 +14,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from strava_import.models import StravaUser
 
-from . import stats
+from . import stats, maps
 from .forms import SessionForm
 from .graphs import GraphsData
 from .models import SessionZones, TrainingSession
@@ -151,6 +152,14 @@ def graphs(request):
             "settings": graphs_data.settings,
         },
     )
+
+
+def training_map(request):
+    context = {
+        "map": maps.create_training_map()
+    }
+    logger.info("Rendering")
+    return render(request, "training/training_map.html", context)
 
 
 def delete_session(request):
