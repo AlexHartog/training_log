@@ -1,5 +1,4 @@
 import logging
-import geopandas as gpd
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -155,9 +154,7 @@ def graphs(request):
 
 
 def training_map(request):
-    context = {
-        "map": maps.create_training_map()
-    }
+    context = {"map": maps.create_training_map()}
     logger.info("Rendering")
     return render(request, "training/training_map.html", context)
 
