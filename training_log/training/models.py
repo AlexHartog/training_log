@@ -144,8 +144,7 @@ class TrainingSession(models.Model):
 
     @property
     def strava_link(self):
-        return (f"https://www"
-                f".strava.com/activities/{self.strava_id}")
+        return f"https://www" f".strava.com/activities/{self.strava_id}"
 
     def __str__(self):
         """Return a string representation of the model."""
@@ -183,19 +182,17 @@ class SessionZones(models.Model):
             if self.zone_type == self.ZoneType.PACE:
                 if zone.max != -1:
                     min_pace = TrainingSession.formatted_speed(
-                        zone.min, self.session.discipline, include_label=False)
-                    max_pace = TrainingSession.formatted_speed(
-                        zone.max, self.session.discipline, include_label=False)
-                    labels.append(
-                        f"{min_pace} - "
-                        f"{max_pace}"
+                        zone.min, self.session.discipline, include_label=False
                     )
+                    max_pace = TrainingSession.formatted_speed(
+                        zone.max, self.session.discipline, include_label=False
+                    )
+                    labels.append(f"{min_pace} - " f"{max_pace}")
                 else:
                     min_pace = TrainingSession.formatted_speed(
-                        zone.min, self.session.discipline, include_label=False)
-                    labels.append(
-                        f"< {min_pace}"
+                        zone.min, self.session.discipline, include_label=False
                     )
+                    labels.append(f"< {min_pace}")
 
             else:
                 if zone.max != -1:
@@ -224,3 +221,13 @@ class Zone(models.Model):
             f"{int(self.time / int(constants.minute))} minutes "
             f"in {self.min} - {self.max}"
         )
+
+
+class MunicipalityVisits(models.Model):
+    """A municipality visited by a user."""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    municipality = models.CharField()
+    date = models.DateField()
+    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
+    strava_id = models.BigIntegerField(blank=True, null=True)

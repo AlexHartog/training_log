@@ -20,3 +20,4 @@ django-debug-toolbar
 mock
 geopandas
 folium
+polyline
