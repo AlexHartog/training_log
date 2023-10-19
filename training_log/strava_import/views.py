@@ -46,8 +46,7 @@ def index(request):
         "days_back": DAYS_BACK,
         "user_auth": user_auth,
         "admin": request.user.is_superuser,
-        "strava_subscribed":
-            strava_subscription_manager.get_current_subscription_enabled(),
+        "strava_subscribed": strava_subscription_manager.get_current_subscription_enabled(),
     }
     return render(request, "strava_import/index.html", context=context)
 
@@ -178,8 +177,7 @@ def strava_admin(request):
         users.append(new_user)
 
     context = {
-        "strava_subscribed":
-            strava_subscription_manager.get_current_subscription_enabled(),
+        "strava_subscribed": strava_subscription_manager.get_current_subscription_enabled(),
         "strava_users": users,
     }
 
@@ -192,9 +190,14 @@ def admin_import_data(request):
     if request.method != "POST":
         raise Http404
 
+    logger.info(f"In post we found {request.POST}")
+    # return HttpResponse("Stopping for now")
+
     username = request.POST.get("username")
     num_sessions = int(request.POST.get("num_sessions"))
     user_to_import = User.objects.get(username__iexact=username)
+
+    print("Num sessions: ", num_sessions)
 
     imported_sessions = strava.get_activities(user_to_import, num_sessions)
 
@@ -202,7 +205,8 @@ def admin_import_data(request):
 
     # TODO: Can we use messages to display imports
 
-    return redirect("strava-admin")
+    return HttpResponse(f"Imported {len(imported_sessions)} sessions")
+    # return redirect("strava-admin")
 
 
 @user_passes_test(admin_check)
@@ -222,3 +226,11 @@ def admin_athlete_update(request):
     strava.get_athlete_data(strava_auth)
 
     return redirect("strava-admin")
+
+
+@user_passes_test(admin_check)
+def admin_parse_data(request):
+    if request.method != "POST":
+        raise Http404
+
+    return HttpResponse("OK")

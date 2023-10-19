@@ -27,34 +27,55 @@
         <th>Update</th>
     </tr>
 {% for strava_user in strava_users %}
-    <tr class="standard {% cycle 'altrow' '' %} clickablerow">
-        <td>{{ strava_user.user.username.capitalize }}</td>
-        <td>
-            {% if strava_user.strava_auth %}
-                {{ strava_user.strava_auth.status_string }}
-            {% else %}
-                None
-            {% endif %}
-        </td>
-        {% if strava_user.strava_auth and not strava_user.needs_authorization %}
-            <form action="{% url 'admin-import-data' %}"  method="post">
+    <form id="admin_{{ strava_user.user.username }}">
+        <tr class="standard {% cycle 'altrow' '' %} clickablerow">
+            <td>{{ strava_user.user.username.capitalize }}</td>
+            <td>
+                {% if strava_user.strava_auth %}
+                    {{ strava_user.strava_auth.status_string }}
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+            {% if strava_user.strava_auth and not strava_user.needs_authorization %}
                 <input type="hidden" name="username" value="{{ strava_user.user.username }}">
-                <td><input type="number" max="200" name="num_sessions" value="5" class="num_sessions"></td>
-                <td><button type="submit" name="action" value="import">Import</button></td>
-                {% csrf_token %}
-            </form>
-            <form action="{% url 'admin-athlete-update' %}" method="post">
-                <input type="hidden" name="username" value="{{ strava_user.user.username }}">
+                <td>
+                    <input type="number" max="200" name="num_sessions" value="5" class="num_sessions">
+                </td>
+                <td>
+                    <button
+                        type="button"
+                        hx-post="{% url 'admin-import-data' %}"
+                        hx-trigger="click"
+                        hx-target="#admin_results"
+                        hx-include="#admin_{{ strava_user.user.username }}"
+                    >
+                        Import
+                    </button>
+                </td>
+                <td>
+                    <button
+                        type="button"
+                        hx-post="{% url 'parse-data' %}"
+                        hx-trigger="click"
+                        hx-target="#admin_results"
+                    >
+                        Parse Data
+                    </button>
+                </td>
                 <td><button type="submit" name="action" value="update_athlete">Update Athlete</button></td>
                 {% csrf_token %}
-            </form>
-        {% else %}
-            <td></td><td></td><td></td>
-        {% endif %}
-    </tr>
+            {% else %}
+                <td></td><td></td><td></td><td></td>
+            {% endif %}
+        </tr>
+    </form>
 {% endfor %}
 </table>
 
+<div id="admin_results">
+
+</div>
 
 {% if imported_sessions %}
     <p>Imported {{ imported_sessions|length }} sessions {% if days_back > 1 %} in last {{ days_back }} days{% else %} since yesterday{% endif %}.</p>
@@ -73,10 +94,17 @@
     <p>No sessions imported</p>
 {% endif %}
 
-
-
-
 {% endautoescape %}
 
 {% endblock content %}
+
+{% block scripts %}
+
+    <script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+      })
+    </script>
+
+{% endblock scripts %}
 

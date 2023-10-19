@@ -4,6 +4,7 @@ from datetime import datetime
 
 import pytz
 from django.test import TestCase
+from django.contrib.auth.models import User
 from django.utils import timezone
 from strava_import.schemas import (
     AspectTypeEnum,
@@ -12,7 +13,7 @@ from strava_import.schemas import (
     StravaSession,
     StravaSessionZones,
 )
-from training.models import SessionZones
+from training.models import SessionZones, TrainingSession, Discipline
 
 
 class StravaSessionTest(TestCase):
@@ -39,6 +40,7 @@ class StravaSessionTest(TestCase):
             average_speed=100,
             max_speed=100,
             id=1,
+            map={"id": "1", "polyline": "some_polyline"},
         )
 
     def test_date(self):
@@ -65,6 +67,17 @@ class StravaSessionTest(TestCase):
         self.assertEqual(
             strava_session.proper_timezone, pytz.timezone("Europe/Amsterdam")
         )
+
+    def test_create_training_session(self):
+        strava_session = self.create_strava_session()
+
+        training_session = TrainingSession(**strava_session.model_dump())
+        training_session.user = User.objects.create(username="test_user")
+        training_session.discipline = Discipline.objects.create(name="test_discipline")
+        training_session.save()
+
+        self.assertEqual(training_session.strava_id, strava_session.strava_id)
+        self.assertEqual(training_session.polyline, strava_session.polyline)
 
 
 class StravaJSONReaderTest(TestCase):

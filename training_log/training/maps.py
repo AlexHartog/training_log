@@ -3,7 +3,7 @@ import logging
 from shapely.geometry import Point
 import polyline
 
-from training_log.strava_import.schemas import StravaSession
+from strava_import.schemas import StravaSession
 
 logger = logging.getLogger(__name__)
 

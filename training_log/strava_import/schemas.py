@@ -60,7 +60,7 @@ class StravaSession(BaseModel):
     max_hr: float | None = Field(default=None, alias="max_heartrate")
     average_speed: float
     max_speed: float
-    map: dict | None = Field(default=None)
+    map: dict | None = Field(exclude=True, default=None)
     strava_id: int = Field(..., alias="id")
 
     @computed_field
@@ -85,6 +85,8 @@ class StravaSession(BaseModel):
         ).group(2)
         return pytz.timezone(iana_timezone_identifier)
 
+    @computed_field
+    @property
     def polyline(self) -> str | None:
         """Get polyline from map."""
         if self.map is None:

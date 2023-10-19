@@ -53,6 +53,7 @@ class TrainingSession(models.Model):
     max_hr = models.FloatField(blank=True, null=True)
     average_speed = models.FloatField(blank=True, null=True)
     max_speed = models.FloatField(blank=True, null=True)
+    polyline = models.CharField(blank=True, null=True)
     strava_updated = models.DateTimeField(blank=True, null=True)
     strava_id = models.BigIntegerField(blank=True, null=True)
     excluded = models.BooleanField(default=False)
@@ -226,8 +227,5 @@ class Zone(models.Model):
 class MunicipalityVisits(models.Model):
     """A municipality visited by a user."""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     municipality = models.CharField()
-    date = models.DateField()
-    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
-    strava_id = models.BigIntegerField(blank=True, null=True)
+    training_session = models.ForeignKey(TrainingSession, on_delete=models.CASCADE)
