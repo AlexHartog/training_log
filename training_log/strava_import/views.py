@@ -225,7 +225,7 @@ def admin_athlete_update(request):
 
     strava.get_athlete_data(strava_auth)
 
-    return redirect("strava-admin")
+    return HttpResponse(f"Updated athlete data")
 
 
 @user_passes_test(admin_check)

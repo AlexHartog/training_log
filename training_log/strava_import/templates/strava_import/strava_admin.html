@@ -24,6 +24,7 @@
         <th>Token</th>
         <th>Num Sessions</th></td>
         <th>Import</th>
+        <th>Parse Data</th>
         <th>Update</th>
     </tr>
 {% for strava_user in strava_users %}
@@ -59,11 +60,22 @@
                         hx-post="{% url 'parse-data' %}"
                         hx-trigger="click"
                         hx-target="#admin_results"
+                        hx-include="#admin_{{ strava_user.user.username }}"
                     >
                         Parse Data
                     </button>
                 </td>
-                <td><button type="submit" name="action" value="update_athlete">Update Athlete</button></td>
+                <td>
+                    <button
+                        type="button"
+                        hx-post="{% url 'admin-athlete-update' %}"
+                        hx-trigger="click"
+                        hx-target="#admin_results"
+                        hx-include="#admin_{{ strava_user.user.username }}"
+                    >
+                        Update Athlete
+                    </button>
+                </td>
                 {% csrf_token %}
             {% else %}
                 <td></td><td></td><td></td><td></td>
@@ -100,11 +112,7 @@
 
 {% block scripts %}
 
-    <script>
-      document.body.addEventListener('htmx:configRequest', (event) => {
-        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-      })
-    </script>
+
 
 {% endblock scripts %}
 
