@@ -41,12 +41,16 @@ def index(request):
     ).order_by("-strava_updated", "-date")
     user_auth = StravaAuth.objects.get(user=request.user)
 
+    current_subscription_enabled = (
+        strava_subscription_manager.get_current_subscription_enabled()
+    )
+
     context = {
         "imported_sessions": imported_sessions,
         "days_back": DAYS_BACK,
         "user_auth": user_auth,
         "admin": request.user.is_superuser,
-        "strava_subscribed": strava_subscription_manager.get_current_subscription_enabled(),
+        "strava_subscribed": current_subscription_enabled,
     }
     return render(request, "strava_import/index.html", context=context)
 
@@ -176,8 +180,12 @@ def strava_admin(request):
                 new_user["strava_auth"] = strava_auth
         users.append(new_user)
 
+    current_subscription_enabled = (
+        strava_subscription_manager.get_current_subscription_enabled()
+    )
+
     context = {
-        "strava_subscribed": strava_subscription_manager.get_current_subscription_enabled(),
+        "strava_subscribed": current_subscription_enabled,
         "strava_users": users,
     }
 
@@ -225,7 +233,7 @@ def admin_athlete_update(request):
 
     strava.get_athlete_data(strava_auth)
 
-    return HttpResponse(f"Updated athlete data")
+    return HttpResponse("Updated athlete data")
 
 
 @user_passes_test(admin_check)
