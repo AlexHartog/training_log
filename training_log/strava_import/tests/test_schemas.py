@@ -3,17 +3,13 @@ import os
 from datetime import datetime
 
 import pytz
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.test import TestCase
 from django.utils import timezone
-from strava_import.schemas import (
-    AspectTypeEnum,
-    ObjectTypeEnum,
-    StravaEventData,
-    StravaSession,
-    StravaSessionZones,
-)
-from training.models import SessionZones, TrainingSession, Discipline
+from strava_import.schemas import (AspectTypeEnum, ObjectTypeEnum,
+                                   StravaEventData, StravaSession,
+                                   StravaSessionZones)
+from training.models import Discipline, SessionZones, TrainingSession
 
 
 class StravaSessionTest(TestCase):

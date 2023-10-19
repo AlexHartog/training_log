@@ -1,6 +1,6 @@
 from datetime import datetime
-import mock
 
+import mock
 import pandas as pd
 from dateutil.rrule import DAILY, rrule
 from django.test import TestCase

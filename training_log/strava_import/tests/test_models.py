@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
-import mock
 
+import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
