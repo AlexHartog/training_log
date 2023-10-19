@@ -241,4 +241,18 @@ def admin_parse_data(request):
     if request.method != "POST":
         raise Http404
 
-    return HttpResponse("OK")
+    username = request.POST.get("username")
+    user_to_parse = User.objects.get(username__iexact=username)
+
+    if not user_to_parse:
+        raise Http404
+
+    parse_results = strava.parse_activity_data(user_to_parse)
+
+    logger.info(f"")
+
+    context = {"parse_results": parse_results}
+
+    logger.info(f"Context is {context}")
+
+    return render(request, "strava_import/admin_parse_results.html", context=context)

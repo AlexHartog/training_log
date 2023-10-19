@@ -1,10 +1,10 @@
 import logging
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
@@ -13,7 +13,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from strava_import.models import StravaUser
 
-from . import stats, maps
+from . import maps, stats
 from .forms import SessionForm
 from .graphs import GraphsData
 from .models import SessionZones, TrainingSession
@@ -154,7 +154,28 @@ def graphs(request):
 
 
 def training_map(request):
-    context = {"map": maps.create_training_map()}
+    # from .models import MunicipalityVisits
+    #
+    # visits = MunicipalityVisits.objects.all()
+    #
+    # # for visit in visits:
+    # #     print(
+    # #         f"{visit.training_session.user.username.capitalize()} visited {visit.municipality}"
+    # #     )
+    #
+    # grouped = MunicipalityVisits.objects.values(
+    #     "municipality", "training_session__user__username"
+    # )
+    #
+    # for item in grouped:
+    #     print("Item: ", item)
+    #
+    # from django.http import HttpResponse
+    #
+    # return HttpResponse("Training Map")
+
+    training_map = maps.TrainingMap()
+    context = {"map": training_map.create_training_map()}
     logger.info("Rendering")
     return render(request, "training/training_map.html", context)
 

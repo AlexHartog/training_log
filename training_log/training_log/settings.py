@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap5",
     "debug_toolbar",
+    "django_admin_listfilter_dropdown",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -171,8 +172,7 @@ DATABASES = {
 
 if test_mode:
     # While testing schema should always be public as new schemas will not be created
-    DATABASES["default"]["OPTIONS"]["options"] = '-c search_path=public'
-
+    DATABASES["default"]["OPTIONS"]["options"] = "-c search_path=public"
 
 
 # Password validation

@@ -6,7 +6,6 @@ from typing import List
 import pytz
 from django.utils import timezone
 from pydantic import BaseModel, Field, computed_field
-
 from training.models import SessionZones
 
 
@@ -89,10 +88,19 @@ class StravaSession(BaseModel):
     @property
     def polyline(self) -> str | None:
         """Get polyline from map."""
-        if self.map is None:
+        if self.map is None or "polyline" not in self.map:
             return None
 
         return self.map["polyline"]
+
+    @computed_field
+    @property
+    def summary_polyline(self) -> str | None:
+        """Get polyline from map."""
+        if self.map is None or "summary_polyline" not in self.map:
+            return None
+
+        return self.map["summary_polyline"]
 
 
 class StravaZone(BaseModel):

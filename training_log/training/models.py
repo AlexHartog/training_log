@@ -54,6 +54,7 @@ class TrainingSession(models.Model):
     average_speed = models.FloatField(blank=True, null=True)
     max_speed = models.FloatField(blank=True, null=True)
     polyline = models.CharField(blank=True, null=True)
+    summary_polyline = models.CharField(blank=True, null=True)
     strava_updated = models.DateTimeField(blank=True, null=True)
     strava_id = models.BigIntegerField(blank=True, null=True)
     excluded = models.BooleanField(default=False)
@@ -229,3 +230,10 @@ class MunicipalityVisits(models.Model):
 
     municipality = models.CharField()
     training_session = models.ForeignKey(TrainingSession, on_delete=models.CASCADE)
+
+    def __str__(self):
+        """Return a string representation of the model."""
+        return (
+            f"{self.training_session.user.username.capitalize()} visited {self.municipality} - "
+            f"{self.training_session.discipline} on {self.training_session.date} "
+        )

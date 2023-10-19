@@ -326,3 +326,13 @@ input.num_sessions  {
     background-color: #dee0df;
     color: #c9c9c9;
 }
+
+.loading-indicator{
+    display:none;
+}
+.htmx-request .loading-indicator{
+    display:inline;
+}
+.htmx-request.loading-indicator{
+    display:inline;
+}

@@ -17,6 +17,7 @@ selenium
 pandas
 scipy
 django-debug-toolbar
+django-admin-list-filter-dropdown
 mock
 geopandas
 folium
