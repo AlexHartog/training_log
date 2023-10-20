@@ -234,6 +234,7 @@ class MunicipalityVisits(models.Model):
     def __str__(self):
         """Return a string representation of the model."""
         return (
-            f"{self.training_session.user.username.capitalize()} visited {self.municipality} - "
+            f"{self.training_session.user.username.capitalize()} "
+            f"visited {self.municipality} - "
             f"{self.training_session.discipline} on {self.training_session.date} "
         )

@@ -160,7 +160,8 @@ def training_map(request):
     #
     # # for visit in visits:
     # #     print(
-    # #         f"{visit.training_session.user.username.capitalize()} visited {visit.municipality}"
+    # #         f"{visit.training_session.user.username.capitalize()}
+    # visited {visit.municipality}"
     # #     )
     #
     # grouped = MunicipalityVisits.objects.values(

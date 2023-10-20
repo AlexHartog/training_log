@@ -4,7 +4,6 @@ import folium
 import geopandas as gpd
 import polyline
 from shapely.geometry import Point
-from strava_import.schemas import StravaSession
 from .models import MunicipalityVisits
 
 logger = logging.getLogger(__name__)
@@ -47,6 +46,7 @@ class TrainingMap:
 
     def load_visited(self):
         visited = MunicipalityVisits.objects.all()
+        return visited
 
     def create_training_map(self):
         # visits = MunicipalityVisits.objects.all()
@@ -81,7 +81,7 @@ class TrainingMap:
     def get_municipalities(self, polyline_string):
         logger.debug(f"Checking for polyline {polyline_string}")
         if not polyline_string:
-            logger.warning(f"Polyline is None")
+            logger.warning("Polyline is None")
             return
 
         coordinates = polyline.decode(polyline_string)

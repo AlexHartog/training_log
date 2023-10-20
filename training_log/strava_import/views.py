@@ -249,8 +249,6 @@ def admin_parse_data(request):
 
     parse_results = strava.parse_activity_data(user_to_parse)
 
-    logger.info(f"")
-
     context = {"parse_results": parse_results}
 
     logger.info(f"Context is {context}")
