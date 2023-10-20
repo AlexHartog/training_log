@@ -18,6 +18,9 @@ SHAPEFILE_PATH = "training_log/training/map_data/gemeente_2022_v1.shp"
 
 
 class TrainingMap:
+    """This class is used to create a map of the municipalities
+    visited during training."""
+
     def __init__(self, gdf=None):
         if gdf is None:
             self.regional_map = self.load_regional_dataframe()
@@ -106,7 +109,6 @@ class TrainingMap:
             if username not in municipality_users_dict[municipality]:
                 municipality_users_dict[municipality].append(username)
 
-        print(f"User dict: {municipality_users_dict}")
         return municipality_users_dict
 
     def create_training_map(
