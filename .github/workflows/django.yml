@@ -34,8 +34,6 @@ jobs:
       run: |
         pip install ruff
         ruff --output-format=github .
-    - name: Check PostgreSQL Health
-      run: until pg_isready -h localhost -p 5432; do sleep 2; done        
     - name: Run Tests
       run: |
         python training_log/manage.py test training_log
