@@ -156,10 +156,7 @@ def graphs(request):
 
 
 def training_map(request):
-    # from django.http import HttpResponse
-    #
-    # return HttpResponse("Training Map")
-
+    """Create a form for loading a training map."""
     users = User.objects.all()
     disciplines = MunicipalityVisits.objects.values_list(
         "training_session__discipline__name", flat=True
@@ -176,6 +173,7 @@ def training_map(request):
 
 
 def load_map(request):
+    """Load the actual training map based on selected values."""
     selected_users = request.POST.getlist("user_id")
     disciplines = request.POST.getlist("discipline")
     start_date = request.POST.get("start_date")
