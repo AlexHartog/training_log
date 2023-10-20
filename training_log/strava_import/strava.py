@@ -275,6 +275,8 @@ def import_activity(activity: dict, user: User):
 
     import_session_zones(strava_session.strava_id, user)
 
+    update_map(training_session)
+
     return training_session
 
 
@@ -348,20 +350,14 @@ def parse_activity_data(user_to_parse_for: User):
 
     municipality_visits_added = 0
 
-    count = 0
     for session in sessions:
-        if update_map(training_map, session):
+        if update_map(session, training_map):
             municipality_visits_added += 1
-
-        if count > 20:
-            break
-
-        count += 1
 
     return {"Municipality Visits Added": municipality_visits_added}
 
 
-def update_map(training_map: maps.TrainingMap, session: TrainingSession):
+def update_map(session: TrainingSession, training_map: maps.TrainingMap = None):
     """Update the map of the session."""
     if not session.summary_polyline:
         strava_activity_data = StravaActivityImport.objects.filter(
@@ -386,6 +382,9 @@ def update_map(training_map: maps.TrainingMap, session: TrainingSession):
     )
 
     if municipality_visits == 0:
+        if not training_map:
+            training_map = maps.TrainingMap()
+
         munis = training_map.get_municipalities(session.summary_polyline)
 
         if not munis:
