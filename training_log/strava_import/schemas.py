@@ -6,6 +6,7 @@ from typing import List
 import pytz
 from django.utils import timezone
 from pydantic import BaseModel, Field, computed_field
+
 from training.models import SessionZones
 
 

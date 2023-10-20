@@ -1,14 +1,15 @@
+import datetime
 import logging
 import os
-import datetime
 
 import folium
 import geopandas as gpd
 import polyline
+from django.contrib.auth.models import User
 from shapely.geometry import Point
+
 from .models import MunicipalityVisits
 from .stats import DEFAULT_START_DATE
-from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +18,11 @@ SHAPEFILE_PATH = "training_log/training/map_data/gemeente_2022_v1.shp"
 
 
 class TrainingMap:
-    def __init__(self):
-        self.regional_map = self.load_regional_dataframe()
+    def __init__(self, gdf=None):
+        if gdf is None:
+            self.regional_map = self.load_regional_dataframe()
+        else:
+            self.regional_map = gdf
         self.usernames = None
 
     def set_users(self, user_ids):
@@ -112,7 +116,7 @@ class TrainingMap:
         start_date=DEFAULT_START_DATE,
         end_date=datetime.date.today(),
     ):
-        """Creating the training map using folium."""
+        """Create the training map using folium."""
         municipality_visits = self.get_users_per_municipality(
             user_ids, disciplines, start_date, end_date
         )
@@ -125,7 +129,7 @@ class TrainingMap:
             lambda x: ", ".join(x or [])
         )
 
-        logger.info(f"Transforming regional map to json")
+        logger.info("Transforming regional map to json")
         geo_json = self.regional_map.to_json()
 
         logger.info("Creating folium")
@@ -142,7 +146,7 @@ class TrainingMap:
             ["GM_NAAM", "visits_string"], aliases=["Gemeente", "Visited by"]
         ).add_to(cp)
 
-        logger.info(f"Converting map to HTML")
+        logger.info("Converting map to HTML")
         m = m._repr_html_()
 
         return m

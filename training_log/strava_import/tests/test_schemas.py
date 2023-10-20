@@ -3,9 +3,11 @@ import os
 from datetime import datetime
 
 import pytz
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
+
 from strava_import.schemas import (AspectTypeEnum, ObjectTypeEnum,
                                    StravaEventData, StravaSession,
                                    StravaSessionZones)
@@ -80,7 +82,7 @@ class StravaJSONReaderTest(TestCase):
     def setUp(self):
         """Set json location and empty list for zones"""
         self.json_location = os.path.join(
-            "training_log",
+            settings.BASE_DIR,
             "strava_import",
             "tests",
             "test_data",

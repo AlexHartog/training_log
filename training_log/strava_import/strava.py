@@ -5,6 +5,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from dotenv import dotenv_values
+
 from training import maps
 from training.models import MunicipalityVisits, SessionZones, TrainingSession, Zone
 
@@ -341,7 +342,6 @@ def get_athlete_data(strava_auth: StravaAuth):
 
 def parse_activity_data(user_to_parse_for: User):
     """Parse activity without communicating with Strava."""
-
     sessions = TrainingSession.objects.filter(user=user_to_parse_for).all()
 
     training_map = maps.TrainingMap()
@@ -370,24 +370,16 @@ def update_map(training_map: maps.TrainingMap, session: TrainingSession):
         ).first()
 
         if not strava_activity_data:
-            logger.warning(f"No JSON data saved for activity {session.strava_id}")
             return
 
         strava_session = StravaSession.model_validate(strava_activity_data.json_data)
 
         if not strava_session.summary_polyline:
-            logger.warning(
-                f"No summary polyline exists for activity {session.strava_id}"
-            )
             return
 
         session.summary_polyline = strava_session.summary_polyline
         session.polyline = strava_session.polyline
         session.save()
-        logger.info(f"Added summary polyline  for session {session}")
-        logger.info(f"Added polyline for session {session}")
-    else:
-        logger.info(f"Polyline already exists for session {session}")
 
     municipality_visits = (
         MunicipalityVisits.objects.filter(training_session=session).all().count()
@@ -395,7 +387,6 @@ def update_map(training_map: maps.TrainingMap, session: TrainingSession):
 
     if municipality_visits == 0:
         munis = training_map.get_municipalities(session.summary_polyline)
-        logger.info(f"Munis found for session {session.strava_id}: {munis}")
 
         if not munis:
             return
@@ -405,6 +396,7 @@ def update_map(training_map: maps.TrainingMap, session: TrainingSession):
                 training_session=session, municipality=mun
             )
             municipality_visit.save()
-            logger.info(f"Added municipality visit for session {session.strava_id}")
+
+        logger.info(f"Added municipality visits for session {session.strava_id}")
 
         return True
