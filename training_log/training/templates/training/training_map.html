@@ -3,29 +3,70 @@
 {% block title %}Training Map{% endblock title %}
 
 {% block content %}
+<h1>Training Map</h1>
 
-<div id="map-loading" style="position: fixed; top: 0; right: 0; bottom: 0; left: 0; background-color: rgba(255, 255, 255, 0.8); z-index: 10000; text-align: center;">
-    <h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Loading...</h1>
-</div>
+<form id="map_form">
 
-<div id="map-id">
-    {{ map | safe }}
+    <div class="grid-container">
+        <div>
+            <fieldset>
+                <legend>Select Users</legend>
+
+                {% for user in users %}
+                    <div>
+                        <input class="user-select" id="{{ user.id }}" type="checkbox" name="user_id" value="{{ user.id }}">
+                        <label for="{{ user.id }}"><h5>{{ user.username.capitalize }}</h5></label>
+                    </div>
+                {% endfor %}
+            </fieldset>
+
+            <div style="margin-top: 5px">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" min="{{ start_date|date:'Y-m-d' }}" max="{{ current_date|date:'Y-m-d' }}" value="{{ start_date|date:'Y-m-d' }}">
+            </div>
+            <div style="margin-top: 5px">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" min="{{ start_date|date:'Y-m-d' }}" max="{{ current_date|date:'Y-m-d' }}" value="{{ current_date|date:'Y-m-d' }}">
+            </div>
+
+        </div>
+        <div>
+           <fieldset>
+               <legend>Select Activities</legend>
+
+               {% for discipline in disciplines %}
+                    <div>
+                        <input class="discipline-select" id="discipline" type="checkbox" name="discipline" value="{{ discipline }}" checked="checked">
+                        <label for="discipline"><h5>{{ discipline }}</h5></label>
+                    </div>
+                {% endfor %}
+        </div>
+    </div>
+
+    {% csrf_token %}
+    <button
+        type="button"
+        hx-post="{% url 'load-map' %}"
+        hx-trigger="click"
+        hx-target="#training-map"
+        hx-include="#map_form"
+        hx-indicator="#spinner"
+        style="margin-top: 10px"
+    >
+        Load Map
+    </button>
+</form>
+
+{% load static %}
+<img id="spinner" class="loading-indicator" src="{% static 'img/bars.svg' %}"/>
+
+<div style="margin-top: 20px" id="training-map">
 </div>
 
 {% endblock content %}
 
 {% block scripts %}
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var mapElement = document.getElementById('map-id');
-        if (mapElement) {
-            mapElement.addEventListener("load", function() {
-                document.getElementById("map-loading").style.display = "none";
-            }, true);
-        }
-    });
-</script>
 
 {% endblock scripts %}
 

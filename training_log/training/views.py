@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -16,7 +17,7 @@ from strava_import.models import StravaUser
 from . import maps, stats
 from .forms import SessionForm
 from .graphs import GraphsData
-from .models import SessionZones, TrainingSession
+from .models import SessionZones, TrainingSession, MunicipalityVisits
 
 logger = logging.getLogger(__name__)
 
@@ -154,31 +155,41 @@ def graphs(request):
 
 
 def training_map(request):
-    # from .models import MunicipalityVisits
-    #
-    # visits = MunicipalityVisits.objects.all()
-    #
-    # # for visit in visits:
-    # #     print(
-    # #         f"{visit.training_session.user.username.capitalize()}
-    # visited {visit.municipality}"
-    # #     )
-    #
-    # grouped = MunicipalityVisits.objects.values(
-    #     "municipality", "training_session__user__username"
-    # )
-    #
-    # for item in grouped:
-    #     print("Item: ", item)
-    #
     # from django.http import HttpResponse
     #
     # return HttpResponse("Training Map")
 
+    users = User.objects.all()
+    disciplines = MunicipalityVisits.objects.values_list(
+        "training_session__discipline__name", flat=True
+    ).distinct()
+
+    context = {
+        "users": users,
+        "disciplines": disciplines,
+        "start_date": stats.DEFAULT_START_DATE,
+        "current_date": datetime.date.today(),
+    }
+
+    return render(request, "training/training_map.html", context=context)
+
+
+def load_map(request):
+    from django.http import HttpResponse
+
+    selected_users = request.POST.getlist("user_id")
+    disciplines = request.POST.getlist("discipline")
+    start_date = request.POST.get("start_date")
+    end_date = request.POST.get("end_date")
+
     training_map = maps.TrainingMap()
-    context = {"map": training_map.create_training_map()}
+    context = {
+        "map": training_map.create_training_map(
+            selected_users, disciplines, start_date, end_date
+        )
+    }
     logger.info("Rendering")
-    return render(request, "training/training_map.html", context)
+    return render(request, "training/folium_map.html", context)
 
 
 def delete_session(request):
