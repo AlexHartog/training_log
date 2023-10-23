@@ -12,7 +12,6 @@ from django.urls import reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
-
 from strava_import.models import StravaUser
 
 from . import maps, stats

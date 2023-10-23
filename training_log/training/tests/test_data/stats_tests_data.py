@@ -2,7 +2,6 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.utils import timezone
-
 from training.models import Discipline, TrainingSession
 
 

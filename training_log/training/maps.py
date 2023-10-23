@@ -5,9 +5,9 @@ import os
 import folium
 import geopandas as gpd
 import polyline
+from django.conf import settings
 from django.contrib.auth.models import User
 from shapely.geometry import Point
-from django.conf import settings
 
 from .models import MunicipalityVisits
 from .stats import DEFAULT_START_DATE

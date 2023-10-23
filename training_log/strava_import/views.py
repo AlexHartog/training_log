@@ -10,7 +10,6 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-
 from training.models import TrainingSession
 
 from . import (strava, strava_authentication, strava_start_time_sync,
@@ -128,7 +127,6 @@ def activity_feed(request):
     """Handle activity feed. This can either be POST for validating the request or
     GET for a data event."""
     # TODO: Is there a better solution than to make this CSRF exempt?
-
     if request.method == "GET":
         verify_token = request.GET.get("hub.verify_token")
         strava_subscription = StravaSubscription.objects.first()
@@ -195,23 +193,15 @@ def admin_import_data(request):
     if request.method != "POST":
         raise Http404
 
-    logger.info(f"In post we found {request.POST}")
-    # return HttpResponse("Stopping for now")
-
     username = request.POST.get("username")
     num_sessions = int(request.POST.get("num_sessions"))
     user_to_import = User.objects.get(username__iexact=username)
-
-    print("Num sessions: ", num_sessions)
 
     imported_sessions = strava.get_activities(user_to_import, num_sessions)
 
     logger.info(f"Imported {len(imported_sessions)} sessions")
 
-    # TODO: Can we use messages to display imports
-
     return HttpResponse(f"Imported {len(imported_sessions)} sessions")
-    # return redirect("strava-admin")
 
 
 @user_passes_test(admin_check)

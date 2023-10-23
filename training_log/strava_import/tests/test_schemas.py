@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
-
 from strava_import.schemas import (AspectTypeEnum, ObjectTypeEnum,
                                    StravaEventData, StravaSession,
                                    StravaSessionZones)

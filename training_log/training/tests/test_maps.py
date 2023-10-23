@@ -5,7 +5,6 @@ import polyline as pl
 from django.conf import settings
 from django.test import TestCase
 from shapely.geometry import Point
-
 from training.maps import TrainingMap
 
 

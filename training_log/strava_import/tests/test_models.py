@@ -4,7 +4,6 @@ import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
-
 from strava_import.models import StravaAuth, StravaRateLimit, StravaTypeMapping
 from strava_import.schemas import StravaAthleteData, StravaTokenResponse
 from training.models import Discipline

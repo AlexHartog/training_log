@@ -4,7 +4,6 @@ from datetime import datetime
 import pandas as pd
 from django.contrib.auth.models import User
 from django.db.models import F, Q
-
 from training.models import TrainingSession
 
 DEFAULT_START_DATE = datetime(2023, 5, 1)
