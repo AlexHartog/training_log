@@ -7,14 +7,26 @@ import geopandas as gpd
 import polyline
 from django.contrib.auth.models import User
 from shapely.geometry import Point
+from django.conf import settings
 
 from .models import MunicipalityVisits
 from .stats import DEFAULT_START_DATE
 
 logger = logging.getLogger(__name__)
 
-GDF_OUTPUT_PATH = "training_log/training/map_data/gemeente.gpkg"
-SHAPEFILE_PATH = "training_log/training/map_data/gemeente_2022_v1.shp"
+GDF_OUTPUT_PATH = os.path.join(
+    settings.BASE_DIR,
+    "training",
+    "map_data",
+    "gemeente.gpkg",
+)
+
+SHAPEFILE_PATH = os.path.join(
+    settings.BASE_DIR,
+    "training",
+    "map_data",
+    "gemeente_2022_v1.shp",
+)
 
 
 class TrainingMap:
@@ -42,6 +54,9 @@ class TrainingMap:
             gdf = gpd.read_file(GDF_OUTPUT_PATH)
         else:
             logger.info("Loading regional map")
+            if not os.path.exists(SHAPEFILE_PATH):
+                logger.error(f"{SHAPEFILE_PATH} does not exist")
+                return
             gdf = gpd.read_file(SHAPEFILE_PATH)
             gdf = gdf[gdf["H2O"] == "NEE"]
             logger.info("Converting regional map to EPSG:4326")
@@ -119,6 +134,10 @@ class TrainingMap:
         end_date=datetime.date.today(),
     ):
         """Create the training map using folium."""
+        if self.regional_map is None:
+            logger.warning("Regional map is not loaded")
+            return
+
         municipality_visits = self.get_users_per_municipality(
             user_ids, disciplines, start_date, end_date
         )
@@ -159,6 +178,10 @@ class TrainingMap:
             logger.warning("Polyline is None")
             return
 
+        if self.regional_map is None:
+            logger.warning("Regional map is not loaded")
+            return
+
         coordinates = polyline.decode(polyline_string)
         municipalities = set()
         muni = None
@@ -177,6 +200,10 @@ class TrainingMap:
 
     def find_muni(self, coordinates, previous_match=None):
         """Find the municipality based on the coordinates."""
+        if self.regional_map is None:
+            logger.warning("Regional map is not loaded")
+            return
+
         coordinate = Point(coordinates[1], coordinates[0])
 
         if not self.check_within_bounds(coordinate):
