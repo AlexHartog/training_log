@@ -70,28 +70,21 @@ class TrainingMap:
         fill_opacity = 0.2
         fill_color = "gray"
 
-        if self.usernames and len(self.usernames) == 2:
-            visits = feature["properties"]["visits"]
-            if not visits:
-                fill_opacity = 0.2
-                fill_color = "gray"
-            elif len(visits) == 2:
-                fill_opacity = 0.5
-                fill_color = "purple"
-            elif visits[0].lower() == self.usernames[0].lower():
-                fill_opacity = 0.5
-                fill_color = "red"
-            elif visits[0].lower() == self.usernames[1].lower():
-                fill_opacity = 0.5
-                fill_color = "blue"
+        visits = feature["properties"]["visits"]
 
-        if self.usernames and len(self.usernames) == 1:
-            if feature["properties"]["visits"]:
-                fill_opacity = 0.5
-                fill_color = "blue"
-            else:
-                fill_opacity = 0.2
-                fill_color = "gray"
+        color_map = {
+            self.usernames[0].lower(): "red",
+            self.usernames[1].lower(): "blue",
+        }
+
+        if visits:
+            if len(self.usernames) == 2:
+                if len(visits) == 2:
+                    fill_opacity = 0.5
+                    fill_color = "purple"
+                else:
+                    fill_opacity = 0.5
+                    fill_color = color_map.get(visits[0].lower())
 
         return {
             "color": "gray",
