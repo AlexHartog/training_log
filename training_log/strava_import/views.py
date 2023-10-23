@@ -12,8 +12,12 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from training.models import TrainingSession
 
-from . import (strava, strava_authentication, strava_start_time_sync,
-               strava_subscription_manager)
+from . import (
+    strava,
+    strava_authentication,
+    strava_start_time_sync,
+    strava_subscription_manager,
+)
 from .models import StravaAuth, StravaSubscription
 
 logger = logging.getLogger(__name__)
@@ -225,6 +229,7 @@ def admin_athlete_update(request):
 
 @user_passes_test(admin_check)
 def admin_parse_data(request):
+    """Parse user data as an admin."""
     if request.method != "POST":
         raise Http404
 
@@ -237,7 +242,5 @@ def admin_parse_data(request):
     parse_results = strava.parse_activity_data(user_to_parse)
 
     context = {"parse_results": parse_results}
-
-    logger.info(f"Context is {context}")
 
     return render(request, "strava_import/admin_parse_results.html", context=context)
