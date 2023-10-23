@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build:
-      context: ./training_log #build the image for the web service from the dockerfile in parent directory
+      context: ./training_log
       dockerfile: Dockerfile
     command: gunicorn training_log.wsgi:application --bind 0.0.0.0:8000
     volumes:
