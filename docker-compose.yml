@@ -18,7 +18,7 @@ services:
     ports:
       - ${NGINX_PORT:-80}:80
     volumes:
-      - static_volume:/home/app/microservice/static/
+      - static_volume:/home/app/web/staticfiles
     depends_on:
       - web
 
