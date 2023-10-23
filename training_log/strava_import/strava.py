@@ -273,6 +273,9 @@ def import_activity(activity: dict, user: User):
     )
     training_session = import_training_session(strava_session, user)
 
+    if not training_session:
+        return
+
     import_session_zones(strava_session.strava_id, user)
 
     update_map(training_session)
