@@ -41,13 +41,16 @@ def index(request):
     ).order_by("-strava_updated", "-date")
     user_auth = StravaAuth.objects.get(user=request.user)
 
+    current_subscription_enabled = (
+        strava_subscription_manager.get_current_subscription_enabled()
+    )
+
     context = {
         "imported_sessions": imported_sessions,
         "days_back": DAYS_BACK,
         "user_auth": user_auth,
         "admin": request.user.is_superuser,
-        "strava_subscribed":
-            strava_subscription_manager.get_current_subscription_enabled(),
+        "strava_subscribed": current_subscription_enabled,
     }
     return render(request, "strava_import/index.html", context=context)
 
@@ -128,7 +131,6 @@ def activity_feed(request):
     """Handle activity feed. This can either be POST for validating the request or
     GET for a data event."""
     # TODO: Is there a better solution than to make this CSRF exempt?
-
     if request.method == "GET":
         verify_token = request.GET.get("hub.verify_token")
         strava_subscription = StravaSubscription.objects.first()
@@ -177,9 +179,12 @@ def strava_admin(request):
                 new_user["strava_auth"] = strava_auth
         users.append(new_user)
 
+    current_subscription_enabled = (
+        strava_subscription_manager.get_current_subscription_enabled()
+    )
+
     context = {
-        "strava_subscribed":
-            strava_subscription_manager.get_current_subscription_enabled(),
+        "strava_subscribed": current_subscription_enabled,
         "strava_users": users,
     }
 
@@ -200,9 +205,7 @@ def admin_import_data(request):
 
     logger.info(f"Imported {len(imported_sessions)} sessions")
 
-    # TODO: Can we use messages to display imports
-
-    return redirect("strava-admin")
+    return HttpResponse(f"Imported {len(imported_sessions)} sessions")
 
 
 @user_passes_test(admin_check)
@@ -221,4 +224,23 @@ def admin_athlete_update(request):
 
     strava.get_athlete_data(strava_auth)
 
-    return redirect("strava-admin")
+    return HttpResponse("Updated athlete data")
+
+
+@user_passes_test(admin_check)
+def admin_parse_data(request):
+    """Parse user data as an admin."""
+    if request.method != "POST":
+        raise Http404
+
+    username = request.POST.get("username")
+    user_to_parse = User.objects.get(username__iexact=username)
+
+    if not user_to_parse:
+        raise Http404
+
+    parse_results = strava.parse_activity_data(user_to_parse)
+
+    context = {"parse_results": parse_results}
+
+    return render(request, "strava_import/admin_parse_results.html", context=context)

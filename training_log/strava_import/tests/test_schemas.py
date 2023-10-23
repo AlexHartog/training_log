@@ -3,16 +3,14 @@ import os
 from datetime import datetime
 
 import pytz
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
-from strava_import.schemas import (
-    AspectTypeEnum,
-    ObjectTypeEnum,
-    StravaEventData,
-    StravaSession,
-    StravaSessionZones,
-)
-from training.models import SessionZones
+from strava_import.schemas import (AspectTypeEnum, ObjectTypeEnum,
+                                   StravaEventData, StravaSession,
+                                   StravaSessionZones)
+from training.models import Discipline, SessionZones, TrainingSession
 
 
 class StravaSessionTest(TestCase):
@@ -39,6 +37,7 @@ class StravaSessionTest(TestCase):
             average_speed=100,
             max_speed=100,
             id=1,
+            map={"id": "1", "polyline": "some_polyline"},
         )
 
     def test_date(self):
@@ -66,12 +65,23 @@ class StravaSessionTest(TestCase):
             strava_session.proper_timezone, pytz.timezone("Europe/Amsterdam")
         )
 
+    def test_create_training_session(self):
+        strava_session = self.create_strava_session()
+
+        training_session = TrainingSession(**strava_session.model_dump())
+        training_session.user = User.objects.create(username="test_user")
+        training_session.discipline = Discipline.objects.create(name="test_discipline")
+        training_session.save()
+
+        self.assertEqual(training_session.strava_id, strava_session.strava_id)
+        self.assertEqual(training_session.polyline, strava_session.polyline)
+
 
 class StravaJSONReaderTest(TestCase):
     def setUp(self):
         """Set json location and empty list for zones"""
         self.json_location = os.path.join(
-            "training_log",
+            settings.BASE_DIR,
             "strava_import",
             "tests",
             "test_data",

@@ -3,6 +3,7 @@ import json
 from django.contrib import admin
 from django.db import models
 from django.forms import widgets
+from django_admin_listfilter_dropdown.filters import DropdownFilter
 
 from .models import (StravaActivityImport, StravaAuth, StravaRateLimit,
                      StravaSubscription, StravaTypeMapping, StravaUser)
@@ -24,6 +25,7 @@ class PrettyJSONWidget(widgets.Textarea):
 
 
 class StravaActivityImportAdmin(admin.ModelAdmin):
+    list_filter = (("strava_id", DropdownFilter),)
     formfield_overrides = {models.JSONField: {"widget": PrettyJSONWidget}}
 
 

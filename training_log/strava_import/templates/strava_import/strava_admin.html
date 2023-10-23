@@ -24,59 +24,81 @@
         <th>Token</th>
         <th>Num Sessions</th></td>
         <th>Import</th>
+        <th>Parse Data</th>
         <th>Update</th>
     </tr>
 {% for strava_user in strava_users %}
-    <tr class="standard {% cycle 'altrow' '' %} clickablerow">
-        <td>{{ strava_user.user.username.capitalize }}</td>
-        <td>
-            {% if strava_user.strava_auth %}
-                {{ strava_user.strava_auth.status_string }}
+    <form id="admin_{{ strava_user.user.username }}">
+        <tr class="standard {% cycle 'altrow' '' %} clickablerow">
+            <td>{{ strava_user.user.username.capitalize }}</td>
+            <td>
+                {% if strava_user.strava_auth %}
+                    {{ strava_user.strava_auth.status_string }}
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+            {% if strava_user.strava_auth and not strava_user.needs_authorization %}
+                <input type="hidden" name="username" value="{{ strava_user.user.username }}">
+                <td>
+                    <input type="number" max="200" name="num_sessions" value="5" class="num_sessions">
+                </td>
+                <td>
+                    <button
+                        type="button"
+                        hx-post="{% url 'admin-import-data' %}"
+                        hx-trigger="click"
+                        hx-target="#admin_results"
+                        hx-include="#admin_{{ strava_user.user.username }}"
+                    >
+                        Import
+                    </button>
+                </td>
+                <td>
+                    <button
+                        type="button"
+                        hx-post="{% url 'parse-data' %}"
+                        hx-trigger="click"
+                        hx-target="#admin_results"
+                        hx-indicator="#spinner"
+                        hx-include="#admin_{{ strava_user.user.username }}"
+                    >
+                        Parse Data
+                    </button>
+                </td>
+                <td>
+                    <button
+                        type="button"
+                        hx-post="{% url 'admin-athlete-update' %}"
+                        hx-trigger="click"
+                        hx-target="#admin_results"
+                        hx-include="#admin_{{ strava_user.user.username }}"
+                    >
+                        Update Athlete
+                    </button>
+                </td>
+                {% csrf_token %}
             {% else %}
-                None
+                <td></td><td></td><td></td><td></td>
             {% endif %}
-        </td>
-        {% if strava_user.strava_auth and not strava_user.needs_authorization %}
-            <form action="{% url 'admin-import-data' %}"  method="post">
-                <input type="hidden" name="username" value="{{ strava_user.user.username }}">
-                <td><input type="number" max="200" name="num_sessions" value="5" class="num_sessions"></td>
-                <td><button type="submit" name="action" value="import">Import</button></td>
-                {% csrf_token %}
-            </form>
-            <form action="{% url 'admin-athlete-update' %}" method="post">
-                <input type="hidden" name="username" value="{{ strava_user.user.username }}">
-                <td><button type="submit" name="action" value="update_athlete">Update Athlete</button></td>
-                {% csrf_token %}
-            </form>
-        {% else %}
-            <td></td><td></td><td></td>
-        {% endif %}
-    </tr>
+        </tr>
+    </form>
 {% endfor %}
 </table>
 
+<div style="margin-top: 20px" id="admin_results">
+</div>
 
-{% if imported_sessions %}
-    <p>Imported {{ imported_sessions|length }} sessions {% if days_back > 1 %} in last {{ days_back }} days{% else %} since yesterday{% endif %}.</p>
-    <table class="import-table">
-        <tr><th>Date</th><th>Discipline</th><th>Duration</th><th>Imported at</th></tr>
-        {% for session in imported_sessions %}
-            <tr>
-                <td>{{ session.date|date:"d-m-y" }}</td>
-                <td>{{ session.discipline }}</td>
-                <td>{{ session.formatted_duration }}</td>
-                <td>{{ session.strava_updated|date:"d-m-y H:i:s" }}</td>
-            </tr>
-        {% endfor %}
-    </table>
-{% else %}
-    <p>No sessions imported</p>
-{% endif %}
-
-
-
+{% load static %}
+<img id="spinner" class="loading-indicator" src="{% static 'img/bars.svg' %}"/>
 
 {% endautoescape %}
 
 {% endblock content %}
+
+{% block scripts %}
+
+
+
+{% endblock scripts %}
 

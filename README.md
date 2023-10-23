@@ -32,8 +32,7 @@ DJANGO_LOG_LEVEL=
 
 #### Docker Compose
 
-The app can be start by running `docker-compose up`.
-
+The app can be started by running `docker-compose up`.
 
 
 
@@ -69,7 +68,7 @@ Run `docker exec -t -i 66175bfd6ae6 bash`
 - [ ] Additional graphs
 - [ ] Add HTTPS
 - [x] Save JSON data from strava
-- [ ] Move to proper logger
+- [x] Move to proper logger
 - [x] Add activity zones
 - [ ] CRUD operations
 - [x] Squash migrations
@@ -78,7 +77,7 @@ Run `docker exec -t -i 66175bfd6ae6 bash`
 - [x] Implement Strava webhooks
 - [x] Add more athlete data
 - [x] Save strava athlete id
-- [ ] Delete invalid subscription
+- [x] Delete invalid subscription
 - [x] Check if athlete has premium before checking zones
 
 ### Important 

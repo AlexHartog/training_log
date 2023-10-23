@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import (Discipline, SessionZones, TrainingSession, TrainingType,
-                     Zone)
+from .models import (Discipline, MunicipalityVisits, SessionZones,
+                     TrainingSession, TrainingType, Zone)
 
 
 class ZonesInline(admin.TabularInline):
@@ -36,3 +36,4 @@ admin.site.register(Discipline)
 admin.site.register(TrainingSession, TrainingSessionAdmin)
 admin.site.register(TrainingType)
 admin.site.register(SessionZones, SessionZonesAdmin)
+admin.site.register(MunicipalityVisits)

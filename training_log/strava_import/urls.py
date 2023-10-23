@@ -28,4 +28,5 @@ urlpatterns = [
         views.admin_athlete_update,
         name="admin-athlete-update",
     ),
+    path("parse_data", views.admin_parse_data, name="parse-data"),
 ]

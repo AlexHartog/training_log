@@ -53,6 +53,8 @@ class TrainingSession(models.Model):
     max_hr = models.FloatField(blank=True, null=True)
     average_speed = models.FloatField(blank=True, null=True)
     max_speed = models.FloatField(blank=True, null=True)
+    polyline = models.CharField(blank=True, null=True)
+    summary_polyline = models.CharField(blank=True, null=True)
     strava_updated = models.DateTimeField(blank=True, null=True)
     strava_id = models.BigIntegerField(blank=True, null=True)
     excluded = models.BooleanField(default=False)
@@ -144,8 +146,7 @@ class TrainingSession(models.Model):
 
     @property
     def strava_link(self):
-        return (f"https://www"
-                f".strava.com/activities/{self.strava_id}")
+        return f"https://www" f".strava.com/activities/{self.strava_id}"
 
     def __str__(self):
         """Return a string representation of the model."""
@@ -183,19 +184,17 @@ class SessionZones(models.Model):
             if self.zone_type == self.ZoneType.PACE:
                 if zone.max != -1:
                     min_pace = TrainingSession.formatted_speed(
-                        zone.min, self.session.discipline, include_label=False)
-                    max_pace = TrainingSession.formatted_speed(
-                        zone.max, self.session.discipline, include_label=False)
-                    labels.append(
-                        f"{min_pace} - "
-                        f"{max_pace}"
+                        zone.min, self.session.discipline, include_label=False
                     )
+                    max_pace = TrainingSession.formatted_speed(
+                        zone.max, self.session.discipline, include_label=False
+                    )
+                    labels.append(f"{min_pace} - " f"{max_pace}")
                 else:
                     min_pace = TrainingSession.formatted_speed(
-                        zone.min, self.session.discipline, include_label=False)
-                    labels.append(
-                        f"< {min_pace}"
+                        zone.min, self.session.discipline, include_label=False
                     )
+                    labels.append(f"< {min_pace}")
 
             else:
                 if zone.max != -1:
@@ -223,4 +222,19 @@ class Zone(models.Model):
         return (
             f"{int(self.time / int(constants.minute))} minutes "
             f"in {self.min} - {self.max}"
+        )
+
+
+class MunicipalityVisits(models.Model):
+    """A municipality visited by a user."""
+
+    municipality = models.CharField()
+    training_session = models.ForeignKey(TrainingSession, on_delete=models.CASCADE)
+
+    def __str__(self):
+        """Return a string representation of the model."""
+        return (
+            f"{self.training_session.user.username.capitalize()} "
+            f"visited {self.municipality} - "
+            f"{self.training_session.discipline} on {self.training_session.date} "
         )

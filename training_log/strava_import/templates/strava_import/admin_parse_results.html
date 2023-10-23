@@ -1,0 +1,14 @@
+<table class="standard">
+    <thead>
+        <th>Action</th>
+        <th>Added</th>
+    </thead>
+    <tbody>
+        {% for key, result in parse_results.items %}
+            <tr>
+                <td>{{ key }}</td>
+                <td>{{ result }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

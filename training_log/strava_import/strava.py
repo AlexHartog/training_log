@@ -5,17 +5,15 @@ import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from dotenv import dotenv_values
-from training.models import SessionZones, TrainingSession, Zone
+from training import maps
+from training.models import (MunicipalityVisits, SessionZones, TrainingSession,
+                             Zone)
 
 from . import strava_authentication
-from .models import (
-    StravaActivityImport,
-    StravaAuth,
-    StravaRateLimit,
-    StravaTypeMapping,
-    StravaUser,
-)
-from .schemas import StravaAthleteData, StravaSession, StravaSessionZones, StravaZone
+from .models import (StravaActivityImport, StravaAuth, StravaRateLimit,
+                     StravaTypeMapping, StravaUser)
+from .schemas import (StravaAthleteData, StravaSession, StravaSessionZones,
+                      StravaZone)
 
 logger = logging.getLogger(__name__)
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
@@ -271,7 +269,12 @@ def import_activity(activity: dict, user: User):
     )
     training_session = import_training_session(strava_session, user)
 
+    if not training_session:
+        return
+
     import_session_zones(strava_session.strava_id, user)
+
+    update_map(training_session)
 
     return training_session
 
@@ -336,3 +339,62 @@ def get_athlete_data(strava_auth: StravaAuth):
     athlete_data = StravaAthleteData.model_validate(athlete)
 
     update_strava_user(strava_auth.user, athlete_data)
+
+
+def parse_activity_data(user_to_parse_for: User):
+    """Parse activity without communicating with Strava."""
+    sessions = TrainingSession.objects.filter(user=user_to_parse_for).all()
+
+    training_map = maps.TrainingMap()
+
+    municipality_visits_added = 0
+
+    for session in sessions:
+        if update_map(session, training_map):
+            municipality_visits_added += 1
+
+    return {"Municipality Visits Added": municipality_visits_added}
+
+
+def update_map(session: TrainingSession, training_map: maps.TrainingMap = None):
+    """Update the map of the session."""
+    if not session.summary_polyline:
+        strava_activity_data = StravaActivityImport.objects.filter(
+            strava_id=session.strava_id,
+            type=StravaActivityImport.ACTIVITY,
+        ).first()
+
+        if not strava_activity_data:
+            return
+
+        strava_session = StravaSession.model_validate(strava_activity_data.json_data)
+
+        if not strava_session.summary_polyline:
+            return
+
+        session.summary_polyline = strava_session.summary_polyline
+        session.polyline = strava_session.polyline
+        session.save()
+
+    municipality_visits = (
+        MunicipalityVisits.objects.filter(training_session=session).all().count()
+    )
+
+    if municipality_visits == 0:
+        if not training_map:
+            training_map = maps.TrainingMap()
+
+        munis = training_map.get_municipalities(session.summary_polyline)
+
+        if not munis:
+            return
+
+        for mun in munis:
+            municipality_visit = MunicipalityVisits(
+                training_session=session, municipality=mun
+            )
+            municipality_visit.save()
+
+        logger.info(f"Added municipality visits for session {session.strava_id}")
+
+        return True
