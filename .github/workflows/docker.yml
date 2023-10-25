@@ -8,6 +8,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      DB_ENGINE: ${{ secrets.DB_ENGINE }}
+
+
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
