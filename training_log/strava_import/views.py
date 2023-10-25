@@ -9,7 +9,6 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
 from training.models import TrainingSession
 
 from . import (
