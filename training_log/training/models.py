@@ -182,19 +182,18 @@ class SessionZones(models.Model):
         values = []
         for zone in self.zone_set.all():
             if self.zone_type == self.ZoneType.PACE:
-                if zone.max != -1:
-                    min_pace = TrainingSession.formatted_speed(
-                        zone.min, self.session.discipline, include_label=False
-                    )
-                    max_pace = TrainingSession.formatted_speed(
-                        zone.max, self.session.discipline, include_label=False
-                    )
-                    labels.append(f"{min_pace} - " f"{max_pace}")
-                else:
-                    min_pace = TrainingSession.formatted_speed(
-                        zone.min, self.session.discipline, include_label=False
-                    )
+                min_pace = TrainingSession.formatted_speed(
+                    zone.min, self.session.discipline, include_label=False
+                )
+                max_pace = TrainingSession.formatted_speed(
+                    zone.max, self.session.discipline, include_label=False
+                )
+                if zone.max == -1:
                     labels.append(f"< {min_pace}")
+                elif zone.min == 0:
+                    labels.append(f"> {max_pace}")
+                else:
+                    labels.append(f"{min_pace} - " f"{max_pace}")
 
             else:
                 if zone.max != -1:
