@@ -65,12 +65,12 @@ INTERNAL_IPS = [
 CSRF_TRUSTED_ORIGINS = [
     # Prod Server
     "https://www.ironman-training.nl",
-    # Localhost
-    "http://127.0.0.1:{port}".format(port=os.getenv("NGINX_PORT", 80)),
-    # Development server
-    "http://192.168.1.102:{port}".format(port=os.getenv("NGINX_PORT", 80)),
 ]
 
+if os.getenv("CSRF_TRUSTED_ORIGINS"):
+    CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS + os.getenv(
+        "CSRF_TRUSTED_ORIGINS"
+    ).split(",")
 
 # Application definition
 
