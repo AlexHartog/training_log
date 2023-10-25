@@ -42,11 +42,7 @@ required_env_vars = [
 ]
 
 if not test_mode:
-    missing_env_vars = []
-
-    for var in required_env_vars:
-        if var not in os.environ:
-            missing_env_vars.append(var)
+    missing_env_vars = [var for var in required_env_vars if var not in os.environ]
 
     if missing_env_vars:
         raise EnvironmentError(
