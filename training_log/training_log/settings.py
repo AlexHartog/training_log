@@ -60,9 +60,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "UNSAFE_KEY")
 DEBUG = os.getenv("DJANGO_DEBUG", False)
 
 # TODO: Make this more proper?
-ALLOWED_HOSTS = [
-    "*",
-]
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "ironman-training.nl").split(",")
 
 INTERNAL_IPS = [
     "127.0.0.1",
