@@ -12,8 +12,12 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from training.models import TrainingSession
 
-from . import (strava, strava_authentication, strava_start_time_sync,
-               strava_subscription_manager)
+from . import (
+    strava,
+    strava_authentication,
+    strava_start_time_sync,
+    strava_subscription_manager,
+)
 from .models import StravaAuth, StravaSubscription
 
 logger = logging.getLogger(__name__)
@@ -122,11 +126,9 @@ def subscribe_strava(request, subscribe: int):
     return redirect("strava-admin")
 
 
-@csrf_exempt
 def activity_feed(request):
     """Handle activity feed. This can either be POST for validating the request or
     GET for a data event."""
-    # TODO: Is there a better solution than to make this CSRF exempt?
     if request.method == "GET":
         verify_token = request.GET.get("hub.verify_token")
         strava_subscription = StravaSubscription.objects.first()
