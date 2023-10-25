@@ -59,7 +59,6 @@ SECRET_KEY = os.getenv("SECRET_KEY", "UNSAFE_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", False)
 
-# TODO: Make this more proper?
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "ironman-training.nl").split(",")
 
 INTERNAL_IPS = [
