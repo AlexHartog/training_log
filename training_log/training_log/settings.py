@@ -54,7 +54,7 @@ if not test_mode:
             f"{', '.join(missing_env_vars)}"
         )
 
-SECRET_KEY = os.getenv("SECRET_KEY", "UNSAFE_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", False)
