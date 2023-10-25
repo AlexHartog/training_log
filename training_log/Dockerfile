@@ -15,8 +15,8 @@ WORKDIR $APP_HOME
 
 COPY requirements.txt requirements.txt
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip --root-user-action=ignore
+RUN pip install -r requirements.txt --root-user-action=ignore
 
 
 # copy entrypoint.prod.sh
