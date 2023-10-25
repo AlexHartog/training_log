@@ -24,9 +24,7 @@ logger = logging.getLogger(__name__)
 
 def index(request):
     """The home page for Training Log."""
-    # For now redirecting to all stats
     return redirect("all-stats")
-    # return render(request, "training/index.html")
 
 
 class Register(CreateView):
