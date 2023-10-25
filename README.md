@@ -1,5 +1,8 @@
 # Training Log
 
+[![Django CI](https://github.com/AlexHartog/training_log/actions/workflows/django.yml/badge.svg)](https://github.com/AlexHartog/training_log/actions/workflows/django.yml)
+[![Docker Compose Build](https://github.com/AlexHartog/training_log/actions/workflows/docker.yml/badge.svg)](https://github.com/AlexHartog/training_log/actions/workflows/docker.yml)
+
 ## Installation
 
 #### Configuration
@@ -28,7 +31,6 @@ DJANGO_DEBUG=
 DJANGO_LOG_LEVEL=
 ~~~
 
-[![Django CI](https://github.com/AlexHartog/training_log/actions/workflows/django.yml/badge.svg)](https://github.com/AlexHartog/training_log/actions/workflows/django.yml)
 
 #### Docker Compose
 
