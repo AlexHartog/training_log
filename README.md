@@ -28,7 +28,7 @@ DJANGO_DEBUG=
 DJANGO_LOG_LEVEL=
 ~~~
 
-
+[![Django CI](https://github.com/AlexHartog/training_log/actions/workflows/django.yml/badge.svg)](https://github.com/AlexHartog/training_log/actions/workflows/django.yml)
 
 #### Docker Compose
 
