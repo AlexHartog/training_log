@@ -57,17 +57,22 @@
 <script src="{% static 'js/graphs.js' %}"> </script>
 
 {% autoescape off %}
-{% for session_zone in session_zones %}
-<h2>{{ session_zone.get_zone_type_display }} zones</h2>
-<div>
-  <canvas id="zone_bars_{{ session_zone.id }}"></canvas>
-</div>
-<script id="zonesScript_{{ session_zone.id }}">
-var totalHoursTrainedGraph = createHorizontalBarChart({canvasId: 'zone_bars_{{ session_zone.id }}', all_data: {{ session_zone.zones_data }} });
-</script>
 
+{% for session_zone in session_zones %}
+  <h2>{{ session_zone.get_zone_type_display }} zones</h2>
+  <div>
+    <canvas id="zone_bars_{{ session_zone.id }}"></canvas>
+  </div>
+  <script id="zonesScript_{{ session_zone.id }}">
+  var totalHoursTrainedGraph = createHorizontalBarChart({canvasId: 'zone_bars_{{ session_zone.id }}', all_data: {{ session_zone.zones_data }} });
+  </script>
 {% endfor %}
+
 {% endautoescape %}
+
+{% endblock content %}
+
+{% block scripts %}
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -84,4 +89,4 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
-{% endblock content %}
+{% endblock scripts %}
