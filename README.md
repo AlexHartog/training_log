@@ -3,11 +3,26 @@
 [![Django CI](https://github.com/AlexHartog/training_log/actions/workflows/django.yml/badge.svg)](https://github.com/AlexHartog/training_log/actions/workflows/django.yml)
 [![Docker Compose Build](https://github.com/AlexHartog/training_log/actions/workflows/docker.yml/badge.svg)](https://github.com/AlexHartog/training_log/actions/workflows/docker.yml)
 
+
 ## Installation
+
+
+#### Database
+
+A database needs to be set up. A user needs to be created for the django project and giving permissions to create 
+tables and do crud operations. 
 
 #### Configuration
 
 Create a .env file in the root directory.
+
+The STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET can be set up through the strava website. Profile -> Settings -> My 
+API Application.
+
+The SECRET_KEY needs to be configured with any value. Recommended would be to use django to generate this. This can 
+be done with the following command.
+
+`python .\training_log\manage.py shell -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
 
 This needs the following config:
 
@@ -29,13 +44,38 @@ STRAVA_SYNC_COUNT=
 NGINX_PORT=
 DJANGO_DEBUG=
 DJANGO_LOG_LEVEL=
+HOST_OVERRIDE=
+REDIS_HOST=
 ~~~
 
 
 #### Docker Compose
 
-The app can be started by running `docker-compose up`.
+The app can be started by running 
 
+`docker-compose build` 
+
+and subsequently
+
+`docker-compose up -d`
+
+Now the website can be accessed at *ip_address*:*nginx_port*
+
+
+
+Afterwards logs can be read using 
+
+`docker-compose logs` (add --follow for live logs)
+
+
+
+#### Users
+
+The super user can be created using 
+
+`python .\training_log\manage.py createsuperuser`
+
+Other users can be registered through the website. After registering a user, via 
 
 
 #### Migrating in docker compose
