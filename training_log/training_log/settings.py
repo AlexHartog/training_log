@@ -42,11 +42,7 @@ required_env_vars = [
 ]
 
 if not test_mode:
-    missing_env_vars = []
-
-    for var in required_env_vars:
-        if var not in os.environ:
-            missing_env_vars.append(var)
+    missing_env_vars = [var for var in required_env_vars if var not in os.environ]
 
     if missing_env_vars:
         raise EnvironmentError(
@@ -54,15 +50,13 @@ if not test_mode:
             f"{', '.join(missing_env_vars)}"
         )
 
+# Default key supplied for running tests
 SECRET_KEY = os.getenv("SECRET_KEY", "UNSAFE_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", False)
 
-# TODO: Make this more proper?
-ALLOWED_HOSTS = [
-    "*",
-]
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "ironman-training.nl").split(",")
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -71,12 +65,12 @@ INTERNAL_IPS = [
 CSRF_TRUSTED_ORIGINS = [
     # Prod Server
     "https://www.ironman-training.nl",
-    # Localhost
-    "http://127.0.0.1:{port}".format(port=os.getenv("NGINX_PORT", 80)),
-    # Development server
-    "http://192.168.1.102:{port}".format(port=os.getenv("NGINX_PORT", 80)),
 ]
 
+if os.getenv("CSRF_TRUSTED_ORIGINS"):
+    CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS + os.getenv(
+        "CSRF_TRUSTED_ORIGINS"
+    ).split(",")
 
 # Application definition
 

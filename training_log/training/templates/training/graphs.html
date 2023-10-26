@@ -9,7 +9,10 @@
   <canvas id="weeklyHoursTrainedGraph" class="graph"></canvas>
 </div>
 
-<!-- Move this to header?-->
+{% endblock content %}
+
+{% block scripts %}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.js"></script>
@@ -29,6 +32,9 @@ var totalHoursTrainedGraph = createChart({canvasId: 'totalHoursTrainedGraph', al
 var weeklyHoursTrainedGraph = createChart({canvasId: 'weeklyHoursTrainedGraph', all_data: {{ graph_data.weekly_hours_trained }},
   settings: {{ settings.weekly_hours_trained }}});
 </script>
+
 {% endautoescape %}
 
-{% endblock content %}
+
+
+{% endblock scripts %}

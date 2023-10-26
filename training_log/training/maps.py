@@ -1,4 +1,5 @@
 import datetime
+import itertools
 import logging
 import os
 
@@ -65,6 +66,18 @@ class TrainingMap:
             gdf.to_file(filename=GDF_OUTPUT_PATH, driver="GPKG")
         return gdf
 
+    @property
+    def color_map(self):
+        """Create a color map based on the users that have visited."""
+        colors = ["red", "blue", "green", "yellow", "orange", "teal"]
+        color_cycle = itertools.cycle(colors)
+
+        color_map = {}
+        for user in self.usernames:
+            color_map[user.lower()] = next(color_cycle)
+
+        return color_map
+
     def style_visited_map(self, feature):
         """Style regions based on the users that have visited."""
         fill_opacity = 0.2
@@ -72,19 +85,12 @@ class TrainingMap:
 
         visits = feature["properties"]["visits"]
 
-        color_map = {
-            self.usernames[0].lower(): "red",
-            self.usernames[1].lower(): "blue",
-        }
-
         if visits:
-            if len(self.usernames) == 2:
-                if len(visits) == 2:
-                    fill_opacity = 0.5
-                    fill_color = "purple"
-                else:
-                    fill_opacity = 0.5
-                    fill_color = color_map.get(visits[0].lower())
+            fill_opacity = 0.5
+            if len(visits) >= 2:
+                fill_color = "brown"
+            else:
+                fill_color = self.color_map.get(visits[0].lower())
 
         return {
             "color": "gray",

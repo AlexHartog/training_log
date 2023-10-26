@@ -36,6 +36,11 @@
   {% endfor %}
 </table>
 
+{% endblock content %}
+
+
+{% block scripts %}
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     var rows = document.querySelectorAll(".clickablerow");
@@ -47,4 +52,4 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
-{% endblock content %}
+{% endblock scripts %}

@@ -2,9 +2,8 @@
 
 {% block title %}Get strava data{% endblock title %}
 
-
 {% block content %}
-{% autoescape off %}
+
 <h1>Strava activities</h1>
 {% if imported_sessions %}
     <p>Imported {{ imported_sessions|length }} sessions</p>
@@ -22,9 +21,6 @@
     <p>No sessions imported</p>
 {% endif %}
 
-
-
-{% endautoescape %}
 
 {% endblock content %}
 

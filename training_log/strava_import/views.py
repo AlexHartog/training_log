@@ -9,15 +9,10 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
 from training.models import TrainingSession
 
-from . import (
-    strava,
-    strava_authentication,
-    strava_start_time_sync,
-    strava_subscription_manager,
-)
+from . import (strava, strava_authentication, strava_start_time_sync,
+               strava_subscription_manager)
 from .models import StravaAuth, StravaSubscription
 
 logger = logging.getLogger(__name__)
@@ -95,10 +90,16 @@ def save_strava_auth(request):
     if request.method == "GET" and "code" in request.GET:
         strava_authentication.save_auth(request)
         return redirect("strava-data")
+    elif request.method == "GET" and "error" in request.GET:
+        if request.GET["error"] == "access_denied":
+            logger.warning("User denied access")
+            return redirect("strava-auth")
+    else:
+        return Http404("Not found")
 
 
 @login_required(login_url=reverse_lazy("login"))
-def get_strava_data(request, user=None):
+def get_strava_data(request):
     if request.method == "GET" and "code" in request.GET:
         strava_authentication.save_auth(request)
         return redirect(request.path)
@@ -126,11 +127,9 @@ def subscribe_strava(request, subscribe: int):
     return redirect("strava-admin")
 
 
-@csrf_exempt
 def activity_feed(request):
     """Handle activity feed. This can either be POST for validating the request or
     GET for a data event."""
-    # TODO: Is there a better solution than to make this CSRF exempt?
     if request.method == "GET":
         verify_token = request.GET.get("hub.verify_token")
         strava_subscription = StravaSubscription.objects.first()

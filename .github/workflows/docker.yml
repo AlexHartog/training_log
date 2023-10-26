@@ -1,0 +1,64 @@
+name: Docker Compose Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Create .env file
+      run: |
+        echo "DB_ENGINE=django.db.backends.postgresql" >> .env
+        echo "DB_SCHEMA=public" >> .env
+        echo "DB_NAME=testdb" >> .env
+        echo "DB_USER=postgres" >> .env
+        echo "DB_PASSWORD=postgres" >> .env
+        echo "DB_HOST=localhost" >> .env
+        echo "DB_PORT=5432" >> .env
+        echo "STRAVA_CLIENT_ID=123" >> .env
+        echo "STRAVA_CLIENT_SECRET=test" >> .env
+        echo "SECRET_KEY=test" >> .env
+
+    - name: Build and up Docker Compose
+      run: |
+        docker-compose build
+        docker-compose up -d
+
+    - name: Check for errors in logs
+      run: |
+        if docker-compose logs | grep -i 'error'; then
+          echo "Found errors in logs"
+          exit 1
+        else
+          echo "No errors found in logs"
+        fi
+
+    - name: Shutdown services
+      run: docker-compose down

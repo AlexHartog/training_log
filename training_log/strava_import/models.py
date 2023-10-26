@@ -22,7 +22,7 @@ class StravaAuth(models.Model):
 
     def needs_authorization(self):
         """Return true if the user needs to authorize."""
-        return not self.access_token
+        return not self.access_token or not self.has_valid_scope()
 
     def is_access_token_expired(self):
         """Return true if the access token is expired."""
@@ -30,7 +30,11 @@ class StravaAuth(models.Model):
 
     def has_valid_access_token(self):
         """Return true if the access token is valid."""
-        return self.access_token and not self.is_access_token_expired()
+        return (
+            self.access_token
+            and not self.is_access_token_expired()
+            and self.has_valid_scope()
+        )
 
     def update_token(self, token_response: StravaTokenResponse):
         """Update the token with the response from strava."""
@@ -48,6 +52,8 @@ class StravaAuth(models.Model):
             return "Needs authorization"
         elif self.has_valid_access_token():
             return "Valid"
+        elif not self.has_valid_scope():
+            return "Invalid scope"
         else:
             return "Expired"
 

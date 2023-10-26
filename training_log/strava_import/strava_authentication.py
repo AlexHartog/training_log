@@ -22,7 +22,7 @@ AUTHORIZATION_URL = (
     "https://www.strava.com/oauth/"
     "authorize?client_id={client_id}&"
     "redirect_uri={redirect_uri}&response_type=code"
-    "&scope=activity:read_all"
+    "&scope=activity:read"
 )
 
 
@@ -113,7 +113,6 @@ def refresh_token_if_expired(strava_auth: StravaAuth):
 
 def _get_token_payload(strava_auth: StravaAuth, refresh=False):
     """Creates the payload for a token request. Either initial or refresh."""
-    # TODO: Raise error if no client id or secret is set
     if not os.getenv("STRAVA_CLIENT_ID") or not os.getenv("STRAVA_CLIENT_SECRET"):
         return
 
@@ -139,9 +138,6 @@ def _access_token_update(strava_auth: StravaAuth, refresh=False):
 
     response = requests.post(ACCESS_TOKEN_URL, data=payload)
 
-    logger.debug(f"Access Token Response: {response.json()}")
-
-    # TODO: Deal with invalid client secret (weird reponse from strava)
     if response.status_code != 200:
         logger.error(f"Token request failed {response.status_code}.")
         logger.error(f'Errors: {response.content.decode("utf-8")}')
@@ -171,10 +167,6 @@ def save_auth(request):
 
     code = request.GET["code"]
     scope = request.GET["scope"].split(",") if "scope" in request.GET else []
-
-    # access_token = get_access_token(code)
-    # TODO: Check if scope is alright, need read_all
-    # TODO: Handle denied
 
     strava_auth = StravaAuth.objects.create(
         user=request.user,
