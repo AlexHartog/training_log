@@ -6,14 +6,17 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from dotenv import dotenv_values
 from training import maps
-from training.models import (MunicipalityVisits, SessionZones, TrainingSession,
-                             Zone)
+from training.models import MunicipalityVisits, SessionZones, TrainingSession, Zone
 
 from . import strava_authentication
-from .models import (StravaActivityImport, StravaAuth, StravaRateLimit,
-                     StravaTypeMapping, StravaUser)
-from .schemas import (StravaAthleteData, StravaSession, StravaSessionZones,
-                      StravaZone)
+from .models import (
+    StravaActivityImport,
+    StravaAuth,
+    StravaRateLimit,
+    StravaTypeMapping,
+    StravaUser,
+)
+from .schemas import StravaAthleteData, StravaSession, StravaSessionZones, StravaZone
 
 logger = logging.getLogger(__name__)
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
@@ -154,7 +157,6 @@ def save_activity_json(activity: dict, user: User, strava_id: int, data_type: st
 
 
 def import_training_session(strava_session: StravaSession, user: User):
-    # TODO: Should we move this to not query the database for every activity?
     if TrainingSession.objects.filter(strava_id=strava_session.strava_id).exists():
         logger.info(
             f"Activity with id {strava_session.strava_id} already imported from strava"
@@ -173,8 +175,6 @@ def import_training_session(strava_session: StravaSession, user: User):
 
     logger.info(f"Imported session from strava with name {strava_session.name}")
     return training_session
-
-    # TODO: Add logic to suplement activity data with strava data
 
 
 def import_session_zones(strava_id: int, user: User):
