@@ -50,15 +50,12 @@
         hx-trigger="click"
         hx-target="#training-map"
         hx-include="#map_form"
-        hx-indicator="#spinner"
         style="margin-top: 10px"
     >
         Load Map
     </button>
 </form>
 
-{% load static %}
-<img id="spinner" class="loading-indicator" src="{% static 'img/bars.svg' %}"/>
 
 <div style="margin-top: 20px" id="training-map">
 </div>
