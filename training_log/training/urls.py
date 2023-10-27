@@ -15,4 +15,7 @@ urlpatterns = [
     path("graphs", views.graphs, name="graphs"),
     path("training_map", views.training_map, name="training-map"),
     path("load_map", views.load_map, name="load-map"),
+    path(
+        "check_map_ready/<str:task_id>", views.check_map_ready, name="check-map-ready"
+    ),
 ]

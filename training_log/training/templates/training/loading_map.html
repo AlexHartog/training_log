@@ -1,0 +1,34 @@
+
+{% load static %}
+<div id="loading_status">
+    <div>Loading map. This will take about 20 seconds.</div>
+    <div>
+        <img
+            id="spinner"
+            src="{% static 'img/bars.svg' %}"
+        />
+    </div>
+</div>
+
+<div
+    id="status-div"
+    hx-get="/check_map_ready/{{ task_id }}"
+    hx-trigger="every 3s"
+>
+
+</div>
+
+<style>
+  .htmx-request > #spinner {
+    display: inline;
+  }
+</style>
+
+<script>
+  document.addEventListener('htmx:afterOnLoad', function(event) {
+    if (event.detail.xhr.status === 286) {
+      // Hide the spinner
+      document.getElementById('loading_status').style.display = 'none';
+    }
+  });
+</script>

@@ -5,15 +5,17 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
+from huey.contrib.djhuey import HUEY
 from strava_import.models import StravaUser
+from training import tasks
 
-from . import maps, stats
+from . import stats
 from .forms import SessionForm
 from .graphs import GraphsData
 from .models import MunicipalityVisits, SessionZones, TrainingSession
@@ -118,6 +120,7 @@ def all_stats_total(request):
 
 def all_stats(request, period):
     """Show stats for all users."""
+    logger.info("Loading all stats")
     try:
         period_enum = stats.StatsPeriod.get_enum_from_string(period)
     except ValueError:
@@ -174,20 +177,19 @@ def training_map(request):
 
 
 def load_map(request):
-    """Load the actual training map based on selected values."""
+    """Start the training map loading task."""
     selected_users = request.POST.getlist("user_id")
     disciplines = request.POST.getlist("discipline")
     start_date = request.POST.get("start_date")
     end_date = request.POST.get("end_date")
 
-    training_map = maps.TrainingMap()
+    task = tasks.load_map(selected_users, disciplines, start_date, end_date)
+
     context = {
-        "map": training_map.create_training_map(
-            selected_users, disciplines, start_date, end_date
-        )
+        "task_id": task.id,
     }
-    logger.info("Rendering")
-    return render(request, "training/folium_map.html", context)
+
+    return render(request, "training/loading_map.html", context)
 
 
 def delete_session(request):
@@ -228,3 +230,18 @@ def exclude_session(request):
         raise Http404("The session that was being excluded does not exist")
 
     return redirect("session-detail", pk=session_id)
+
+
+def check_map_ready(request, task_id):
+    """Check if the training map is ready."""
+    try:
+        result = HUEY.result(task_id)
+    except Exception as _:
+        return HttpResponse("Something went wrong while loading map.", status=286)
+
+    if result is None:
+        return HttpResponse("")
+
+    context = {"map": result}
+
+    return render(request, "training/folium_map.html", context, status=286)

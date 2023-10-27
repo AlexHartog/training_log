@@ -6,17 +6,14 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from dotenv import dotenv_values
 from training import maps
-from training.models import MunicipalityVisits, SessionZones, TrainingSession, Zone
+from training.models import (MunicipalityVisits, SessionZones, TrainingSession,
+                             Zone)
 
 from . import strava_authentication
-from .models import (
-    StravaActivityImport,
-    StravaAuth,
-    StravaRateLimit,
-    StravaTypeMapping,
-    StravaUser,
-)
-from .schemas import StravaAthleteData, StravaSession, StravaSessionZones, StravaZone
+from .models import (StravaActivityImport, StravaAuth, StravaRateLimit,
+                     StravaTypeMapping, StravaUser)
+from .schemas import (StravaAthleteData, StravaSession, StravaSessionZones,
+                      StravaZone)
 
 logger = logging.getLogger(__name__)
 config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
