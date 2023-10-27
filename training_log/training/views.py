@@ -4,7 +4,6 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render
@@ -28,6 +27,8 @@ def index(request):
 
 
 class Register(CreateView):
+    """View to register a new user."""
+
     template_name = "registration/register.html"
     form_class = UserCreationForm
     success_url = reverse_lazy("register-success")
@@ -37,8 +38,9 @@ class Register(CreateView):
         return HttpResponseRedirect(self.success_url)
 
 
-class SessionList(LoginRequiredMixin, ListView):
-    login_url = reverse_lazy("login")
+class SessionList(ListView):
+    """A view to show all sessions by a particular user."""
+
     context_object_name = "all_sessions"
 
     def get_queryset(self):
@@ -69,8 +71,9 @@ class SessionList(LoginRequiredMixin, ListView):
         return context
 
 
-class SessionView(LoginRequiredMixin, DetailView):
-    login_url = reverse_lazy("login")
+class SessionView(DetailView):
+    """View to show a single training session."""
+
     context_object_name = "session"
     model = TrainingSession
 
@@ -84,6 +87,7 @@ class SessionView(LoginRequiredMixin, DetailView):
 
 @login_required(login_url=reverse_lazy("login"))
 def new_session(request):
+    """View to create a new training session."""
     submitted = False
     if request.method == "POST":
         form = SessionForm(request.POST)
