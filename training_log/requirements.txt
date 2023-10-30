@@ -22,3 +22,4 @@ mock
 geopandas
 folium
 polyline
+webcolors

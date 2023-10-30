@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 import mock
@@ -16,19 +17,21 @@ class TrainingStatsTest(TestCase):
         self.test_data = StatsTestData(date=self.datetime_to_test)
         self.test_data.load_graph_data()
 
-        with mock.patch('training.graphs.datetime') as mock_datetime:
+        with mock.patch("training.graphs.datetime") as mock_datetime:
             mock_datetime.today.return_value = self.datetime_to_test
             self.graph_data = GraphsData()
 
     def get_x_values(self, graph_name):
-        return self.graph_data.data[graph_name][self.test_data.test_user.capitalize()][
-            "x_values"
-        ]
+        data = json.loads(
+            self.graph_data.data[graph_name][self.test_data.test_user.capitalize()]
+        )
+        return data["x_values"]
 
     def get_values(self, graph_name):
-        return self.graph_data.data[graph_name][self.test_data.test_user.capitalize()][
-            "y_values"
-        ]
+        data = json.loads(
+            self.graph_data.data[graph_name][self.test_data.test_user.capitalize()]
+        )
+        return data["y_values"]
 
     def test_x_axis_total_hours_trained(self):
         """Test if total time trained is calculated correctly."""
@@ -51,14 +54,16 @@ class TrainingStatsTest(TestCase):
     def test_x_axis_weekly_hours_trained(self):
         x_values_test_user = self.get_x_values("weekly_hours_trained")
 
-        expected_week_numbers = sorted(list(
-            set(
-                date.isocalendar()[1]
-                for date in rrule(
-                    DAILY, dtstart=DEFAULT_START_DATE, until=self.datetime_to_test
+        expected_week_numbers = sorted(
+            list(
+                set(
+                    date.isocalendar()[1]
+                    for date in rrule(
+                        DAILY, dtstart=DEFAULT_START_DATE, until=self.datetime_to_test
+                    )
                 )
             )
-        ))
+        )
 
         self.assertEquals(x_values_test_user, expected_week_numbers)
 

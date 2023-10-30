@@ -1,8 +1,13 @@
 function createChart({canvasId, all_data, settings}) {
     dataSets = []
 
-    for (const [key, value] of Object.entries(all_data)) {
-        dataSets.push({label: key, data: value.y_values})
+    for (const [key, json_data] of Object.entries(all_data)) {
+        value = JSON.parse(json_data)
+        if(value.color == null) {
+            dataSets.push({label: key, data: value.y_values})
+        } else {
+            dataSets.push({label: key, data: value.y_values, borderColor: value.color, backgroundColor: value.color})
+        }
         labels = value.x_values
     }
 
