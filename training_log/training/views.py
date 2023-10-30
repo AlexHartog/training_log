@@ -239,7 +239,7 @@ def check_map_ready(request, task_id):
     except Exception as _:
         return HttpResponse("Something went wrong while loading map.", status=286)
 
-    context = {"task_id": task_id}
+    context = {"task_id": task_id, "reload_delay": 2}
     if result is not None:
         context["map"] = result
 
