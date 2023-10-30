@@ -6,7 +6,7 @@ function createChart({canvasId, all_data, settings}) {
         if(value.color == null) {
             dataSets.push({label: key, data: value.y_values})
         } else {
-            dataSets.push({label: key, data: value.y_values, backgroundColor: value.color})
+            dataSets.push({label: key, data: value.y_values, borderColor: value.color, backgroundColor: value.color})
         }
         labels = value.x_values
     }
