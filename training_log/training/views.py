@@ -239,9 +239,8 @@ def check_map_ready(request, task_id):
     except Exception as _:
         return HttpResponse("Something went wrong while loading map.", status=286)
 
-    if result is None:
-        return HttpResponse("")
+    context = {"task_id": task_id, "reload_delay": 2}
+    if result is not None:
+        context["map"] = result
 
-    context = {"map": result}
-
-    return render(request, "training/folium_map.html", context, status=286)
+    return render(request, "training/folium_map.html", context)
