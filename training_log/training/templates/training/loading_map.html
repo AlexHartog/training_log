@@ -10,25 +10,10 @@
     </div>
 </div>
 
-<div
-    id="status-div"
-    hx-get="/check_map_ready/{{ task_id }}"
-    hx-trigger="every 3s"
->
-
-</div>
+{% include 'training/folium_map.html' %}
 
 <style>
   .htmx-request > #spinner {
     display: inline;
   }
 </style>
-
-<script>
-  document.addEventListener('htmx:afterOnLoad', function(event) {
-    if (event.detail.xhr.status === 286) {
-      // Hide the spinner
-      document.getElementById('loading_status').style.display = 'none';
-    }
-  });
-</script>

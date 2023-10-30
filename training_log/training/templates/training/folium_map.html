@@ -1,4 +1,25 @@
-<div id="map-id">
-    {{ map | safe }}
+<div id="reload">
+    {% if map %}
+
+        <div id="map-id">
+            {{ map | safe }}
+        </div>
+
+        <script>
+          document.getElementById('loading_status').style.display = 'none';
+        </script>
+
+    {% else %}
+
+        <div
+            id="loading-div"
+            hx-get="/check_map_ready/{{ task_id }}"
+            hx-trigger="load delay:3s"
+            hx-target="#reload"
+        >
+
+        </div>
+
+    {% endif %}
 </div>
 
