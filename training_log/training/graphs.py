@@ -1,10 +1,10 @@
 import csv
 import json
 import logging
-import webcolors
 from datetime import datetime
 
 import pandas as pd
+import webcolors
 from django.contrib.auth.models import User
 from django.db.models import F, Q
 from training.models import TrainingSession
@@ -222,9 +222,8 @@ class GraphsData:
         )
 
         if discipline:
-            _, current_weeknumber, _ = datetime.now().isocalendar()
             trained_data = trained_data.loc[
-                trained_data["week"] >= current_weeknumber - 12
+                trained_data["week"] >= datetime.today().isocalendar().week - 12
             ]
 
         values = trained_data["moving_duration"].to_list()
