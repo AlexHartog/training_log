@@ -2,7 +2,7 @@ import csv
 import json
 import logging
 import webcolors
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pandas as pd
 from django.contrib.auth.models import User
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_START_DATE = datetime(2023, 5, 1)
 DISCIPLINE_COLORS = {
     "Running": "green",
-    "Cycling": "blue",
+    "Cycling": "DodgerBlue",
     "Swimming": "orange",
 }
 
@@ -159,7 +159,6 @@ class GraphsData:
 
                 dates, values = self.get_total_data(user, discipline)
 
-                logger.info(f"Adding graph data")
                 self.add_graph_data(
                     graph_name,
                     dates,
@@ -171,7 +170,8 @@ class GraphsData:
 
         self.settings[graph_name] = {
             "y_label": "Hours trained",
-            "title": f"Total hours trained {'per discipline ' if disciplines is not None else ''}",
+            "title": f"Total hours trained "
+            f"{'per discipline ' if disciplines is not None else ''}",
         }
 
     @staticmethod
@@ -264,7 +264,8 @@ class GraphsData:
 
         self.settings[graph_name] = {
             "y_label": "Hours trained",
-            "title": f"Weekly hours trained { 'per discipline' if disciplines is not None else ''}",
+            "title": f"Weekly hours trained "
+            f"{ 'per discipline' if disciplines is not None else ''}",
             "chart_type": "bar",
             "x_type": "category",
             "x_label": "Week Number",
