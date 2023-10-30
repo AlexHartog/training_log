@@ -7,6 +7,7 @@
 <div class="graphDiv">
   <canvas id="totalHoursTrainedGraph" class="graph"></canvas>
   <canvas id="weeklyHoursTrainedGraph" class="graph"></canvas>
+  <canvas id="weeklyHoursTrainedDisciplinesGraph" class="graph"></canvas>
 </div>
 
 {% endblock content %}
@@ -31,6 +32,11 @@ var totalHoursTrainedGraph = createChart({canvasId: 'totalHoursTrainedGraph', al
 <script id="weeklyHoursTrainedScript">
 var weeklyHoursTrainedGraph = createChart({canvasId: 'weeklyHoursTrainedGraph', all_data: {{ graph_data.weekly_hours_trained }},
   settings: {{ settings.weekly_hours_trained }}});
+</script>
+
+<script id="weeklyHoursTrainedDisciplinesScript">
+var weeklyHoursTrainedGraph = createChart({canvasId: 'weeklyHoursTrainedDisciplinesGraph', all_data: {{ graph_data.weekly_hours_trained_disciplines }},
+  settings: {{ settings.weekly_hours_trained_disciplines }}});
 </script>
 
 {% endautoescape %}

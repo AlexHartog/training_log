@@ -1,4 +1,5 @@
 import csv
+import json
 from datetime import datetime
 
 import pandas as pd
@@ -29,8 +30,10 @@ class GraphsData:
 
     def load_graph_data(self):
         """Load all graph data."""
+        disciplines = self.training_sessions["discipline_name"].unique()
         self.get_total_trained_data()
         self.get_weekly_hours_data()
+        self.get_weekly_hours_data(disciplines=disciplines)
 
     def get_training_sessions(self):
         """Get the training sessions ot be used in the stats."""
@@ -38,7 +41,7 @@ class GraphsData:
 
         django_training_sessions = TrainingSession.objects.filter(
             filter_condition
-        ).values(user_name=F("user__username"))
+        ).values(user_name=F("user__username"), discipline_name=F("discipline__name"))
 
         self.training_sessions = pd.DataFrame.from_records(
             django_training_sessions.values()
@@ -63,16 +66,24 @@ class GraphsData:
             self.training_sessions["date"].dt.isocalendar().week
         )
 
-    def get_user_data(self, username):
-        return self.training_sessions.loc[
+    def get_user_data(self, username, discipline=None):
+        user_data = self.training_sessions.loc[
             self.training_sessions["user_name"] == username
         ]
 
-    def add_graph_data(self, graph_name, dates, values, label):
-        self.data.setdefault(graph_name, {})[label] = {
-            "x_values": dates,
-            "y_values": values,
-        }
+        if discipline:
+            user_data = user_data.loc[user_data["discipline_name"] == discipline]
+
+        return user_data
+
+    def add_graph_data(self, graph_name, dates, values, label, color=None):
+        self.data.setdefault(graph_name, {})[label] = json.dumps(
+            {
+                "x_values": dates,
+                "y_values": values,
+                "color": color,
+            }
+        )
 
     def get_week_numbers(self):
         self.week_numbers = pd.DataFrame(
@@ -116,9 +127,20 @@ class GraphsData:
                 "title": "Total hours trained",
             }
 
-    def get_weekly_hours_data(self):
+    @staticmethod
+    def adjust_color(hex_color, adjustment_factor):
+        hex_color = hex_color.lstrip("#")
+        rgb = [int(hex_color[i : i + 2], 16) for i in (0, 2, 4)]
+
+        for i in range(3):
+            rgb[i] = round(rgb[i] * adjustment_factor)
+            rgb[i] = max(0, min(255, rgb[i]))
+
+        new_hex_color = "#%02x%02x%02x" % (rgb[0], rgb[1], rgb[2])
+        return new_hex_color
+
+    def get_weekly_hours_data(self, disciplines=[None]):
         """Get weekly hours trained per user."""
-        graph_name = "weekly_hours_trained"
 
         total_trained_data = self.training_sessions.fillna(0)
         total_trained_data["moving_duration"] = (
@@ -129,33 +151,56 @@ class GraphsData:
             total_trained_data["date"].dt.isocalendar().week
         )
 
-        for user in self.users:
-            trained_data = (
-                self.get_user_data(user.username)
-                .groupby("week_number")
-                .moving_duration.sum()
-            )
-
-            trained_data = (
-                trained_data.reset_index()
-                .merge(
-                    self.week_numbers,
-                    how="right",
-                    left_on="week_number",
-                    right_on="week",
+        discipline_colors = ["#007BFF", "#28A745", "#DC3545"]
+        for discipline in disciplines:
+            discipline_color = discipline_colors.pop()
+            user_count = 0
+            for user in self.users:
+                if user.username == "testuser" or user.username == "Peter":
+                    continue
+                trained_data = (
+                    self.get_user_data(user.username, discipline=discipline)
+                    .groupby(["week_number"])
+                    .moving_duration.sum()
                 )
-                .fillna(0)
-            )
 
-            values = trained_data["moving_duration"].to_list()
-            dates = trained_data["week"].to_list()
+                trained_data = (
+                    trained_data.reset_index()
+                    .merge(
+                        self.week_numbers,
+                        how="right",
+                        left_on="week_number",
+                        right_on="week",
+                    )
+                    .fillna(0)
+                )
 
-            self.add_graph_data(graph_name, dates, values, user.username.capitalize())
+                values = trained_data["moving_duration"].to_list()
+                dates = trained_data["week"].to_list()
 
-            self.settings[graph_name] = {
-                "y_label": "Hours trained",
-                "title": "Weekly hours trained",
-                "chart_type": "bar",
-                "x_type": "category",
-                "x_label": "Week Number",
-            }
+                if discipline:
+                    graph_name = "weekly_hours_trained_disciplines"
+                    graph_color = self.adjust_color(discipline_color, 0.8 + user_count)
+                    graph_label = f"{user.username.capitalize()} - {discipline}"
+                else:
+                    graph_name = "weekly_hours_trained"
+                    graph_label = f"{user.username.capitalize()}"
+                    graph_color = None
+
+                self.add_graph_data(
+                    graph_name,
+                    dates,
+                    values,
+                    graph_label,
+                    color=graph_color,
+                )
+
+                user_count += 1
+
+        self.settings[graph_name] = {
+            "y_label": "Hours trained",
+            "title": "Weekly hours trained",
+            "chart_type": "bar",
+            "x_type": "category",
+            "x_label": "Week Number",
+        }
