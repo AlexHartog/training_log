@@ -204,7 +204,6 @@ class GraphsData:
 
     def get_weekly_data(self, user, discipline=None):
         """Get data totals per week."""
-        # TODO: How to manage different years, include year to weeknumber
         trained_data = (
             self.get_user_data(user.username, discipline=discipline)
             .groupby(["week_number"])
