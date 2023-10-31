@@ -36,5 +36,4 @@ jobs:
         ruff --output-format=github .
     - name: Run Tests
       run: |
-        python training_log/manage.py collectstatic --noinput
         python training_log/manage.py test training_log
