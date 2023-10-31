@@ -205,6 +205,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+if not test_mode:
+    STATICFILES_STORAGE = (
+        "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+    )
+
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "training_log/static", BASE_DIR / "training/static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
