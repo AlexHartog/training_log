@@ -1,4 +1,7 @@
 function createChart({canvasId, all_data, settings}) {
+    const isMobile = window.innerWidth <= 768;
+    const displayFormat = isMobile ? 'MMM yy' : 'MMM yyyy';
+
     dataSets = []
 
     for (const [key, json_data] of Object.entries(all_data)) {
@@ -62,7 +65,7 @@ function createChart({canvasId, all_data, settings}) {
                     time: {
                         parser: 'yyyy-MM-dd\'T\'HH:mm:ss',
                         displayFormats: {
-                            day: 'dd-MM-yyyy'
+                            month: displayFormat
                         }
                     },
                     title: {
