@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     services:
@@ -30,10 +30,26 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r training_log/requirements.txt
+
+    - name: Run Tests
+      run: |
+        python training_log/manage.py test training_log
+
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
     - name: Run Ruff Linting
       run: |
         pip install ruff
         ruff --output-format=github .
-    - name: Run Tests
+    - name: Check imports with isort
       run: |
-        python training_log/manage.py test training_log
+        pip install isort
+        isort . --check-only --diff        
+

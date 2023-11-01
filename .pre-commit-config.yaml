@@ -1,0 +1,18 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: ruff-check
+        name: Ruff check
+        entry: ruff
+        args: ['.']
+        language: system
+        pass_filenames: true
+        files: \.py$
+
+    -   id: isort
+        name: isort
+        entry: isort
+        args: ['.']
+        language: system
+        pass_filenames: true
+        files: \.py$
