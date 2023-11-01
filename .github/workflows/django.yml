@@ -45,12 +45,10 @@ jobs:
         python-version: '3.11'
         cache: 'pip'
     - name: Run Ruff Linting
-      continue-on-error: true
       run: |
         pip install ruff
         ruff --output-format=github .
     - name: Check imports with isort
-      continue-on-error: true
       run: |
         pip install isort
         isort . --check-only --diff        
