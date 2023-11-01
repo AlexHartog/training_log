@@ -3,8 +3,16 @@ repos:
     hooks:
     -   id: ruff-check
         name: Ruff check
-        entry: ruff # Replace with actual Ruff command
-        args: ['.'] # Replace with actual Ruff arguments
+        entry: ruff
+        args: ['.']
         language: system
-        pass_filenames: true  # or false if Ruff doesn't need filenames
+        pass_filenames: true
+        files: \.py$
+
+    -   id: isort
+        name: isort
+        entry: isort
+        args: ['.']
+        language: system
+        pass_filenames: true
         files: \.py$
