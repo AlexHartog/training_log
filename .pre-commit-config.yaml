@@ -1,0 +1,10 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: ruff-check
+        name: Ruff check
+        entry: ruff # Replace with actual Ruff command
+        args: ['.'] # Replace with actual Ruff arguments
+        language: system
+        pass_filenames: true  # or false if Ruff doesn't need filenames
+        files: \.py$
