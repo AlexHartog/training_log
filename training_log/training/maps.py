@@ -1,6 +1,7 @@
 import datetime
 import itertools
 import logging
+import os
 
 import folium
 import geopandas as gpd
@@ -11,7 +12,6 @@ from shapely.geometry import Point
 
 from .models import MunicipalityVisits
 from .stats import DEFAULT_START_DATE
-import os
 
 logger = logging.getLogger(__name__)
 
