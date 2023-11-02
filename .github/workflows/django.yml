@@ -35,6 +35,11 @@ jobs:
       run: |
         python training_log/manage.py test training_log
 
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
   code-quality:
     runs-on: ubuntu-latest
     steps:
