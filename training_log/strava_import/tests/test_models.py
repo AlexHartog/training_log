@@ -9,7 +9,7 @@ from strava_import.schemas import StravaAthleteData, StravaTokenResponse
 from training.models import Discipline
 
 
-class StravaAuthTest(TestCase):
+class StravaAuthModelTest(TestCase):
     expired_datetime = datetime.now() - timedelta(hours=1)
     not_expired_datetime = datetime.now() + timedelta(hours=1)
 
@@ -172,7 +172,7 @@ class StravaRateLimitsTest(TestCase):
     def test_remaining_limits_hour_old(self):
         """Test remaining limits if short should be reset already."""
         one_hour_ago = timezone.now() - timedelta(hours=1)
-        with mock.patch('django.utils.timezone.now', return_value=one_hour_ago):
+        with mock.patch("django.utils.timezone.now", return_value=one_hour_ago):
             strava_rate_limit = self.create_strava_rate_limits()
 
         self.assertEqual(strava_rate_limit.remaining_daily_limit, 1800)
@@ -181,7 +181,7 @@ class StravaRateLimitsTest(TestCase):
     def test_remaining_limits_day_old(self):
         """Test remaining limits if both limits should have been reset already."""
         one_day_ago = timezone.now() - timedelta(days=1)
-        with mock.patch('django.utils.timezone.now', return_value=one_day_ago):
+        with mock.patch("django.utils.timezone.now", return_value=one_day_ago):
             strava_rate_limit = self.create_strava_rate_limits()
 
         self.assertEqual(strava_rate_limit.remaining_daily_limit, 2000)
