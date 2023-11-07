@@ -106,7 +106,7 @@ def refresh_token_if_expired(strava_auth: StravaAuth):
     """Checks if the access token for a user is expired and refreshes it if it is."""
     if strava_auth.is_access_token_expired():
         logger.info(
-            "Access token expired for ", strava_auth.user.username, ". Refreshing token"
+            f"Access token expired for {strava_auth.user.username}. Refreshing token"
         )
         refresh_token(strava_auth)
 
