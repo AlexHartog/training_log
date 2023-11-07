@@ -53,6 +53,7 @@ class StravaAuthenticationTest(TestCase):
         )
 
     def mock_successful_refresh_response(self):
+        """Create a mock response for a successful token refresh."""
         mock_response = {
             "token_type": "Bearer",
             "access_token": self.refreshed_access_token,
@@ -64,6 +65,24 @@ class StravaAuthenticationTest(TestCase):
         refresh_url = strava_authentication.ACCESS_TOKEN_URL
 
         responses.add(responses.POST, refresh_url, json=mock_response, status=200)
+
+    @staticmethod
+    def mock_rejected_refresh_response():
+        """Create a mock response for a bad token refresh."""
+        mock_response = {
+            "message": "Bad Request",
+            "errors": [
+                {
+                    "resource": "RefreshToken",
+                    "field": "refresh_token",
+                    "code": "invalid",
+                }
+            ],
+        }
+
+        refresh_url = strava_authentication.ACCESS_TOKEN_URL
+
+        responses.add(responses.POST, refresh_url, json=mock_response, status=400)
 
     def test_strava_user_not_authenticated(self):
         """We should get NOT_AUTHENTICATED when user has no Strava Auth."""
@@ -132,6 +151,7 @@ class StravaAuthenticationTest(TestCase):
 
     @responses.activate
     def test_refresh_token_if_not_expired(self):
+        """Test if token is not refreshed if it is not expired."""
         self.mock_successful_refresh_response()
         access_token = "not_refreshed"
         strava_auth = self.create_strava_auth(
@@ -144,6 +164,7 @@ class StravaAuthenticationTest(TestCase):
 
     @responses.activate
     def test_refresh_token_if_expired(self):
+        """Test if token is refreshed if it is expired."""
         self.mock_successful_refresh_response()
         access_token = "not_refreshed"
         strava_auth = self.create_strava_auth(
@@ -153,3 +174,20 @@ class StravaAuthenticationTest(TestCase):
         strava_authentication.refresh_token_if_expired(strava_auth)
 
         self.assertEqual(strava_auth.access_token, self.refreshed_access_token)
+
+    @responses.activate
+    def test_rejected_refresh_token_request(self):
+        """Request a token refresh via Strava API and make sure a failed
+        refresh is handled correctly."""
+        with self.assertLogs(level="ERROR") as log:
+            self.mock_rejected_refresh_response()
+            strava_auth = self.create_strava_auth()
+            strava_authentication.refresh_token(strava_auth)
+
+            any_token_failed_msg = any(
+                "Token request failed" in message for message in log.output
+            )
+            self.assertTrue(
+                any_token_failed_msg,
+                "The token failed message wasn't found in the log messages",
+            )
