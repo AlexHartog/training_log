@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import responses
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.utils import timezone
 from strava_import import strava_authentication
 from strava_import.models import StravaAuth
@@ -14,6 +14,7 @@ class StravaAuthenticationTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="testuser")
+        self.factory = RequestFactory()
 
         # Data for token refreshes
         self.refreshed_expires_in = 20566
@@ -83,6 +84,14 @@ class StravaAuthenticationTest(TestCase):
         refresh_url = strava_authentication.ACCESS_TOKEN_URL
 
         responses.add(responses.POST, refresh_url, json=mock_response, status=400)
+
+    def assert_line_in_logs(self, line, log):
+        """Assert that a line was found in the log."""
+        line_found = any(line in message for message in log.output)
+        self.assertTrue(
+            line_found,
+            f'Line "{line}" wasn\'t found in the log messages',
+        )
 
     def test_strava_user_not_authenticated(self):
         """We should get NOT_AUTHENTICATED when user has no Strava Auth."""
@@ -184,10 +193,35 @@ class StravaAuthenticationTest(TestCase):
             strava_auth = self.create_strava_auth()
             strava_authentication.refresh_token(strava_auth)
 
-            any_token_failed_msg = any(
-                "Token request failed" in message for message in log.output
-            )
-            self.assertTrue(
-                any_token_failed_msg,
-                "The token failed message wasn't found in the log messages",
-            )
+            self.assert_line_in_logs("Token request failed", log)
+
+    def test_save_authentication(self):
+        """Create a request with a valid strava authentication and test if it saves."""
+        code = "test_code"
+        scope = "read,activity:read"
+        auto_import = True
+
+        request = self.factory.get("/save_auth/", {"code": code, "scope": scope})
+        request.user = self.user
+
+        strava_authentication.save_auth(request)
+
+        strava_auth = StravaAuth.objects.get(user=self.user)
+
+        self.assertEqual(strava_auth.code, code)
+        self.assertEqual(strava_auth.scope, scope.split(","))
+        self.assertEqual(strava_auth.auto_import, auto_import)
+
+    def test_invalid_save_authentication(self):
+        """Create a strava authentication request without a code and
+        make sure it catches it correctly."""
+        with self.assertLogs(level="ERROR") as log:
+            request = self.factory.get("/save_auth/", {})
+            request.user = self.user
+
+            strava_authentication.save_auth(request)
+
+            with self.assertRaises(StravaAuth.DoesNotExist):
+                StravaAuth.objects.get(user=self.user)
+
+            self.assert_line_in_logs("No code in request", log)
