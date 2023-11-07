@@ -16,12 +16,13 @@ class StravaAuthenticationTest(TestCase):
         self.user = User.objects.create(username="testuser")
 
         # Data for token refreshes
-        self.expires_in = 20566
-        self.expires_at = timezone.make_aware(
-            datetime.now().replace(microsecond=0) + timedelta(seconds=self.expires_in)
+        self.refreshed_expires_in = 20566
+        self.refreshed_expires_at = timezone.make_aware(
+            datetime.now().replace(microsecond=0)
+            + timedelta(seconds=self.refreshed_expires_in)
         )
-        self.access_token = "a9b723"
-        self.refresh_token = "b5c569"
+        self.refreshed_access_token = "a9b723"
+        self.refreshed_refresh_token = "b5c569"
 
     def create_strava_auth(
         self,
@@ -54,10 +55,10 @@ class StravaAuthenticationTest(TestCase):
     def mock_successful_refresh_response(self):
         mock_response = {
             "token_type": "Bearer",
-            "access_token": self.access_token,
-            "expires_at": int(self.expires_at.timestamp()),
-            "expires_in": self.expires_in,
-            "refresh_token": self.refresh_token,
+            "access_token": self.refreshed_access_token,
+            "expires_at": int(self.refreshed_expires_at.timestamp()),
+            "expires_in": self.refreshed_expires_in,
+            "refresh_token": self.refreshed_refresh_token,
         }
 
         refresh_url = strava_authentication.ACCESS_TOKEN_URL
@@ -127,4 +128,28 @@ class StravaAuthenticationTest(TestCase):
 
         self.assertEqual(strava_auth.access_token, "a9b723")
         self.assertEqual(strava_auth.refresh_token, "b5c569")
-        self.assertEqual(strava_auth.access_token_expires_at, self.expires_at)
+        self.assertEqual(strava_auth.access_token_expires_at, self.refreshed_expires_at)
+
+    @responses.activate
+    def test_refresh_token_if_not_expired(self):
+        self.mock_successful_refresh_response()
+        access_token = "not_refreshed"
+        strava_auth = self.create_strava_auth(
+            access_token_expires_at=self.not_expired_datetime, access_token=access_token
+        )
+
+        strava_authentication.refresh_token_if_expired(strava_auth)
+
+        self.assertEqual(strava_auth.access_token, access_token)
+
+    @responses.activate
+    def test_refresh_token_if_expired(self):
+        self.mock_successful_refresh_response()
+        access_token = "not_refreshed"
+        strava_auth = self.create_strava_auth(
+            access_token_expires_at=self.expired_datetime, access_token=access_token
+        )
+
+        strava_authentication.refresh_token_if_expired(strava_auth)
+
+        self.assertEqual(strava_auth.access_token, self.refreshed_access_token)
