@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import responses
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
@@ -13,6 +14,14 @@ class StravaAuthenticationTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username="testuser")
+
+        # Data for token refreshes
+        self.expires_in = 20566
+        self.expires_at = timezone.make_aware(
+            datetime.now().replace(microsecond=0) + timedelta(seconds=self.expires_in)
+        )
+        self.access_token = "a9b723"
+        self.refresh_token = "b5c569"
 
     def create_strava_auth(
         self,
@@ -41,6 +50,19 @@ class StravaAuthenticationTest(TestCase):
             refresh_token=refresh_token,
             auto_import=False,
         )
+
+    def mock_successful_refresh_response(self):
+        mock_response = {
+            "token_type": "Bearer",
+            "access_token": self.access_token,
+            "expires_at": int(self.expires_at.timestamp()),
+            "expires_in": self.expires_in,
+            "refresh_token": self.refresh_token,
+        }
+
+        refresh_url = strava_authentication.ACCESS_TOKEN_URL
+
+        responses.add(responses.POST, refresh_url, json=mock_response, status=200)
 
     def test_strava_user_not_authenticated(self):
         """We should get NOT_AUTHENTICATED when user has no Strava Auth."""
@@ -77,3 +99,32 @@ class StravaAuthenticationTest(TestCase):
         self.create_strava_auth(access_token_expires_at=self.expired_datetime)
         result = strava_authentication.get_authentication_status(self.user)
         self.assertEqual(result, strava_authentication.AuthenticationStatus.EXPIRED)
+
+    def test_strava_needs_authorization_no_strava_auth(self):
+        """We need authorization when user does not have a strava auth."""
+        result = strava_authentication.needs_authorization(self.user)
+        self.assertTrue(result)
+
+    def test_strava_needs_authorization_no_access_token(self):
+        """We need authorization when user does not have an access token."""
+        self.create_strava_auth(access_token="")
+        result = strava_authentication.needs_authorization(self.user)
+        self.assertTrue(result)
+
+    def test_strava_does_not_need_authorization(self):
+        """We do not need authorization when user has an access token."""
+        self.create_strava_auth(access_token="testtoken")
+        result = strava_authentication.needs_authorization(self.user)
+        self.assertFalse(result)
+
+    @responses.activate
+    def test_token_refresh(self):
+        """Request a token refresh via Strava API and test if user auth is updated."""
+        self.mock_successful_refresh_response()
+        strava_auth = self.create_strava_auth()
+
+        strava_authentication.refresh_token(strava_auth)
+
+        self.assertEqual(strava_auth.access_token, "a9b723")
+        self.assertEqual(strava_auth.refresh_token, "b5c569")
+        self.assertEqual(strava_auth.access_token_expires_at, self.expires_at)
