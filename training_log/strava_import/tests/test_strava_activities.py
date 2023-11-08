@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime, timedelta
 
 import responses
 from django.conf import settings
@@ -13,6 +14,9 @@ from training.models import Discipline, TrainingSession
 
 
 class StravaAuthenticationTest(TestCase):
+    expired_datetime = datetime.now() - timedelta(hours=1)
+    not_expired_datetime = datetime.now() + timedelta(hours=1)
+
     def setUp(self):
         """Set up environment variables and other data."""
         os.environ["STRAVA_CLIENT_ID"] = "testclient"
