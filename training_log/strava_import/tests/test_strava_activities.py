@@ -8,9 +8,9 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
 from strava_import import strava
-from strava_import.models import StravaAuth, StravaTypeMapping
+from strava_import.models import StravaAuth, StravaTypeMapping, StravaUser
 from strava_import.strava_authentication import NoAuthorizationException
-from training.models import Discipline, TrainingSession
+from training.models import Discipline, SessionZones, TrainingSession
 
 
 class StravaAuthenticationTest(TestCase):
@@ -24,6 +24,8 @@ class StravaAuthenticationTest(TestCase):
 
         self.user = User.objects.create(username="testuser")
         self.results_per_page = 10
+        self.strava_athlete_id = 17716848
+        self.activity_ids = [10169464102, 10158708225, 10158408247]
 
         self.json_location = os.path.join(
             settings.BASE_DIR,
@@ -34,6 +36,7 @@ class StravaAuthenticationTest(TestCase):
 
         self.create_disciplines()
         self.activities_sample = self.read_json_file("activities.json")
+        self.zones_sample = self.read_json_file("zones.json")
 
     def create_strava_auth(
         self,
@@ -117,9 +120,17 @@ class StravaAuthenticationTest(TestCase):
         """Create a mock response for a successful activities request."""
         mock_response = self.activities_sample
 
-        get_activities_url = strava.get_activities_url(10)
+        get_activities_url = strava.get_activities_url(self.results_per_page)
 
         responses.add(responses.GET, get_activities_url, json=mock_response, status=200)
+
+    def mock_get_zones_response(self):
+        """Create a mock response for a successful zones request."""
+        mock_response = self.zones_sample
+
+        for activity_id in self.activity_ids:
+            get_zones_url = strava.get_activity_zones_url(activity_id)
+            responses.add(responses.GET, get_zones_url, json=mock_response, status=200)
 
     def assert_line_in_logs(self, line, log):
         """Assert that a line was found in the log."""
@@ -178,3 +189,31 @@ class StravaAuthenticationTest(TestCase):
         training_sessions = TrainingSession.objects.all()
 
         self.assertEqual(training_sessions.count(), len(self.activities_sample))
+
+    @responses.activate
+    def test_import_zones(self):
+        """Test if zones are properly imported for premium users."""
+        self.mock_get_activities_response()
+        self.mock_get_zones_response()
+        self.create_strava_auth()
+        StravaUser.objects.create(
+            user=self.user, strava_id=self.strava_athlete_id, premium=True
+        )
+
+        strava.get_activities(self.user, self.results_per_page)
+
+        training_session = TrainingSession.objects.get(
+            user=self.user,
+            strava_id=self.activity_ids[0],
+        )
+        zones = SessionZones.objects.get(session=training_session)
+        self.assertIsNotNone(zones)
+
+    @responses.activate
+    def test_zone_import_non_premium(self):
+        """Test if zones are not imported for non-premium users."""
+        StravaUser.objects.create(user=self.user, strava_id=self.strava_athlete_id)
+
+        with self.assertLogs(level="INFO") as log:
+            strava.import_session_zones(self.activity_ids[0], self.user)
+            self.assert_line_in_logs("does not have premium", log)
