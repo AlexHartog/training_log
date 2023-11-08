@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 
 import responses
@@ -13,6 +14,9 @@ class StravaAuthenticationTest(TestCase):
     not_expired_datetime = datetime.now() + timedelta(hours=1)
 
     def setUp(self):
+        os.environ["STRAVA_CLIENT_ID"] = "testclient"
+        os.environ["STRAVA_CLIENT_SECRET"] = "testsecret"
+
         self.user = User.objects.create(username="testuser")
         self.factory = RequestFactory()
 
@@ -225,3 +229,21 @@ class StravaAuthenticationTest(TestCase):
                 StravaAuth.objects.get(user=self.user)
 
             self.assert_line_in_logs("No code in request", log)
+
+    def test_get_token_payload_initial(self):
+        """Check if the correct payload is created for a token request."""
+        strava_auth = self.create_strava_auth()
+        token_payload = strava_authentication._get_token_payload(strava_auth)
+
+        self.assertEqual(token_payload["code"], strava_auth.code)
+        self.assertEqual(token_payload["grant_type"], "authorization_code")
+
+    def test_get_token_payload_refresh(self):
+        """Check if the correct payload is created for a token refresh."""
+        strava_auth = self.create_strava_auth()
+        token_payload = strava_authentication._get_token_payload(
+            strava_auth, refresh=True
+        )
+
+        self.assertEqual(token_payload["refresh_token"], strava_auth.refresh_token)
+        self.assertEqual(token_payload["grant_type"], "refresh_token")
