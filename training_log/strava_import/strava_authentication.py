@@ -75,8 +75,9 @@ def needs_authorization(user: User):
 def get_authentication(user: User):
     """Returns the strava authentication for a user if it exists and is valid.
     If token is expired, it will try to refresh it."""
-    strava_auth = StravaAuth.objects.get(user=user)
-    if not strava_auth:
+    try:
+        strava_auth = StravaAuth.objects.get(user=user)
+    except StravaAuth.DoesNotExist:
         return None
 
     if strava_auth.has_valid_access_token():
