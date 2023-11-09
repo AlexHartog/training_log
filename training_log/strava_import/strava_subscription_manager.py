@@ -192,7 +192,7 @@ def check_subscription():
             f"Current is {current_subscription.callback_url}, "
             f"but strava has {strava_subscription.callback_url}."
         )
-        current_subscription.save()
+        change_subscription(enabled=False)
 
 
 def view_subscription():
