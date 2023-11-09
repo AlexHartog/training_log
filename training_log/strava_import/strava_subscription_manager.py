@@ -6,7 +6,7 @@ import string
 import requests
 
 from . import strava
-from .models import StravaSubscription, StravaUser
+from .models import StravaEvent, StravaSubscription, StravaUser
 from .schemas import (ObjectTypeEnum, StravaEventData, SubscriptionCreation,
                       SubscriptionView)
 
@@ -88,9 +88,9 @@ def start_subscription(request):
         logger.warning("We already have an active subscription")
         return
 
-    if (subscription_id := view_subscription()) is not None:
+    if (current_subscription := view_subscription()) is not None:
         logger.info("We have an unknown subscription outstanding. Deleting this one")
-        if delete_subscription(subscription_id):
+        if delete_subscription(current_subscription.strava_id):
             logger.info("Successfully deleted subscription")
         else:
             logger.error("Failed to delete subscription")
@@ -141,15 +141,15 @@ def change_subscription(
 ):
     """Update the current subscription."""
     strava_subscription = get_current_subscription()
-    if state:
+    if state is not None:
         strava_subscription.state = state
-    if enabled:
+    if enabled is not None:
         strava_subscription.enabled = enabled
-    if callback_url:
+    if callback_url is not None:
         strava_subscription.callback_url = callback_url
-    if verify_token:
+    if verify_token is not None:
         strava_subscription.verify_token = verify_token
-    if strava_id:
+    if strava_id is not None:
         strava_subscription.strava_id = strava_id
     strava_subscription.save()
 
@@ -167,9 +167,32 @@ def get_current_subscription():
     return strava_subscription
 
 
-def get_current_subscription_enabled():
-    """Return if the current subscription is enabled."""
+def get_current_subscription_enabled(check=False):
+    """Return if the current subscription is enabled. Optionally check with strava
+    if this is the active subscription."""
+    if check:
+        check_subscription()
     return get_current_subscription().enabled
+
+
+def check_subscription():
+    """Check if subscription at strava is still valid."""
+    current_subscription = get_current_subscription()
+
+    strava_subscription = view_subscription()
+
+    if strava_subscription is None:
+        change_subscription(enabled=False)
+    elif strava_subscription.strava_id != current_subscription.strava_id:
+        logger.warning("Subscription at strava does not match.")
+        change_subscription(enabled=False)
+    elif strava_subscription.callback_url != current_subscription.callback_url:
+        logger.error(
+            f"Callback url does not match. "
+            f"Current is {current_subscription.callback_url}, "
+            f"but strava has {strava_subscription.callback_url}."
+        )
+        change_subscription(enabled=False)
 
 
 def view_subscription():
@@ -177,7 +200,7 @@ def view_subscription():
     response = requests.get(get_subscription_view_url())
 
     if response.status_code != 200:
-        return None
+        return
 
     response_json = response.json()
 
@@ -192,23 +215,26 @@ def view_subscription():
         logger.info("No subscriptions found.")
         return
 
-    subscription_view = SubscriptionView.model_validate(response_json[0])
-    return subscription_view.strava_id
+    return SubscriptionView.model_validate(response_json[0])
 
 
 def delete_subscription(subscription_id: int):
     """Delete a strava subscription."""
 
-    active_subscription_id = view_subscription()
+    active_subscription = view_subscription()
 
-    if active_subscription_id != subscription_id:
+    if active_subscription is None:
+        logger.warning("No active subscription. Not deleting.")
+        change_subscription(
+            enabled=False, state=StravaSubscription.SubscriptionState.INVALID
+        )
+        return
+
+    if active_subscription.strava_id != subscription_id:
         logger.warning("Our subscription is not the active one. Not deleting.")
-        subscription = StravaSubscription.objects.filter(
-            strava_id=subscription_id
-        ).first()
-        subscription.enabled = False
-        subscription.state = StravaSubscription.SubscriptionState.INVALID
-        subscription.save()
+        change_subscription(
+            enabled=False, state=StravaSubscription.SubscriptionState.INVALID
+        )
         return
 
     payload = get_subscription_delete_payload()
@@ -227,6 +253,7 @@ def delete_subscription(subscription_id: int):
 
 
 def stop_subscription():
+    """Stop subscription if still active."""
     current_subscription = get_current_subscription()
 
     if current_subscription.strava_id:
@@ -239,19 +266,27 @@ def stop_subscription():
 def handle_event_data(strava_event_data):
     """Handle an event by parsing the data and processing it
     if it is an event type that we handle."""
-    event_data = StravaEventData.model_validate(strava_event_data)
+    strava_event_data = StravaEventData.model_validate(strava_event_data)
+    event_date = StravaEvent(**strava_event_data.model_dump())
+    event_date.save()
 
-    if event_data.object_type == ObjectTypeEnum.ACTIVITY:
-        strava_user = StravaUser.objects.filter(strava_id=event_data.owner_id).first()
+    if strava_event_data.object_type == ObjectTypeEnum.ACTIVITY:
+        strava_user = StravaUser.objects.filter(
+            strava_id=strava_event_data.owner_id
+        ).first()
 
         if strava_user is None:
-            logger.warning(f"Could not find strava user for id {event_data.object_id}")
+            logger.warning(
+                f"Could not find strava user for id {strava_event_data.object_id}"
+            )
             return
 
-        strava.request_and_import_activity(event_data.object_id, strava_user.user)
+        strava.request_and_import_activity(
+            strava_event_data.object_id, strava_user.user
+        )
     else:
         logger.info(
-            f'Received event of type "{event_data.object_type.value}" and '
-            f'aspect "{event_data.aspect_type.value}". '
+            f'Received event of type "{strava_event_data.object_type.value}" and '
+            f'aspect "{strava_event_data.aspect_type.value}". '
             f"Not handling at the moment."
         )

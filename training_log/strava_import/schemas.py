@@ -5,7 +5,7 @@ from typing import List
 
 import pytz
 from django.utils import timezone
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, field_validator
 from training.models import SessionZones
 
 
@@ -114,19 +114,17 @@ class StravaZone(BaseModel):
 class StravaSessionZones(BaseModel):
     """Class to parse the zones for a training session."""
 
-    # session = models.ForeignKey(TrainingSession, on_delete=models.CASCADE)
     resource_state: int | None = Field(default=None)
     points: float | None = Field(default=None)
     sensor_based: bool | None = Field(default=None)
-    zone_type_string: str = Field(exclude=True, alias="type")
+    zone_type: str = Field(..., alias="type")
     score: int | None = Field(default=None)
     custom_zones: bool | None = Field(default=None)
     zones: List[StravaZone] = Field(exclude=True, alias="distribution_buckets")
 
-    @computed_field()
-    @property
-    def zone_type(self) -> str:
-        match self.zone_type_string:
+    @field_validator("zone_type", mode="before")
+    def parse_zone_type(cls, value):
+        match value:
             case "heartrate":
                 return SessionZones.ZoneType.HEART_RATE.value
             case "pace":
@@ -147,21 +145,24 @@ class ObjectTypeEnum(str, Enum):
 
 
 class StravaEventData(BaseModel):
-    object_type_str: str = Field(..., alias="object_type")
+    object_type: ObjectTypeEnum
     object_id: int
-    aspect_type_str: str = Field(..., alias="aspect_type")
+    aspect_type: AspectTypeEnum
     updates: dict
     owner_id: int
     subscription_id: int
     event_time: int
 
-    @property
-    def aspect_type(self) -> AspectTypeEnum:
-        return AspectTypeEnum(self.aspect_type_str)
+    @field_validator("aspect_type", mode="before")
+    def parse_aspect_type(cls, value):
+        return AspectTypeEnum(value)
 
-    @property
-    def object_type(self) -> ObjectTypeEnum:
-        return ObjectTypeEnum(self.object_type_str)
+    @field_validator("object_type", mode="before")
+    def parse_object_type(cls, value):
+        return ObjectTypeEnum(value)
+
+    class Config:
+        use_enum_values = True
 
 
 class SubscriptionView(BaseModel):

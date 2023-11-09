@@ -227,3 +227,18 @@ class StravaUser(models.Model):
     def __str__(self):
         """Return a string representation of the model."""
         return f"{self.strava_id} - {self.user.username.capitalize()}"
+
+
+class StravaEvent(models.Model):
+    object_type = models.CharField()
+    object_id = models.BigIntegerField()
+    aspect_type = models.CharField()
+    event_time = models.IntegerField()
+    owner_id = models.IntegerField()
+    subscription_id = models.IntegerField()
+    updates = models.JSONField()
+    inserted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Return a string representation of the model."""
+        return f"Event {self.aspect_type} for {self.object_type} at {self.inserted_at}"
