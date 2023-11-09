@@ -9,6 +9,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from training.models import TrainingSession
 
 from . import (strava, strava_authentication, strava_start_time_sync,
@@ -127,6 +128,7 @@ def subscribe_strava(request, subscribe: int):
     return redirect("strava-admin")
 
 
+@csrf_exempt
 def activity_feed(request):
     """Handle activity feed. This can either be POST for validating the request or
     GET for a data event."""
@@ -156,6 +158,7 @@ def activity_feed(request):
 
         try:
             data = json.loads(request.body)
+            logger.info(f"Data: {data}")
             strava_subscription_manager.handle_event_data(data)
         except json.JSONDecodeError:
             logger.error("Data is not valid JSON")

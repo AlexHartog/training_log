@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
+from strava_import.models import StravaEvent
 from strava_import.schemas import (AspectTypeEnum, ObjectTypeEnum,
                                    StravaEventData, StravaSession,
                                    StravaSessionZones)
@@ -169,3 +170,26 @@ class StravaEventDataTest(StravaJSONReaderTest):
             subscription_id=247939,
         )
         self.assertEqual(event_data, expected)
+
+    def test_convert_event_data_update_to_model(self):
+        """Read event data, convert to StravaEvent and check if data is correct."""
+        json_data = self.read_json_file("event_data_update.json")
+        event_data_schema = StravaEventData.model_validate(json_data)
+        event_data_model = StravaEvent(**event_data_schema.model_dump())
+
+        expected = StravaEvent.objects.create(
+            object_type=ObjectTypeEnum.ACTIVITY.value,
+            object_id=9834770609,
+            aspect_type=AspectTypeEnum.UPDATE.value,
+            event_time=1694607943,
+            updates={"title": "New Title"},
+            owner_id=17716848,
+            subscription_id=247939,
+            inserted_at=event_data_model.inserted_at,
+        )
+
+        for key, value in expected.__dict__.items():
+            if key not in ["_state", "inserted_at", "id"]:
+                self.assertEqual(
+                    value, getattr(event_data_model, key), f"Field {key} is not equal"
+                )

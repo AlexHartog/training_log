@@ -6,7 +6,7 @@ import string
 import requests
 
 from . import strava
-from .models import StravaSubscription, StravaUser
+from .models import StravaEvent, StravaSubscription, StravaUser
 from .schemas import (ObjectTypeEnum, StravaEventData, SubscriptionCreation,
                       SubscriptionView)
 
@@ -253,6 +253,7 @@ def delete_subscription(subscription_id: int):
 
 
 def stop_subscription():
+    """Stop subscription if still active."""
     current_subscription = get_current_subscription()
 
     if current_subscription.strava_id:
@@ -265,19 +266,27 @@ def stop_subscription():
 def handle_event_data(strava_event_data):
     """Handle an event by parsing the data and processing it
     if it is an event type that we handle."""
-    event_data = StravaEventData.model_validate(strava_event_data)
+    strava_event_data = StravaEventData.model_validate(strava_event_data)
+    event_date = StravaEvent(**strava_event_data.model_dump())
+    event_date.save()
 
-    if event_data.object_type == ObjectTypeEnum.ACTIVITY:
-        strava_user = StravaUser.objects.filter(strava_id=event_data.owner_id).first()
+    if strava_event_data.object_type == ObjectTypeEnum.ACTIVITY:
+        strava_user = StravaUser.objects.filter(
+            strava_id=strava_event_data.owner_id
+        ).first()
 
         if strava_user is None:
-            logger.warning(f"Could not find strava user for id {event_data.object_id}")
+            logger.warning(
+                f"Could not find strava user for id {strava_event_data.object_id}"
+            )
             return
 
-        strava.request_and_import_activity(event_data.object_id, strava_user.user)
+        strava.request_and_import_activity(
+            strava_event_data.object_id, strava_user.user
+        )
     else:
         logger.info(
-            f'Received event of type "{event_data.object_type.value}" and '
-            f'aspect "{event_data.aspect_type.value}". '
+            f'Received event of type "{strava_event_data.object_type.value}" and '
+            f'aspect "{strava_event_data.aspect_type.value}". '
             f"Not handling at the moment."
         )

@@ -161,6 +161,9 @@ class StravaEventData(BaseModel):
     def parse_object_type(cls, value):
         return ObjectTypeEnum(value)
 
+    class Config:
+        use_enum_values = True
+
 
 class SubscriptionView(BaseModel):
     strava_id: int = Field(..., alias="id")
