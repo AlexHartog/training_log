@@ -179,7 +179,7 @@ def strava_admin(request):
         users.append(new_user)
 
     current_subscription_enabled = (
-        strava_subscription_manager.get_current_subscription_enabled()
+        strava_subscription_manager.get_current_subscription_enabled(check=True)
     )
 
     context = {
