@@ -5,8 +5,9 @@ from django.db import models
 from django.forms import widgets
 from django_admin_listfilter_dropdown.filters import DropdownFilter
 
-from .models import (StravaActivityImport, StravaAuth, StravaRateLimit,
-                     StravaSubscription, StravaTypeMapping, StravaUser)
+from .models import (StravaActivityImport, StravaAuth, StravaEvent,
+                     StravaRateLimit, StravaSubscription, StravaTypeMapping,
+                     StravaUser)
 
 
 class PrettyJSONWidget(widgets.Textarea):
@@ -39,3 +40,4 @@ admin.site.register(StravaActivityImport, StravaActivityImportAdmin)
 admin.site.register(StravaRateLimit)
 admin.site.register(StravaUser, StravaUserAdmin)
 admin.site.register(StravaSubscription)
+admin.site.register(StravaEvent)
