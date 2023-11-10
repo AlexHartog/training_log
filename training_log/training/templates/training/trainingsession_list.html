@@ -5,6 +5,10 @@
 {% block content %}
 <h1>{{ strava_user.name }}</h1>
 
+{% if is_ironman %}
+  <h1 class="ironman-status">IS AN IRONMAN!</h1>
+{% endif %}
+
 {% if strava_user %}
   <table class="user">
     <tr><td colspan="2" style="text-align: center;"><img src="{{ strava_user.profile }}" height="150" width="150"></td></tr>
