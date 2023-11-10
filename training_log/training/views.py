@@ -103,6 +103,8 @@ def new_session(request):
                 pass
             if session.moving_duration:
                 session.moving_duration *= 60
+            if session.distance:
+                session.distance *= 1000
             session.save()
             return HttpResponseRedirect("?submitted=True")
     else:
