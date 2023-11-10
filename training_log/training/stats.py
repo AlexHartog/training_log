@@ -416,6 +416,10 @@ class AllPlayerStats:
 def is_ironman(user: User) -> bool:
     """Check if the user is an ironman based on discipline distances per day."""
     training_per_day = get_discipline_distances_per_day(user)
+
+    if training_per_day is None:
+        return False
+
     ironman_days = training_per_day.loc[
         (
             training_per_day["swimming_distance"]
@@ -436,6 +440,9 @@ def is_ironman(user: User) -> bool:
 def get_discipline_distances_per_day(user: User):
     """Get the distances per day per discipline for a user."""
     training_sessions = TrainingSession.objects.filter(user=user).all()
+    if len(training_sessions) == 0:
+        return None
+
     training_sessions_df = pd.DataFrame.from_records(
         training_sessions.values(
             user_name=F("user__username"), discipline_name=F("discipline__name")
