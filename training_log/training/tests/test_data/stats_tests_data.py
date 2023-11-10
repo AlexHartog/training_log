@@ -354,3 +354,71 @@ class StatsTestData:
             total_duration=21000,
             distance=5000,
         )
+
+    def load_is_ironman_data(self):
+        TrainingSession.objects.all().delete()
+
+        test_date = self.date
+        days_back = 2
+        self.create_session(
+            discipline="Swimming",
+            date=test_date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            distance=3_700,
+        )
+        self.create_session(
+            discipline="Cycling",
+            date=test_date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            distance=178_000,
+        )
+        self.create_session(
+            discipline="Running",
+            date=test_date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            distance=42_000,
+        )
+
+    def load_is_not_ironman_data(self):
+        TrainingSession.objects.all().delete()
+
+        test_date = self.date
+        days_back = 2
+        self.create_session(
+            discipline="Swimming",
+            date=test_date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            distance=2_700,
+        )
+        self.create_session(
+            discipline="Cycling",
+            date=test_date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            distance=178_000,
+        )
+        self.create_session(
+            discipline="Running",
+            date=test_date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            distance=42_000,
+        )
+
+        days_back = 3
+        self.create_session(
+            discipline="Swimming",
+            date=test_date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            distance=3_700,
+        )
+        self.create_session(
+            discipline="Cycling",
+            date=test_date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            distance=138_000,
+        )
+        self.create_session(
+            discipline="Running",
+            date=test_date - timedelta(days=days_back),
+            start_date=self.start_date - timedelta(days=days_back),
+            distance=42_000,
+        )
