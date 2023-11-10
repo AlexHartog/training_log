@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from enum import Enum
 
@@ -10,10 +11,20 @@ from scipy import constants
 
 from .models import TrainingSession
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_START_DATE = datetime(2023, 5, 1)
 LONG_SWIM_DURATION = 1 * constants.hour
 LONG_RIDE_DURATION = 3 * constants.hour
 LONG_RUN_DURATION = 1.5 * constants.hour
+
+IRONMAN_SWIMMING_DISTANCE = 3_800
+IRONMAN_CYCLING_DISTANCE = 180_000
+IRONMAN_RUNNING_DISTANCE = 42_195
+
+IRONMAN_SWIMMING_MARGIN = 0.1
+IRONMAN_CYCLING_MARGIN = 0.05
+IRONMAN_RUNNING_MARGIN = 0.05
 
 
 class StatsPeriod(Enum):
@@ -400,3 +411,49 @@ class AllPlayerStats:
                 + " mins)",
                 self.count_sessions(user, "Running", LONG_RUN_DURATION),
             )
+
+
+def is_ironman(user: User) -> bool:
+    """Check if the user is an ironman based on discipline distances per day."""
+    training_per_day = get_discipline_distances_per_day(user)
+    ironman_days = training_per_day.loc[
+        (
+            training_per_day["swimming_distance"]
+            >= IRONMAN_SWIMMING_DISTANCE * (1 - IRONMAN_SWIMMING_MARGIN)
+        )
+        & (
+            training_per_day["cycling_distance"]
+            >= IRONMAN_CYCLING_DISTANCE * (1 - IRONMAN_CYCLING_MARGIN)
+        )
+        & (
+            training_per_day["running_distance"]
+            >= IRONMAN_RUNNING_DISTANCE * (1 - IRONMAN_RUNNING_MARGIN)
+        )
+    ]
+    return not ironman_days.empty
+
+
+def get_discipline_distances_per_day(user: User):
+    """Get the distances per day per discipline for a user."""
+    training_sessions = TrainingSession.objects.filter(user=user).all()
+    training_sessions_df = pd.DataFrame.from_records(
+        training_sessions.values(
+            user_name=F("user__username"), discipline_name=F("discipline__name")
+        ).values()
+    )
+    get_discipline_distance(training_sessions_df, "Swimming", "swimming_distance")
+    get_discipline_distance(training_sessions_df, "Cycling", "cycling_distance")
+    get_discipline_distance(training_sessions_df, "Running", "running_distance")
+
+    training_sessions_df = training_sessions_df[
+        ["date", "running_distance", "swimming_distance", "cycling_distance"]
+    ]
+
+    return training_sessions_df.groupby("date").sum()
+
+
+def get_discipline_distance(training_sessions, discipline_name, field_name):
+    """Assign the distance for a discipline to a new column."""
+    training_sessions.loc[
+        training_sessions["discipline_name"] == discipline_name, field_name
+    ] = training_sessions["distance"]
