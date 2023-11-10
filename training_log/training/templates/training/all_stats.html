@@ -25,8 +25,18 @@
       <th><a class="header-link" href="{% url 'session-list' player %}">{{ player }}</a></th>
     {% endfor %}
   </tr>
+  <tr class="stats">
+      <td><strong>Status</strong></td>
+      {% for is_ironman in is_ironman_status %}
+        {% if is_ironman %}
+            <td class="ironman-column">IRONMAN</td>
+        {% else %}
+            <td>Training</td>
+        {% endif %}
+      {% endfor %}
+  </tr>
   {% for stat_name, stats_list in stats.items %}
-  <tr class="stats {% cycle '' 'altrow' %}">
+  <tr class="stats {% cycle 'altrow' '' %}">
     <td><strong>{{ stat_name }}</strong></td>
     {% for stat in stats_list %}
       <td>{{ stat }}</td>

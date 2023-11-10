@@ -131,11 +131,13 @@ def all_stats(request, period):
         return redirect("all-stats", period="all")
 
     player_stats = stats.AllPlayerStats(period_enum)
+    is_ironman_status = [stats.is_ironman(user) for user in player_stats.users]
     context = {
         "players": player_stats.players,
         "stats": player_stats.stats,
         "period": str(period_enum),
         "period_options": stats.StatsPeriod.options(),
+        "is_ironman_status": is_ironman_status,
     }
 
     return render(request, "training/all_stats.html", context=context)

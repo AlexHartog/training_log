@@ -346,14 +346,22 @@ input.discipline-select {
 }
 
 h1.ironman-status {
-    font-size: 48px; /* Increase font size */
-    color: red; /* Change text color to red */
-    text-align: center; /* Center-align the text */
-    text-transform: uppercase; /* Convert text to uppercase */
-    font-weight: bold; /* Make text bold */
-    background-color: gold; /* Add a gold background color */
-    padding: 20px; /* Add some padding around the text */
-    border: 2px solid black; /* Add a black border */
-    border-radius: 10px; /* Add rounded corners */
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3); /* Add a shadow effect */
+    font-size: 48px;
+    color: red;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    background-color: gold;
+    padding: 20px;
+    border: 2px solid black;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+td.ironman-column {
+  background-color: gold;
+  color: red;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px;
 }
