@@ -180,8 +180,6 @@ class StravaSubscription(models.Model):
     strava_id = models.BigIntegerField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # TODO: How to check if still active?
-
 
 class StravaUser(models.Model):
     """A model for saving strava user data."""

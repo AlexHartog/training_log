@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 
 import mock
 from django.test import TestCase
-from training.stats import DEFAULT_START_DATE, AllPlayerStats, StatsPeriod
+from training.stats import (DEFAULT_START_DATE, AllPlayerStats, StatsPeriod,
+                            is_ironman)
 from training.tests.test_data.stats_tests_data import StatsTestData
 
 
@@ -17,7 +18,7 @@ class TrainingStatsTest(TestCase):
         self.update_all_player_stats()
 
     def update_all_player_stats(self, period=StatsPeriod.ALL):
-        with mock.patch('training.stats.datetime') as mock_datetime:
+        with mock.patch("training.stats.datetime") as mock_datetime:
             mock_datetime.now.return_value = self.datetime_to_test
             self.all_player_stats = AllPlayerStats(period=period)
 
@@ -257,3 +258,15 @@ class TrainingStatsTest(TestCase):
             self.all_player_stats.stats["Number of brick workouts"][0],
             self.test_data.brick_count,
         )
+
+    def test_is_ironman(self):
+        """Test if is ironman returns true when the distances are enough."""
+        self.test_data.load_is_ironman_data()
+
+        self.assertTrue(is_ironman(self.test_data.get_user(self.test_data.test_user)))
+
+    def test_is_not_ironman(self):
+        """Test if is ironman returns false when the distances are not enough."""
+        self.test_data.load_is_not_ironman_data()
+
+        self.assertFalse(is_ironman(self.test_data.get_user(self.test_data.test_user)))

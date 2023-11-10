@@ -70,6 +70,8 @@ class SessionList(ListView):
         except StravaUser.DoesNotExist:
             logger.warning(f"Strava User does not exist for {user}")
 
+        context["is_ironman"] = stats.is_ironman(user)
+
         return context
 
 
@@ -101,6 +103,8 @@ def new_session(request):
                 pass
             if session.moving_duration:
                 session.moving_duration *= 60
+            if session.distance:
+                session.distance *= 1000
             session.save()
             return HttpResponseRedirect("?submitted=True")
     else:
@@ -127,11 +131,13 @@ def all_stats(request, period):
         return redirect("all-stats", period="all")
 
     player_stats = stats.AllPlayerStats(period_enum)
+    is_ironman_status = [stats.is_ironman(user) for user in player_stats.users]
     context = {
         "players": player_stats.players,
         "stats": player_stats.stats,
         "period": str(period_enum),
         "period_options": stats.StatsPeriod.options(),
+        "is_ironman_status": is_ironman_status,
     }
 
     return render(request, "training/all_stats.html", context=context)

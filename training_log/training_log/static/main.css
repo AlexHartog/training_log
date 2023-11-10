@@ -344,3 +344,24 @@ input.discipline-select {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
+
+h1.ironman-status {
+    font-size: 48px;
+    color: red;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    background-color: gold;
+    padding: 20px;
+    border: 2px solid black;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+td.ironman-column {
+  background-color: gold;
+  color: red;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px;
+}
