@@ -70,6 +70,8 @@ class SessionList(ListView):
         except StravaUser.DoesNotExist:
             logger.warning(f"Strava User does not exist for {user}")
 
+        context["is_ironman"] = stats.is_ironman(user)
+
         return context
 
 
